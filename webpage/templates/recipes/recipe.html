@@ -11,3 +11,11 @@
       {% endfor %}
     </ul>
   {% endif %}
+<footer>
+  {% if user.is_authenticated %}
+    <form action="{% url 'logout' %}" method="post" class="logout-button">
+      {% csrf_token %}
+      <button type="submit">Log Out</button>
+    </form>
+  {% endif %}
+</footer>

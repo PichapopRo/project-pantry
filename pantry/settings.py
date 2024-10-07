@@ -100,7 +100,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LOGIN_REDIRECT_URL = 'polls:recipe'
+LOGOUT_REDIRECT_URL = 'recipe'
+
+LOGIN_REDIRECT_URL = 'recipe'
 
 
 # Internationalization
