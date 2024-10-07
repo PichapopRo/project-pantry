@@ -1,10 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
 <body>
-
-</body>
-</html>
+<div class="wrapper">
+    <h2 class="login-heading">Login</h2>
+    {% if messages %}
+    {% for msg in messages %}
+    <p class="{{msg.tags}}">{{msg}}</p>
+    {% endfor %}
+    {% endif %}
+    <form method="POST" class="login-form">
+      {% csrf_token %}
+      <p>
+          <label for="{{ form.username.id }}"></label><input type="text" name="{{ form.username.name }}" id="{{ form.username.id }}" class="username-input" placeholder="Username">
+</p>
+<p>
+  <input type="password" name="{{ form.password.name }}" id="{{ form.username.id }}" class="password-input" placeholder="Password">
+</p>
+      <p>
+        <button type="submit" class="login-button">Login</button>
+      </p>
+      <input type="hidden" name="next" value="{{next}}"/>
+    </form>
+     <p class="signup-text">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
+</div>
+    </body>
+<footer>
+<button type="submit" class="back-to-list-poll-button">
+          <a href="{% url 'polls:index' %}">Back to list Polls</a>
+        </button>
+</footer>
