@@ -3,4 +3,4 @@ from django.shortcuts import render
 
 
 def recipes(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+    return render(request, 'recipes/recipe.html')
