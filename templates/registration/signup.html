@@ -1,0 +1,25 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'polls/register_style.css' %}">
+<body>
+<div class="wrapper">
+<h2>Register</h2>
+<form method="POST">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
+        <tr>
+            <td colspan="2">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <button type="submit" class="register-button">Register</button>
+                <button type="submit" class="back-to-list-poll-button">
+                    <a href="{% url 'recipe' %}">Back to Recipes</a>
+                </button>
+            </td>
+        </tr>
+    </table>
+</form>
+</div>
+</body>
