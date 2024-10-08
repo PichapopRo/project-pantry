@@ -53,10 +53,28 @@ class Command(BaseCommand):
                 self.style.ERROR(f'Failed to fetch recipe {recipe_id}'))
 
     def save_recipe(self, data):
-        # Save the recipe
-        recipe, created = Recipe.objects.get_or_create(
+        # Fetch or create a user (assuming you want to use the first user
+        # for all recipes)
+        try:
+            user, created = User.objects.get_or_create(username='Spoonacular')
+        except Exception as e:
+            self.stdout.write(
+                self.style.ERROR(f'Failed to create or retrieve user: {e}'))
+            return
+
+        # Check if the recipe already exists
+        existing_recipe = Recipe.objects.filter(
+            spoonacular_id=data['id']).first()
+        if existing_recipe:
+            self.stdout.write(
+                self.style.WARNING(f'Recipe {data["id"]} already exists.'))
+            return
+
+        # Create the Recipe object associated with the user
+        recipe = Recipe.objects.create(
             spoonacular_id=data['id'],
-            defaults={'name': data['title']}
+            name=data['title'],
+            poster_id=user  # Explicitly assign the user object
         )
 
         # Save the ingredients
@@ -66,8 +84,8 @@ class Command(BaseCommand):
                 defaults={'name': ingredient_data['name'],
                           'picture': ingredient_data['image']}
             )
-            ingredient.save()  # Save the ingredient regardless of creation
-            recipe.ingredients.add(ingredient)
+            if ingredient:
+                recipe.ingredients.add(ingredient)
 
         # Save the equipment (if available)
         for equipment_data in data.get('equipment', []):
@@ -76,8 +94,9 @@ class Command(BaseCommand):
                 defaults={'name': equipment_data['name'],
                           'picture': equipment_data['image']}
             )
-            equipment.save()  # Save the equipment regardless of creation
-            recipe.equipment.add(equipment)
+            # Only add the equipment to the recipe if it was successfully retrieved or created
+            if equipment:
+                recipe.equipment.add(equipment)
 
         # Save the steps
         if data.get('analyzedInstructions'):
@@ -87,8 +106,9 @@ class Command(BaseCommand):
                     description=step_data['step'],
                     recipe=recipe
                 )
-                step.save()  # Save the step explicitly
-                recipe.steps.add(step)
+                # Only add the step if it was successfully retrieved or created
+                if step:
+                    recipe.steps.add(step)
 
         self.stdout.write(
             self.style.SUCCESS(f'Successfully saved recipe: {recipe.name}'))

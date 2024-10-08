@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ recipe.name }}</title>
+</head>
+<body>
+    <h1>{{ recipe.name }}</h1>
+
+    <h3>Estimated Time: {{ recipe.estimated_time }} minutes</h3>
+
+    <h3>Ingredients:</h3>
+    <ul>
+        {% for ingredient in recipe.ingredients.all %}
+            <li>{{ ingredient.name }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Equipment:</h3>
+    <ul>
+        {% for equipment in recipe.equipment.all %}
+            <li>{{ equipment.name }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Steps:</h3>
+    <ol>
+        {% for step in recipe.steps.all %}
+            <li>{{ step.description }}</li>
+        {% endfor %}
+    </ol>
+
+    <a href="{% url 'recipe_list' %}">Back to recipe list</a>
+</body>
+</html>
