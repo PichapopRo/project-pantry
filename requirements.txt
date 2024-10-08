@@ -1,2 +1,4 @@
 Django
 python-decouple
+spoonacular
+decouple
