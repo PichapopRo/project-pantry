@@ -19,3 +19,17 @@
     </form>
   {% endif %}
 </footer>
+<head>
+    <title>Recipe List</title>
+</head>
+    <h1>Recipes</h1>
+    <ul>
+        {% for recipe in recipes %}
+            <li>
+                <a href="{% url 'recipe_detail' recipe.pk %}">
+                    {{ recipe.name }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>

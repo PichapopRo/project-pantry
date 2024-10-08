@@ -1,11 +1,20 @@
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
+from .models import Recipe
 
 
-def recipes(request):
-    return render(request, 'recipes/recipe.html')
+def recipe_list(request):
+    recipes = Recipe.objects.all()  # Fetch all recipes from the database
+    return render(request, 'recipes/recipe_list.html', {'recipes': recipes})
+
+
+# View to display a single recipe's details
+def recipe_detail(request, pk):
+    recipe = get_object_or_404(Recipe,
+                               pk=pk)  # Fetch the recipe by its primary key
+    return render(request, 'recipe_detail.html', {'recipe': recipe})
 
 
 def signup(request):
