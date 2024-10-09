@@ -2,14 +2,14 @@ from django.db import models
 from django.db.models import QuerySet
 from django.contrib.auth.models import User
 from django.utils import timezone
-
+from django.core.exceptions import ObjectDoesNotExist
 from decouple import config, Csv
 
-ADMIN_ID = config('ADMIN_ID', default=1, cast=int)
+ADMIN_ID = 1
 
 
 class Ingredient(models.Model):
-    """An r contains the name, a spoonacauar_id(if exitst) and a link to a picture."""
+    """An ingredient contains the name, a spoonacauar_id(if exitst) and a link to a picture."""
     name = models.CharField(max_length=100, default='Unnamed Ingredient')
     spoonacular_id = models.IntegerField(unique=True, null=True)
     picture = models.URLField(default='', null=True)
@@ -44,6 +44,22 @@ class RecipeStep(models.Model):
         return f'Step {self.number}: {self.description[:50]}'
 
 
+class IngredientList(models.Model):
+    """The relations representing which ingredient is used in which recipe."""
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    unit = models.CharField(max_length=100)
+    
+    
+class EquipmentList(models.Model):
+    """The relations representing which equipment is used in which recipe."""
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
+    recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    unit = models.CharField(max_length=100, default="piece")
+
+
 class Recipe(models.Model):
     """
     The recipe class containg the information about the recipe
@@ -73,32 +89,26 @@ class Recipe(models.Model):
         #TODO Decide on the difficulity rule. 
         return ""
     
-    def get_ingredients(self) -> QuerySet[Ingredient]:
-        """Return a list of ingredients of the recipe.
+    def get_ingredients(self) -> QuerySet[IngredientList]:
+        """Return a queryset of IngredientList class which contains
+        the ingredients of the recipe.
         
-        :return: A list of ingredients.
+        :return: A queryset of IngredientList.
         """
         return IngredientList.objects.filter(recipe_id=self)
     
-    def get_equipments(self) -> QuerySet[Ingredient]:
-        """Return a list of ingredients of the recipe.
+    def get_equipments(self) -> QuerySet[EquipmentList]:
+        """Return a queryset of EquipmentList class which contains
+        the equipments of the recipe.
         
-        :return: A list of ingredients..
+        :return: A queryset of EquipmentList.
         """
         return EquipmentList.objects.filter(recipe_id=self)
     
-
-class IngredientList(models.Model):
-    """The relations representing which ingredient is used in which recipe."""
-    ingredients_id = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
-    recipe_id = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    amount = models.IntegerField()
-    unit = models.CharField(max_length=100)
-    
-    
-class EquipmentList(models.Model):
-    """The relations representing which equipment is used in which recipe."""
-    equipment_id = models.ForeignKey(Equipment, on_delete=models.CASCADE)
-    recipe_id = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    amount = models.IntegerField()
-    unit = models.CharField(max_length=100, default="piece")
+    def get_steps(self) -> QuerySet[RecipeStep]:
+        """
+        Return a queryset of steps.
+        
+        :return: A queryset of steps in the recipe.
+        """
+        return RecipeStep.objects.filter(recipe = self)
