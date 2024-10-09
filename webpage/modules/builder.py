@@ -1,4 +1,4 @@
-from webpage.models import Recipe, Equipment, Ingredient
+from webpage.models import Recipe, Equipment, Ingredient, RecipeStep
 from django.contrib.auth.models import User
 from abc import ABC
 
@@ -18,7 +18,7 @@ class Builder(ABC):
         """
         pass
     
-    def build_ingredients(self, ingredient: Ingredient, amount: int, unit: str):
+    def build_ingredient(self, ingredient: Ingredient, amount: int, unit: str):
         """
         Build and return the ingredients associated with the recipe.
 
@@ -58,7 +58,7 @@ class NormalRecipeBuilder(Builder):
         """
         return self.__recipe
     
-    def build_ingredients(self, ingredient: Ingredient, amount: int, unit: str):
+    def build_ingredient(self, ingredient: Ingredient, amount: int, unit: str):
         """
         Build and return the ingredients for the standard recipe.
 
@@ -75,6 +75,14 @@ class NormalRecipeBuilder(Builder):
         :param equipment: The equipment used in the recipe.
         :param amount: The amount of the equipment needed in the recipe.
         :param unit: The unit of the equipment amount eg. Grams, spoon.
+        """
+        pass
+    
+    def build_step(self, step: RecipeStep):
+        """
+        Build the step in the standard recipe.
+
+        :param step: The step in the recipe.
         """
         pass
     
@@ -113,13 +121,21 @@ class SpoonacularRecipeBuilder(Builder):
         """
         return self.__recipe
     
-    def build_ingredients(self, ingredient: Ingredient, amount: int, unit: str):
+    def build_ingredient(self, ingredient: Ingredient, amount: int, unit: str):
         """
         Build the ingredients for the recipe sourced from Spoonacular API.
 
         :param ingredient: The ingredient used in the recipe.
         :param amount: The amount of the ingredient needed in the recipe.
         :param unit: The unit of the ingredient amount eg. Grams, Kg.
+        """
+        pass
+    
+    def build_step(self, step: RecipeStep):
+        """
+        Build the step in the Spoonacular recipe.
+
+        :param step: The step in the recipe.
         """
         pass
     
