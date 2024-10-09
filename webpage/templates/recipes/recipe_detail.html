@@ -1,12 +1,19 @@
-<!DOCTYPE html>
-<html>
 <head>
     <title>{{ recipe.name }}</title>
 </head>
 <body>
     <h1>{{ recipe.name }}</h1>
 
-    <h3>Estimated Time: {{ recipe.estimated_time }} minutes</h3>
+    {% if recipe.image %}
+        <img src="{{ recipe.image.url }}" alt="{{ recipe.name }} image">
+    {% endif %}
+
+    <h3>Estimated Time:</h3>
+    {% if recipe.estimated_time %}
+        <p>{{ recipe.estimated_time }} minutes</p>
+    {% else %}
+        <p>No estimated time available.</p>
+    {% endif %}
 
     <h3>Ingredients:</h3>
     <ul>
@@ -28,6 +35,8 @@
             <li>{{ step.description }}</li>
         {% endfor %}
     </ol>
+
+    <br>
 
     <a href="{% url 'recipe_list' %}">Back to recipe list</a>
 </body>

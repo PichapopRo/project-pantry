@@ -14,7 +14,7 @@ def recipe_list(request):
 def recipe_detail(request, pk):
     recipe = get_object_or_404(Recipe,
                                pk=pk)  # Fetch the recipe by its primary key
-    return render(request, 'recipe_detail.html', {'recipe': recipe})
+    return render(request, 'recipes/recipe_detail.html', {'recipe': recipe})
 
 
 def signup(request):
