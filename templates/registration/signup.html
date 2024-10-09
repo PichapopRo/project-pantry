@@ -1,6 +1,9 @@
 <body>
 <div class="wrapper">
 <h2>Register</h2>
+    {% if messages %}
+        <div>{{ message }}</div>
+    {% endif %}
 <form method="POST">
     {% csrf_token %}
     <table>
