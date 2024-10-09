@@ -6,7 +6,7 @@ from django.utils import timezone
 class Ingredient(models.Model):
     name = models.CharField(max_length=100, default='Unnamed Ingredient')
     spoonacular_id = models.IntegerField(unique=True, default=0)
-    picture = models.URLField(default='')
+    picture = models.URLField(default='', null=True)
 
     def __str__(self):
         return self.name
