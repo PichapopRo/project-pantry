@@ -5,19 +5,21 @@ from django.contrib.auth.models import User
 from webpage.models import Recipe, Ingredient, Equipment, RecipeStep
 
 API_KEY = '8e40e58f1ffd4af39dbce6b302e1f709'
+MAX_RECIPES_TO_FETCH = 10  # Adjust this value as needed
 
 
 class Command(BaseCommand):
-    help = 'Fetch and store all recipes from Spoonacular API'
+    help = 'Fetch and store all recipes from Spoonacular API (limited)'
 
     def handle(self, *args, **kwargs):
         query_params = {
             'apiKey': API_KEY,
-            'number': 10,
+            'number': MAX_RECIPES_TO_FETCH,
             'offset': 0
         }
 
-        while True:
+        recipes_fetched = 0
+        while recipes_fetched < MAX_RECIPES_TO_FETCH:
             url = 'https://api.spoonacular.com/recipes/complexSearch'
             response = requests.get(url, params=query_params)
 
@@ -31,12 +33,19 @@ class Command(BaseCommand):
 
             if not recipes:
                 self.stdout.write(
-                    self.style.SUCCESS("All recipes fetched successfully."))
+                    self.style.SUCCESS(f"Fetched {recipes_fetched} recipes (reached limit)."))
                 break
 
             for recipe_summary in recipes:
                 recipe_id = recipe_summary['id']
-                self.fetch_and_save_recipe(recipe_id)
+
+                # Check if recipe already exists before fetching details
+                if not Recipe.objects.filter(spoonacular_id=recipe_id).exists():
+                    self.fetch_and_save_recipe(recipe_id)
+                    recipes_fetched += 1
+
+                if recipes_fetched >= MAX_RECIPES_TO_FETCH:
+                    break  # Stop fetching recipes if limit is reached
 
             query_params['offset'] += query_params['number']
             time.sleep(1)  # Respect API rate limits
@@ -60,14 +69,6 @@ class Command(BaseCommand):
         except Exception as e:
             self.stdout.write(
                 self.style.ERROR(f'Failed to create or retrieve user: {e}'))
-            return
-
-        # Check if the recipe already exists
-        existing_recipe = Recipe.objects.filter(
-            spoonacular_id=data['id']).first()
-        if existing_recipe:
-            self.stdout.write(
-                self.style.WARNING(f'Recipe {data["id"]} already exists.'))
             return
 
         # Create the Recipe object associated with the user
@@ -94,7 +95,8 @@ class Command(BaseCommand):
                 defaults={'name': equipment_data['name'],
                           'picture': equipment_data['image']}
             )
-            # Only add the equipment to the recipe if it was successfully retrieved or created
+            # Only add the equipment to the recipe if it was successfully
+            # retrieved or created
             if equipment:
                 recipe.equipment.add(equipment)
 
