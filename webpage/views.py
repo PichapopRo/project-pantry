@@ -6,14 +6,14 @@ from .models import Recipe
 
 
 def recipe_list(request):
-    recipes = Recipe.objects.all()  # Fetch all recipes from the database
+    recipes = Recipe.objects.all()
     return render(request, 'recipes/recipe_list.html', {'recipes': recipes})
 
 
 # View to display a single recipe's details
 def recipe_detail(request, pk):
     recipe = get_object_or_404(Recipe,
-                               pk=pk)  # Fetch the recipe by its primary key
+                               pk=pk)
     return render(request, 'recipes/recipe_detail.html', {'recipe': recipe})
 
 
