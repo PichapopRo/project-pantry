@@ -24,7 +24,8 @@ class Equipment(models.Model):
 class RecipeStep(models.Model):
     number = models.IntegerField(default=1)
     description = models.TextField(default='No description provided')
-    recipe = models.ForeignKey('Recipe', related_name='steps', on_delete=models.CASCADE)
+    recipe = models.ForeignKey('Recipe', related_name='steps',
+                               on_delete=models.CASCADE)
 
     def __str__(self):
         return f'Step {self.number}: {self.description[:50]}'
