@@ -1,0 +1,20 @@
+<h1>You are in the recipe page!</h1>
+
+{% if recipe_list %}
+    <ul>
+        {% for recipe in recipe_list %}
+            <li>
+            <fieldset>
+                <a href="{% url 'recipe' recipe.id %}">{{ recipe.name }}</a>
+            </fieldset>
+            </li>
+        {% endfor %}
+    </ul>
+    <form method="post" action=".">
+        {% csrf_token %}
+        <button type="submit" name="increment" value="5">Load More Recipes</button>
+        <button type="submit" name="reset" value="1">Reset Recipes</button>
+    </form>
+{% else %}
+    <p>No recipes are available.</p>
+{% endif %}
