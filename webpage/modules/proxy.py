@@ -118,10 +118,10 @@ class GetDataProxy(GetData, ABC):
             """
             recipe_queryset = self._service.find_by_name(name)
             if not recipe_queryset.exists():
-                # If the recipe is not in the database, save it
+                # Retrieve the recipe data from the API
                 recipe_data = self._service.find_by_name(name).first()
                 if recipe_data:
-                    # Create and save the recipe in the database
+                    # Save the recipe in the database
                     recipe = Recipe(
                         name=recipe_data.name,
                         spoonacular_id=recipe_data.spoonacular_id,
@@ -129,6 +129,23 @@ class GetDataProxy(GetData, ABC):
                         images=recipe_data.images,
                     )
                     recipe.save()
+
+                    # Save the associated equipment in the database
+                    for equipment_data in recipe_data.equipment:
+                        equipment, created = Equipment.objects.get_or_create(
+                            name=equipment_data.name,
+                            spoonacular_id=equipment_data.spoonacular_id,
+                            defaults={'picture': equipment_data.picture}
+                        )
+                        # Create the relationship between recipe and equipment
+                        EquipmentList.objects.create(
+                            equipment=equipment,
+                            recipe=recipe,
+                            amount=equipment_data.amount,
+                            unit=equipment_data.unit
+                        )
+
+                    # Return the saved recipe
                     return Recipe.objects.filter(spoonacular_id=recipe.spoonacular_id)
             return recipe_queryset
 
