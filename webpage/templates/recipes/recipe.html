@@ -1,1 +1,15 @@
 <h1>You are in the recipe page!</h1>
+
+{% if recipes_list %}
+    <ul>
+        {% for r in recipes_list %}
+            <li>
+            <fieldset>
+                <a href="{% url 'polls:detail' question.id %}">{{ r }}</a>
+            </fieldset>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No recipes are available.</p>
+{% endif %}
