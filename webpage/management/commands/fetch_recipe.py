@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from webpage.models import Recipe, Ingredient, Equipment, RecipeStep
 
-API_KEY = '8e40e58f1ffd4af39dbce6b302e1f709'
+API_KEY = 'API KEY'
 MAX_RECIPES_TO_FETCH = 10  # Adjust this value as needed
 
 

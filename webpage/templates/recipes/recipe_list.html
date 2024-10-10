@@ -23,6 +23,7 @@
     <title>Recipe List</title>
 </head>
     <h1>Recipes</h1>
+{% if recipes %}
     <ul>
         {% for recipe in recipes %}
             <li>
@@ -32,4 +33,7 @@
             </li>
         {% endfor %}
     </ul>
+{% else %}
+<div>There are no recipe yet!</div>
+{% endif %}
 </body>
