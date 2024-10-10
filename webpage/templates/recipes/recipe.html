@@ -1,1 +1,21 @@
 <h1>You are in the recipe page!</h1>
+{% if user.is_authenticated %}
+      <h4 class="welcome-message"> Welcome back, {{ user.username }}! </h4>
+  {%  else  %}
+    <p class="login-message">Please <a href="{% url 'login' %}?next={{request.path}}">Login</a></p>
+  {% endif %}
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+<footer>
+  {% if user.is_authenticated %}
+    <form action="{% url 'logout' %}" method="post" class="logout-button">
+      {% csrf_token %}
+      <button type="submit">Log Out</button>
+    </form>
+  {% endif %}
+</footer>
