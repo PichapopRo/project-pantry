@@ -86,7 +86,6 @@ class GetDataProxy(GetData, ABC):
                         spoonacular_id=recipe_data.spoonacular_id,
                         estimated_time=recipe_data.estimated_time,
                         images=recipe_data.images,
-                        # Add other necessary fields
                     )
                     recipe.save()
 
@@ -144,7 +143,6 @@ class GetDataProxy(GetData, ABC):
                             amount=equipment_data.amount,
                             unit=equipment_data.unit
                         )
-
                     # Return the saved recipe
                     return Recipe.objects.filter(spoonacular_id=recipe.spoonacular_id)
             return recipe_queryset
