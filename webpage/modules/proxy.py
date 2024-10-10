@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from django.db.models import QuerySet
-from webpage.models import Recipe
+from webpage.models import Recipe, Equipment, EquipmentList
 import requests
 
 
@@ -69,28 +69,44 @@ class GetDataProxy(GetData, ABC):
             """
             Find the recipe from the API using the recipe's ID.
 
-            This method includes additional logic to save the data into the database
-            if the recipe does not exist.
+            This method includes additional logic to save the data (including equipment)
+            into the database if the recipe does not exist.
 
             :param id: The recipe id.
             :return: QuerySet containing the Recipe object.
             """
             recipe_queryset = self._service.find_by_id(id)
             if not recipe_queryset.exists():
-                # If the recipe is not in the database, save it
+                # Retrieve the recipe data from the API
                 recipe_data = self._service.find_by_id(id).first()
                 if recipe_data:
-                    # Create and save the recipe in the database
+                    # Save the recipe in the database
                     recipe = Recipe(
                         name=recipe_data.name,
                         spoonacular_id=recipe_data.spoonacular_id,
                         estimated_time=recipe_data.estimated_time,
                         images=recipe_data.images,
-                        # Add any other necessary fields here
+                        # Add other necessary fields
                     )
-                    recipe.save()  # Save the recipe to the database
-                    return Recipe.objects.filter(
-                        spoonacular_id=recipe.spoonacular_id)  # Return the saved recipe
+                    recipe.save()
+
+                    # Save the associated equipment in the database
+                    for equipment_data in recipe_data.equipment:
+                        equipment, created = Equipment.objects.get_or_create(
+                            name=equipment_data.name,
+                            spoonacular_id=equipment_data.spoonacular_id,
+                            defaults={'picture': equipment_data.picture}
+                        )
+                        # Create the relationship between recipe and equipment
+                        EquipmentList.objects.create(
+                            equipment=equipment,
+                            recipe=recipe,
+                            amount=equipment_data.amount,
+                            unit=equipment_data.unit
+                        )
+
+                    # Return the saved recipe
+                    return Recipe.objects.filter(spoonacular_id=recipe.spoonacular_id)
             return recipe_queryset
 
         def find_by_name(self, name: str) -> QuerySet[Recipe]:
@@ -111,11 +127,9 @@ class GetDataProxy(GetData, ABC):
                         spoonacular_id=recipe_data.spoonacular_id,
                         estimated_time=recipe_data.estimated_time,
                         images=recipe_data.images,
-                        # Add any other necessary fields here
                     )
-                    recipe.save()  # Save the recipe to the database
-                    return Recipe.objects.filter(
-                        spoonacular_id=recipe.spoonacular_id)  # Return the saved recipe
+                    recipe.save()
+                    return Recipe.objects.filter(spoonacular_id=recipe.spoonacular_id)
             return recipe_queryset
 
 
