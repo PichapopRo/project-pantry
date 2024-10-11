@@ -169,7 +169,7 @@ class GetDataSpoonacular(GetData):
         """
         response = requests.get(f'{self.base_url}/{id}/information?apiKey={self.api_key}')
         if response.status_code == 200:
-            data = response.json()
+            data: dict = response.json()
             # Create a Recipe object from the API response
             recipe = Recipe(
                 name=data['title'],
@@ -190,8 +190,9 @@ class GetDataSpoonacular(GetData):
         """
         response = requests.get(f'{self.base_url}/search?query={name}&apiKey={self.api_key}')
         if response.status_code == 200:
-            data = response.json()
+            data: dict = response.json()
             if data['results']:
+                #TODO Implement lazy Recipe.
                 recipe_id = data['results'][0]['id']
                 # Use find_by_id to get full details
                 return self.find_by_id(recipe_id)
