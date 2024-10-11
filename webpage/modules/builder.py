@@ -96,7 +96,7 @@ class NormalRecipeBuilder(Builder):
         :param unit: The unit of the ingredient amount eg. Grams, Kg.
         """
         ingredient_list = IngredientList(
-            recipe = self,
+            recipe = self.__recipe,
             ingredient  = ingredient,
             amount = amount,
             unit = unit
@@ -112,7 +112,7 @@ class NormalRecipeBuilder(Builder):
         :param unit: The unit of the equipment amount eg. Grams, spoon.
         """
         equipment_list = EquipmentList.objects.create(
-            recipe = self,
+            recipe = self.__recipe,
             equipment = equipment,
             amount = amount,
             unit = unit
@@ -127,12 +127,12 @@ class NormalRecipeBuilder(Builder):
         """
         number = 0
         try:
-            post_last_step = RecipeStep.objects.filter(recipe = self).order_by('-number').first()
-            number = post_last_step.number
+            post_last_step = RecipeStep.objects.filter(recipe = self.__recipe).order_by('-number').first()
+            number = post_last_step.number + 1
         except ObjectDoesNotExist:
             number += 1
         step.number = number
-        step.recipe = self
+        step.recipe = self.__recipe
         step.save()
     
     def build_user(self, user: User):
