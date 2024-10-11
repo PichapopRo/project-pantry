@@ -10,25 +10,22 @@ class RecipeListView(generic.ListView):
 
     def get_queryset(self):
         """Return recipes limited by view_count."""
-        if 'view_count' not in self.request.session:
-            self.request.session['view_count'] = 5
+        view_count = self.request.session.get('view_count', 0)
         all_recipes = Recipe.objects.all()
-        view_count = self.request.session['view_count']
         return all_recipes[:view_count]
 
     def post(self, request, *args, **kwargs):
         """Handle POST request to increment view_count."""
-        if 'increment' in self.request.POST:
-            increment = int(self.request.POST.get('increment', 0))
-            self.request.session['view_count'] += increment
-        elif 'reset' in self.request.POST:
-            self.request.session['view_count'] = 5
+        if 'increment' in request.POST:
+            increment = int(request.POST.get('increment', 0))
+            request.session['view_count'] = request.session.get('view_count', 0) + increment
         return self.get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         """Add the current view_count to the context."""
         context = super().get_context_data(**kwargs)
-        context['view_count'] = self.request.session['view_count']
+        context['total_recipes'] = Recipe.objects.count()
+        context['view_count'] = self.request.session.get('view_count', 0)
         return context
 
 
