@@ -2,8 +2,6 @@ from django.db import models
 from django.db.models import QuerySet
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.core.exceptions import ObjectDoesNotExist
-from decouple import config, Csv
 
 ADMIN_ID = 1
 
