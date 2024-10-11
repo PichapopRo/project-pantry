@@ -1,6 +1,9 @@
+"""These classes may not be used in iteration 1."""
+
 from abc import ABC, abstractmethod
 from django.db.models import QuerySet
 from webpage.models import Recipe, Equipment, EquipmentList
+from django.core.exceptions import ObjectDoesNotExist
 import requests
 
 
@@ -13,7 +16,7 @@ class GetData(ABC):
     """
 
     @abstractmethod
-    def find_by_id(self, id: int) -> QuerySet[Recipe]:
+    def find_by_id(self, id: int) -> Recipe:
         """
         Find the recipe using the recipe's id.
 
@@ -65,7 +68,7 @@ class GetDataProxy(GetData, ABC):
             """
             self._service = service
 
-        def find_by_id(self, id: int) -> QuerySet[Recipe]:
+        def find_by_id(self, id: int) -> Recipe|None:
             """
             Find the recipe from the API using the recipe's ID.
 
@@ -73,10 +76,11 @@ class GetDataProxy(GetData, ABC):
             into the database if the recipe does not exist.
 
             :param id: The recipe id.
-            :return: QuerySet containing the Recipe object.
+            :return: The Recipe object with the specified ID, return None if not found.
             """
-            recipe_queryset = self._service.find_by_id(id)
-            if not recipe_queryset.exists():
+            try:
+                recipe_queryset: Recipe = Recipe.objects.filter(spoonacular_id=id).first()
+            except ObjectDoesNotExist:
                 # Retrieve the recipe data from the API
                 recipe_data = self._service.find_by_id(id).first()
                 if recipe_data:
@@ -106,6 +110,8 @@ class GetDataProxy(GetData, ABC):
 
                     # Return the saved recipe
                     return Recipe.objects.filter(spoonacular_id=recipe.spoonacular_id)
+                # Return Recipe None if recipe no found.
+                return None
             return recipe_queryset
 
         def find_by_name(self, name: str) -> QuerySet[Recipe]:
@@ -115,7 +121,7 @@ class GetDataProxy(GetData, ABC):
             :param name: The recipe name.
             :return: QuerySet containing the Recipe object.
             """
-            recipe_queryset = self._service.find_by_name(name)
+            recipe_queryset = Recipe.objects.filter(name__contains = name)
             if not recipe_queryset.exists():
                 # Retrieve the recipe data from the API
                 recipe_data = self._service.find_by_name(name).first()
@@ -160,7 +166,7 @@ class GetDataSpoonacular(GetData):
         self.api_key = 'YOUR_SPOONACULAR_API_KEY'  # Replace with your actual API key
         self.base_url = 'https://api.spoonacular.com/recipes'
 
-    def find_by_id(self, id: int) -> QuerySet[Recipe]:
+    def find_by_id(self, id: int) -> Recipe|None:
         """
         Find the recipe from Spoonacular's API using the recipe's ID.
 
@@ -179,7 +185,7 @@ class GetDataSpoonacular(GetData):
             )
             return Recipe.objects.filter(
                 spoonacular_id=recipe.spoonacular_id)
-        return Recipe.objects.none()
+        return None
 
     def find_by_name(self, name: str) -> QuerySet[Recipe]:
         """

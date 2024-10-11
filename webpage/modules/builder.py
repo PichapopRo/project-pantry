@@ -147,6 +147,8 @@ class NormalRecipeBuilder(Builder):
 
 class SpoonacularRecipeBuilder(Builder):
     """
+    This class is unused, for now.
+    
     Concrete implementation of Builder for constructing recipes from Spoonacular API data.
 
     This class is responsible for assembling a Recipe object along with its
