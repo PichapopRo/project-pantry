@@ -1,24 +1,27 @@
-from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, EquipmentList, IngredientList
+from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, IngredientList, EquipmentList
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from abc import ABC
+from abc import ABC, abstractmethod
 
 class Builder(ABC):
-    """ 
+    """
     Abstract base class for constructing recipe objects.
 
-    This class defines the interface for building various components of a recipe, 
-    including the recipe itself, its ingredients, required equipment and steps. 
+    This class defines the interface for building various components of a recipe,
+    including the recipe itself, its ingredients, required equipment, and steps.
     Concrete implementations must provide specific logic for each method.
     """
-    def build_recipe(self):
+
+    @abstractmethod
+    def build_recipe(self) -> Recipe:
         """
         Build and return the main recipe object.
 
         :return: A Recipe object that represents the constructed recipe.
         """
         pass
-    
+
+    @abstractmethod
     def build_ingredient(self, ingredient: Ingredient, amount: int, unit: str):
         """
         Build the ingredients associated with the recipe.
@@ -28,7 +31,8 @@ class Builder(ABC):
         :param unit: The unit of the ingredient amount eg. Grams, Kg.
         """
         pass
-    
+
+    @abstractmethod
     def build_equipment(self, equipment: Equipment, amount: int, unit: str):
         """
         Build the equipment needed for the recipe.
@@ -39,22 +43,42 @@ class Builder(ABC):
         """
         pass
 
+    @abstractmethod
+    def build_step(self, step: RecipeStep):
+        """
+        Build the step in the recipe.
+
+        :param step: The step in the recipe.
+        """
+        pass
+
+    @abstractmethod
+    def build_user(self, user: User):
+        """
+        Build the user which is the author of the recipe.
+
+        :param user: The user that is the author of the recipe.
+        """
+        pass
+
 
 class NormalRecipeBuilder(Builder):
-    """ 
-    Concrete implementation of Builder for constructing recipes in the normal cases.
+    """
+    Concrete implementation of Builder for constructing recipes in normal cases.
 
-    This class is responsible for assembling a Recipe object along with its 
+    This class is responsible for assembling a Recipe object along with its
     associated ingredients and equipment using information from the user.
     """
-    def __init__(self):
+
+    def __init__(self, name: str, user: User):
         """
         Initialize the NormalRecipeBuilder instance.
-        
-        This may include setting up any necessary state or configuration.
+
+        :param name: The name of the recipe.
+        :param user: The user that is the author of the recipe.
         """
-        self.__recipe: Recipe = Recipe.objects.create(name="")
-    
+        self.__recipe = Recipe.objects.create(name=name, poster_id=user)
+
     def build_recipe(self) -> Recipe:
         """
         Build and return a standard Recipe object.
@@ -62,7 +86,7 @@ class NormalRecipeBuilder(Builder):
         :return: A Recipe object that represents the constructed standard recipe.
         """
         return self.__recipe
-    
+
     def build_ingredient(self, ingredient: Ingredient, amount: int, unit: str):
         """
         Build and return the ingredients for the standard recipe.
@@ -71,13 +95,13 @@ class NormalRecipeBuilder(Builder):
         :param amount: The amount of the ingredient needed in the recipe.
         :param unit: The unit of the ingredient amount eg. Grams, Kg.
         """
-        il = IngredientList(
+        ingredient_list = IngredientList(
             recipe = self,
             ingredient  = ingredient,
             amount = amount,
             unit = unit
         )
-        il.save()
+        ingredient_list.save()
     
     def build_equipment(self, equipment: Equipment, amount: int, unit: str):
         """
@@ -87,13 +111,13 @@ class NormalRecipeBuilder(Builder):
         :param amount: The amount of the equipment needed in the recipe.
         :param unit: The unit of the equipment amount eg. Grams, spoon.
         """
-        el = EquipmentList.objects.create(
+        equipment_list = EquipmentList.objects.create(
             recipe = self,
             equipment = equipment,
             amount = amount,
             unit = unit
         )
-        el.save()
+        equipment_list.save()
     
     def build_step(self, step: RecipeStep):
         """
@@ -114,25 +138,27 @@ class NormalRecipeBuilder(Builder):
     def build_user(self, user: User):
         """
         Build the user which is the author of the recipe.
-        
+
         :param user: The user that is the author of the recipe.
         """
-        self.__recipe.poster_id = User
-    
+        self.__recipe.poster_id = user
+        self.__recipe.save()
+
 
 class SpoonacularRecipeBuilder(Builder):
-    """ 
+    """
     Concrete implementation of Builder for constructing recipes from Spoonacular API data.
 
-    This class is responsible for assembling a Recipe object along with its 
+    This class is responsible for assembling a Recipe object along with its
     associated ingredients and equipment using data retrieved from the Spoonacular API.
     """
-    def __init__(self):
+
+    def __init__(self, name: str, user: User):
         """
         Initialize the SpoonacularRecipeBuilder instance.
 
-        This may include setting up any necessary state or configuration specific to 
-        interacting with the Spoonacular API.
+        :param name: The name of the recipe.
+        :param user: The user that is the author of the recipe.
         """
         self.__recipe: Recipe = Recipe.objects.create(name="")
         pass
@@ -141,11 +167,11 @@ class SpoonacularRecipeBuilder(Builder):
         """
         Return a Recipe object with data from Spoonacular API.
 
-        :return: A Recipe object that represents the constructed recipe based on 
-         Spoonacular data.
+        :return: A Recipe object that represents the constructed recipe based on
+        Spoonacular data.
         """
         return self.__recipe
-    
+
     def build_ingredient(self, ingredient: Ingredient, amount: int, unit: str):
         """
         Build the ingredients for the recipe sourced from Spoonacular API.
@@ -154,16 +180,23 @@ class SpoonacularRecipeBuilder(Builder):
         :param amount: The amount of the ingredient needed in the recipe.
         :param unit: The unit of the ingredient amount eg. Grams, Kg.
         """
-        pass
-    
+        ingredient_list = IngredientList.objects.create(
+            ingredient=ingredient,
+            recipe=self.__recipe,
+            amount=amount,
+            unit=unit
+        )
+        return ingredient_list
+
     def build_step(self, step: RecipeStep):
         """
         Build the step in the Spoonacular recipe.
 
         :param step: The step in the recipe.
         """
-        pass
-    
+        step.recipe = self.__recipe
+        step.save()
+
     def build_equipment(self, equipment: Equipment, amount: int, unit: str):
         """
         Build the equipment needed for the recipe sourced from Spoonacular API.
@@ -172,5 +205,19 @@ class SpoonacularRecipeBuilder(Builder):
         :param amount: The amount of the equipment needed in the recipe.
         :param unit: The unit of the equipment amount eg. Grams, spoon.
         """
-        pass
-    
+        equipment_list = EquipmentList.objects.create(
+            equipment=equipment,
+            recipe=self.__recipe,
+            amount=amount,
+            unit=unit
+        )
+        return equipment_list
+
+    def build_user(self, user: User):
+        """
+        Build the user which is the author of the recipe.
+
+        :param user: The user that is the author of the recipe.
+        """
+        self.__recipe.poster_id = user
+        self.__recipe.save()
