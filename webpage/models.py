@@ -5,9 +5,6 @@ from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from decouple import config, Csv
 
-ADMIN_ID = 1
-
-
 class Ingredient(models.Model):
     """An ingredient contains the name, a spoonacauar_id(if exists) and a link to a picture."""
     name = models.CharField(max_length=100, default='Unnamed Ingredient')
@@ -63,7 +60,7 @@ class Recipe(models.Model):
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
     estimated_time = models.FloatField(default=0)
     images = models.ImageField(upload_to='recipe_images/', blank=True)
-    poster_id = models.ForeignKey(User, on_delete=models.CASCADE, default=ADMIN_ID)
+    poster_id = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self) -> str:
