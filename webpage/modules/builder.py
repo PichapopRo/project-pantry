@@ -119,12 +119,13 @@ class NormalRecipeBuilder(Builder):
         )
         equipment_list.save()
     
-    def build_step(self, step: RecipeStep):
+    def build_step(self, step_description: str):
         """
         Build the step in the standard recipe.
 
-        :param step: The step in the recipe.
+        :param step_description: The description of the step you are adding.
         """
+        step = RecipeStep.objects.create(description=step_description, recipe=self.__recipe)
         number = 0
         try:
             post_last_step = RecipeStep.objects.filter(recipe = self.__recipe).order_by('-number').first()
@@ -132,7 +133,6 @@ class NormalRecipeBuilder(Builder):
         except ObjectDoesNotExist:
             number += 1
         step.number = number
-        step.recipe = self.__recipe
         step.save()
     
     def build_user(self, user: User):
