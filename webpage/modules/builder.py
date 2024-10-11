@@ -1,5 +1,6 @@
-from webpage.models import Recipe, Equipment, Ingredient, RecipeStep
+from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, EquipmentList, IngredientList
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from abc import ABC
 
 class Builder(ABC):
@@ -20,17 +21,21 @@ class Builder(ABC):
     
     def build_ingredient(self, ingredient: Ingredient, amount: int, unit: str):
         """
-        Build and return the ingredients associated with the recipe.
+        Build the ingredients associated with the recipe.
 
-        :return: A list or collection of Ingredient objects.
+        :param ingredient: The ingredient used in the recipe.
+        :param amount: The amount of the ingredient needed in the recipe.
+        :param unit: The unit of the ingredient amount eg. Grams, Kg.
         """
         pass
     
     def build_equipment(self, equipment: Equipment, amount: int, unit: str):
         """
-        Build and return the equipment needed for the recipe.
+        Build the equipment needed for the recipe.
 
-        :return: A list or collection of Equipment objects.
+        :param equipment: The equipment used in the recipe.
+        :param amount: The amount of the equipment needed in the recipe.
+        :param unit: The unit of the equipment amount eg. Grams, spoon.
         """
         pass
 
@@ -48,7 +53,7 @@ class NormalRecipeBuilder(Builder):
         
         This may include setting up any necessary state or configuration.
         """
-        self.__recipe = Recipe.objects.create(name="")
+        self.__recipe: Recipe = Recipe.objects.create(name="")
     
     def build_recipe(self) -> Recipe:
         """
@@ -66,7 +71,13 @@ class NormalRecipeBuilder(Builder):
         :param amount: The amount of the ingredient needed in the recipe.
         :param unit: The unit of the ingredient amount eg. Grams, Kg.
         """
-        pass
+        il = IngredientList(
+            recipe = self,
+            ingredient  = ingredient,
+            amount = amount,
+            unit = unit
+        )
+        il.save()
     
     def build_equipment(self, equipment: Equipment, amount: int, unit: str):
         """
@@ -76,7 +87,13 @@ class NormalRecipeBuilder(Builder):
         :param amount: The amount of the equipment needed in the recipe.
         :param unit: The unit of the equipment amount eg. Grams, spoon.
         """
-        pass
+        el = EquipmentList.objects.create(
+            recipe = self,
+            equipment = equipment,
+            amount = amount,
+            unit = unit
+        )
+        el.save()
     
     def build_step(self, step: RecipeStep):
         """
@@ -84,7 +101,15 @@ class NormalRecipeBuilder(Builder):
 
         :param step: The step in the recipe.
         """
-        pass
+        number = 0
+        try:
+            post_last_step = RecipeStep.objects.filter(recipe = self).order_by('-number').first()
+            number = post_last_step.number
+        except ObjectDoesNotExist:
+            number += 1
+        step.number = number
+        step.recipe = self
+        step.save()
     
     def build_user(self, user: User):
         """
@@ -92,7 +117,7 @@ class NormalRecipeBuilder(Builder):
         
         :param user: The user that is the author of the recipe.
         """
-        pass
+        self.__recipe.poster_id = User
     
 
 class SpoonacularRecipeBuilder(Builder):
@@ -109,7 +134,7 @@ class SpoonacularRecipeBuilder(Builder):
         This may include setting up any necessary state or configuration specific to 
         interacting with the Spoonacular API.
         """
-        self.__recipe = Recipe.objects.create(name="")
+        self.__recipe: Recipe = Recipe.objects.create(name="")
         pass
     
     def build_recipe(self) -> Recipe:
