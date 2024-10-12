@@ -1,0 +1,24 @@
+<h1>You are in the recipe page!</h1>
+
+{% if recipe_list %}
+        <ul>
+            {% for recipe in recipe_list %}
+                <li>
+                    <fieldset>
+                        <a href="{% url 'recipe' recipe.id %}">{{ recipe.name }}</a>
+                    </fieldset>
+                </li>
+            {% endfor %}
+        </ul>
+{% elif total_recipes == 0 %}
+    <p>No recipes available.</p>
+{% endif %}
+
+<form method="post" action=".">
+    {% csrf_token %}
+    {% if view_count == 0 and total_recipes > 0 %}
+        <button type="submit" name="increment" value="5">View Recipes</button>
+    {% elif total_recipes > 0 %}
+        <button type="submit" name="increment" value="5">Load More Recipes</button>
+    {% endif %}
+</form>
