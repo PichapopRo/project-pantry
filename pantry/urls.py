@@ -17,9 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic.base import RedirectView
+from webpage import views
+
 
 urlpatterns = [
     path('', RedirectView.as_view(url='/recipes/', permanent=True)),
     path("recipes/", include("webpage.urls")),
+    path('accounts/', include('django.contrib.auth.urls')),
     path("admin/", admin.site.urls),
+    path('', RedirectView.as_view(url='/recipes/', permanent=True)),
+    path('signup/', views.register_view, name='signup'),
 ]
