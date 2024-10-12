@@ -1,14 +1,9 @@
-
 from django.views import generic
 from .models import *
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from webpage.forms import CustomRegisterForm
-
-
-def recipes(request):
-    return render(request, 'recipes/recipe.html')
 
 
 def register_view(request):
@@ -42,6 +37,7 @@ def register_view(request):
         form = CustomRegisterForm()
 
     return render(request, 'registration/signup.html', {'form': form})
+
 
 class RecipeListView(generic.ListView):
     """RecipeList view."""
