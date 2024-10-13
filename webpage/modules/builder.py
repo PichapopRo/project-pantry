@@ -164,7 +164,7 @@ class SpoonacularRecipeBuilder(Builder):
         Initialize the SpoonacularRecipeBuilder instance.
 
         :param name: The name of the recipe.
-        :param user: The user that is the author of the recipe.
+        :param spoonacular_id: The id of the Recipe in the Spoonacular database.
         """
         self.__recipe: Recipe = Recipe.objects.create(name="")
         self.__url = f'https://api.spoonacular.com/recipes/{spoonacular_id}/information'
