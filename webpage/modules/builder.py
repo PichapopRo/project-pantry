@@ -5,7 +5,8 @@ from abc import ABC, abstractmethod
 import requests
 from decouple import config
 
-API_KEY = config('SECRET_KEY', default='fake-secret-key')
+API_KEY = config('API_KEY', default='fake-secret-key')
+spoonacular_password = config('SPOONACULAR_PASSWORD')
 
 class Builder(ABC):
     """
@@ -107,7 +108,7 @@ class NormalRecipeBuilder(Builder):
         )
         ingredient_list.save()
     
-    def build_equipment(self, equipment: Equipment, amount: int, unit: str):
+    def build_equipment(self, equipment: Equipment, amount: int=1, unit: str="thing"):
         """
         Build the equipment needed for the standard recipe.
 
@@ -166,15 +167,27 @@ class SpoonacularRecipeBuilder(Builder):
         :param name: The name of the recipe.
         :param spoonacular_id: The id of the Recipe in the Spoonacular database.
         """
-        self.__recipe: Recipe = Recipe.objects.create(name="")
         self.__url = f'https://api.spoonacular.com/recipes/{spoonacular_id}/information'
-        self.__equipment_url = f'https://api.spoonacular.com/recipes/{spoonacular_id}/equipmentWidget'
+        self.__equipment_url = f'https://api.spoonacular.com/recipes/{spoonacular_id}/equipmentWidget.json'
         self.spoonacular_id = spoonacular_id
         self.name = name
         self.__api_is_called = False
         self.__api_equipment_is_fetch = False
         
-        self.__builder = NormalRecipeBuilder(name=self.name, user=User.objects.get(pk=1)) # This needs fixing later
+        self.__builder = NormalRecipeBuilder(name=self.name, user=self.__create_spoonacular_user()) # This needs fixing later
+        
+    def __create_spoonacular_user(self) -> User: # Fix later
+        """
+        Create a spoonacular user in the local database.
+        
+        :return: A spoonacular user class.
+        """
+        # Create a test user
+        user = User.objects.filter(username = "Spoonacular").first()
+        if(user is None):
+            user = User(username = "Spoonacular", password=spoonacular_password)
+            user.save()
+        return user
         
     def __call_api(self):
         """Fetch the information about the recipe from the Spoonacular API"""
@@ -187,7 +200,7 @@ class SpoonacularRecipeBuilder(Builder):
             else:
                 raise Exception("Cannot load the recipe")
             
-    def __fetch_equipement(self):
+    def __fetch_equipment(self):
         """Fetch the equipments of the recipe from the Spoonacular API"""
         if(not self.__api_equipment_is_fetch):
             response = requests.get(self.__equipment_url, params={'apiKey': API_KEY})
@@ -205,7 +218,7 @@ class SpoonacularRecipeBuilder(Builder):
         :return: A Recipe object that represents the constructed recipe based on
         Spoonacular data.
         """
-        return self.__recipe
+        return self.__builder.build_recipe()
 
     def build_ingredient(self):
         """
@@ -227,17 +240,15 @@ class SpoonacularRecipeBuilder(Builder):
                 unit=ingredient_data['measures']['metric']['unitLong'],
                 )
 
-    def build_step(self, step: RecipeStep):
+    def build_step(self):
         """
         Build the step in the Spoonacular recipe.
-
-        :param step: The step in the recipe.
         """
         for instruction in self.__data.get('analyzedInstructions', []):
             for step_data in instruction.get('steps', []):
                 self.__builder.build_step(step_data['step'])
         
-    def build_equipment(self, equipment: Equipment, amount: int, unit: str):
+    def build_equipment(self):
         """
         Build the equipment needed for the recipe sourced from Spoonacular API.
 
@@ -245,10 +256,10 @@ class SpoonacularRecipeBuilder(Builder):
         :param amount: The amount of the equipment needed in the recipe.
         :param unit: The unit of the equipment amount eg. Grams, spoon.
         """
-        self.__fetch_equipement()
+        self.__fetch_equipment()
         
         # Save the equipment (if available)
-        for equipment_data in self.__data.get('equipment', []):
+        for equipment_data in self.__equipement_data.get('equipment', []):
             equipment, _ = Equipment.objects.get_or_create(
                 name = equipment_data['name'],
                 picture = equipment_data['image']
