@@ -130,13 +130,16 @@ class NormalRecipeBuilder(Builder):
 
         :param step_description: The description of the step you are adding.
         """
-        step = RecipeStep.objects.create(description=step_description, recipe=self.__recipe)
         number = 0
         try:
             post_last_step = RecipeStep.objects.filter(recipe = self.__recipe).order_by('-number').first()
-            number = post_last_step.number + 1
+            if post_last_step is None:
+                number += 1
+            else:
+                number = post_last_step.number + 1
         except ObjectDoesNotExist:
             number += 1
+        step = RecipeStep.objects.create(description=step_description, recipe=self.__recipe)
         step.number = number
         step.save()
     
