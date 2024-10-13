@@ -2,6 +2,8 @@ from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, Ingredient
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from abc import ABC, abstractmethod
+import requests
+API_KEY = config()
 
 class Builder(ABC):
     """
@@ -155,15 +157,31 @@ class SpoonacularRecipeBuilder(Builder):
     associated ingredients and equipment using data retrieved from the Spoonacular API.
     """
 
-    def __init__(self, name: str, user: User):
+    def __init__(self, name: str, spoonacular_id: str):
         """
         Initialize the SpoonacularRecipeBuilder instance.
 
         :param name: The name of the recipe.
         :param user: The user that is the author of the recipe.
         """
+        
         self.__recipe: Recipe = Recipe.objects.create(name="")
-        pass
+        self.__url = f'https://api.spoonacular.com/recipes/{spoonacular_id}/information'
+        self.spoonacular_id = spoonacular_id
+        self.name = name
+        self.__api_is_called = False
+        
+        self.__builder = NormalRecipeBuilder(name=self.name, user=User.objects.get(pk=1))
+        
+    
+    def __call_api(self):
+        if(not self.__api_is_called):
+            response = requests.get(self.__url, params={'apiKey': API_KEY})
+            
+            if response.status_code == 200:
+                self.__data = response.json()
+            else:
+                raise Exception("Cannot load the recipe")
     
     def build_recipe(self) -> Recipe:
         """
@@ -174,21 +192,25 @@ class SpoonacularRecipeBuilder(Builder):
         """
         return self.__recipe
 
-    def build_ingredient(self, ingredient: Ingredient, amount: int, unit: str):
+    def build_ingredient(self):
         """
         Build the ingredients for the recipe sourced from Spoonacular API.
-
-        :param ingredient: The ingredient used in the recipe.
-        :param amount: The amount of the ingredient needed in the recipe.
-        :param unit: The unit of the ingredient amount eg. Grams, Kg.
         """
-        ingredient_list = IngredientList.objects.create(
-            ingredient=ingredient,
-            recipe=self.__recipe,
-            amount=amount,
-            unit=unit
-        )
-        return ingredient_list
+        self.__call_api()
+                
+        # Use builder
+        for ingredient_data in self.__data.get('extendedIngredients', []):
+            ingredient= Ingredient.objects.create(
+                spoonacular_id=ingredient_data['id'],
+                defaults={'name': ingredient_data['name'],
+                          'picture': ingredient_data['image'],}
+            )
+            ingredient.save()
+            self.__builder.build_ingredient(
+                ingredient=ingredient,
+                amount=ingredient_data['measures']['metric']['amount'],
+                unit=ingredient_data['measures']['metric']['unitLong'],
+                )
 
     def build_step(self, step: RecipeStep):
         """
