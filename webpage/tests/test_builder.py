@@ -29,9 +29,11 @@ class TestNormalRecipeBuilderClass(TestCase):
         steps = recipe.get_steps()
         
         # Check
+        list_number = [1,2,3]
         lst = ["do it", "do it again", "eat it"]
         index = 0
         for step in steps:
+            self.assertEqual(step.number, list_number[index])
             self.assertEqual(step.description, lst[index])
             index += 1
         
