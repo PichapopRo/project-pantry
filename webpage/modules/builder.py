@@ -3,7 +3,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from abc import ABC, abstractmethod
 import requests
-API_KEY = config()
+from decouple import config
+
+API_KEY = config('SECRET_KEY', default='fake-secret-key')
 
 class Builder(ABC):
     """
