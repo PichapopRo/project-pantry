@@ -251,10 +251,6 @@ class SpoonacularRecipeBuilder(Builder):
     def build_equipment(self):
         """
         Build the equipment needed for the recipe sourced from Spoonacular API.
-
-        :param equipment: The equipment used in the recipe.
-        :param amount: The amount of the equipment needed in the recipe.
-        :param unit: The unit of the equipment amount eg. Grams, spoon.
         """
         self.__fetch_equipment()
         
