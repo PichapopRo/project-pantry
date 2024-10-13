@@ -174,10 +174,10 @@ class SpoonacularRecipeBuilder(Builder):
         self.__api_is_called = False
         self.__api_equipment_is_fetch = False
         
-        self.__builder = NormalRecipeBuilder(name=self.name, user=User.objects.get(pk=1))
+        self.__builder = NormalRecipeBuilder(name=self.name, user=User.objects.get(pk=1)) # This needs fixing later
         
-    
     def __call_api(self):
+        """Fetch the information about the recipe from the Spoonacular API"""
         if(not self.__api_is_called):
             response = requests.get(self.__url, params={'apiKey': API_KEY})
             
@@ -188,6 +188,7 @@ class SpoonacularRecipeBuilder(Builder):
                 raise Exception("Cannot load the recipe")
             
     def __fetch_equipement(self):
+        """Fetch the equipments of the recipe from the Spoonacular API"""
         if(not self.__api_equipment_is_fetch):
             response = requests.get(self.__equipment_url, params={'apiKey': API_KEY})
             
