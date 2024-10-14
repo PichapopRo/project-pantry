@@ -2,6 +2,11 @@ from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, Ingredient
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from abc import ABC, abstractmethod
+import requests
+from decouple import config
+
+API_KEY = config('API_KEY', default='fake-secret-key')
+spoonacular_password = config('SPOONACULAR_PASSWORD')
 
 class Builder(ABC):
     """
@@ -103,7 +108,7 @@ class NormalRecipeBuilder(Builder):
         )
         ingredient_list.save()
     
-    def build_equipment(self, equipment: Equipment, amount: int, unit: str):
+    def build_equipment(self, equipment: Equipment, amount: int=1, unit: str="thing"):
         """
         Build the equipment needed for the standard recipe.
 
@@ -125,13 +130,16 @@ class NormalRecipeBuilder(Builder):
 
         :param step_description: The description of the step you are adding.
         """
-        step = RecipeStep.objects.create(description=step_description, recipe=self.__recipe)
         number = 0
         try:
             post_last_step = RecipeStep.objects.filter(recipe = self.__recipe).order_by('-number').first()
-            number = post_last_step.number + 1
+            if post_last_step is None:
+                number += 1
+            else:
+                number = post_last_step.number + 1
         except ObjectDoesNotExist:
             number += 1
+        step = RecipeStep.objects.create(description=step_description, recipe=self.__recipe)
         step.number = number
         step.save()
     
@@ -155,15 +163,56 @@ class SpoonacularRecipeBuilder(Builder):
     associated ingredients and equipment using data retrieved from the Spoonacular API.
     """
 
-    def __init__(self, name: str, user: User):
+    def __init__(self, name: str, spoonacular_id: str):
         """
         Initialize the SpoonacularRecipeBuilder instance.
 
         :param name: The name of the recipe.
-        :param user: The user that is the author of the recipe.
+        :param spoonacular_id: The id of the Recipe in the Spoonacular database.
         """
-        self.__recipe: Recipe = Recipe.objects.create(name="")
-        pass
+        self.__url = f'https://api.spoonacular.com/recipes/{spoonacular_id}/information'
+        self.__equipment_url = f'https://api.spoonacular.com/recipes/{spoonacular_id}/equipmentWidget.json'
+        self.spoonacular_id = spoonacular_id
+        self.name = name
+        self.__api_is_called = False
+        self.__api_equipment_is_fetch = False
+        
+        self.__builder = NormalRecipeBuilder(name=self.name, user=self.__create_spoonacular_user()) # This needs fixing later
+        
+    def __create_spoonacular_user(self) -> User: # Fix later
+        """
+        Create a spoonacular user in the local database.
+        
+        :return: A spoonacular user class.
+        """
+        # Create a test user
+        user = User.objects.filter(username = "Spoonacular").first()
+        if(user is None):
+            user = User(username = "Spoonacular", password=spoonacular_password)
+            user.save()
+        return user
+        
+    def __call_api(self):
+        """Fetch the information about the recipe from the Spoonacular API"""
+        if(not self.__api_is_called):
+            response = requests.get(self.__url, params={'apiKey': API_KEY})
+            
+            if response.status_code == 200:
+                self.__data = response.json()
+                self.__api_is_called = True
+            else:
+                raise Exception("Cannot load the recipe")
+            
+    def __fetch_equipment(self):
+        """Fetch the equipments of the recipe from the Spoonacular API"""
+        if(not self.__api_equipment_is_fetch):
+            response = requests.get(self.__equipment_url, params={'apiKey': API_KEY})
+            
+            if response.status_code == 200:
+                self.__equipement_data = response.json()
+                self.__api_equipment_is_fetch = True
+            else:
+                raise Exception("Cannot load the recipe")
     
     def build_recipe(self) -> Recipe:
         """
@@ -172,48 +221,53 @@ class SpoonacularRecipeBuilder(Builder):
         :return: A Recipe object that represents the constructed recipe based on
         Spoonacular data.
         """
-        return self.__recipe
+        return self.__builder.build_recipe()
 
-    def build_ingredient(self, ingredient: Ingredient, amount: int, unit: str):
+    def build_ingredient(self):
         """
         Build the ingredients for the recipe sourced from Spoonacular API.
-
-        :param ingredient: The ingredient used in the recipe.
-        :param amount: The amount of the ingredient needed in the recipe.
-        :param unit: The unit of the ingredient amount eg. Grams, Kg.
         """
-        ingredient_list = IngredientList.objects.create(
-            ingredient=ingredient,
-            recipe=self.__recipe,
-            amount=amount,
-            unit=unit
-        )
-        return ingredient_list
+        self.__call_api()
+                
+        # Use builder
+        for ingredient_data in self.__data.get('extendedIngredients', []):
+            ingredient, _ = Ingredient.objects.get_or_create(
+                spoonacular_id=ingredient_data['id'],
+                defaults={'name': ingredient_data['name'],
+                          'picture': ingredient_data['image'],}
+            )
+            ingredient.save()
+            self.__builder.build_ingredient(
+                ingredient=ingredient,
+                amount=ingredient_data['measures']['metric']['amount'],
+                unit=ingredient_data['measures']['metric']['unitLong'],
+                )
 
-    def build_step(self, step: RecipeStep):
+    def build_step(self):
         """
         Build the step in the Spoonacular recipe.
-
-        :param step: The step in the recipe.
         """
-        step.recipe = self.__recipe
-        step.save()
-
-    def build_equipment(self, equipment: Equipment, amount: int, unit: str):
+        for instruction in self.__data.get('analyzedInstructions', []):
+            for step_data in instruction.get('steps', []):
+                self.__builder.build_step(step_data['step'])
+        
+    def build_equipment(self):
         """
         Build the equipment needed for the recipe sourced from Spoonacular API.
-
-        :param equipment: The equipment used in the recipe.
-        :param amount: The amount of the equipment needed in the recipe.
-        :param unit: The unit of the equipment amount eg. Grams, spoon.
         """
-        equipment_list = EquipmentList.objects.create(
-            equipment=equipment,
-            recipe=self.__recipe,
-            amount=amount,
-            unit=unit
-        )
-        return equipment_list
+        self.__fetch_equipment()
+        
+        # Save the equipment (if available)
+        for equipment_data in self.__equipement_data.get('equipment', []):
+            equipment, _ = Equipment.objects.get_or_create(
+                name = equipment_data['name'],
+                picture = equipment_data['image']
+            )
+            equipment.save()
+            self.__builder.build_equipment(
+                equipment=equipment,
+
+                )
 
     def build_user(self, user: User):
         """
