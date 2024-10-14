@@ -187,14 +187,14 @@ class SpoonacularRecipeBuilder(Builder):
         """
         # Create a test user
         user = User.objects.filter(username = "Spoonacular").first()
-        if(user is None):
+        if user is None:
             user = User(username = "Spoonacular", password=spoonacular_password)
             user.save()
         return user
         
     def __call_api(self):
         """Fetch the information about the recipe from the Spoonacular API"""
-        if(not self.__api_is_called):
+        if not self.__api_is_called:
             response = requests.get(self.__url, params={'apiKey': API_KEY})
             
             if response.status_code == 200:
@@ -205,7 +205,7 @@ class SpoonacularRecipeBuilder(Builder):
             
     def __fetch_equipment(self):
         """Fetch the equipments of the recipe from the Spoonacular API"""
-        if(not self.__api_equipment_is_fetch):
+        if not self.__api_equipment_is_fetch:
             response = requests.get(self.__equipment_url, params={'apiKey': API_KEY})
             
             if response.status_code == 200:

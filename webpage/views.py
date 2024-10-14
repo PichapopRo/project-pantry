@@ -41,7 +41,6 @@ def register_view(request):
 
 class RecipeListView(generic.ListView):
     """RecipeList view."""
-
     template_name = 'recipes/recipe_list.html'
     context_object_name = 'recipe_list'
 
@@ -68,6 +67,6 @@ class RecipeListView(generic.ListView):
 
 class RecipeView(generic.DetailView):
     """RecipeView view."""
-    template_name = 'recipes/recipe.html'
+    template_name = 'recipes/description.html'
     model = Recipe
     context_object_name = 'recipe'
