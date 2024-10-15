@@ -1,31 +1,29 @@
-<html>
-<header>
-<div class="default">
-      <a href="#">Home</a>
-      <a href="#">Add Recipe</a>
-      <a href="#">Random Recipe!</a>
-</div>
-{% if user.is_authenticated %}
-      <h4 class="welcome-message"> Welcome back, {{ user.username }}! </h4>
-  {%  else  %}
-    <p class="login-message">Please <a href="{% url 'login' %}?next={{request.path}}">Login</a></p>
-  {% endif %}
-  {% if messages %}
-    <ul class="messages">
-      {% for message in messages %}
-        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-  {% if user.is_authenticated %}
-    <form action="{% url 'logout' %}" method="post" class="logout-button">
-      {% csrf_token %}
-      <button type="submit">Log Out</button>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+<style>
+		body {
+			background-color: #a7c49a;
+		}
+        nav
+	</style>
+<nav class="navbar navbar-expand-lg navbar-light bg-light" style="background-color: #e3f2fd;">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav">
+      <a class="nav-item nav-link active" href="/recipes/">Home </a>
+      <a class="nav-item nav-link" href="#" aria-disabled="true">Add Recipe</a>
+      <a class="nav-item nav-link" href="#" aria-disabled="true">Random Recipe!</a>
+    </div>
+      <form class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form>
-  {% endif %}
-</header>
-<body>
+  </div>
+</nav>
 {% block content %}
 {% endblock %}
-</body>
-</html>
