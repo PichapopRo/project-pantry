@@ -9,29 +9,41 @@
 {% block content %}
 
 {% if recipe_list %}
-        <div class="card-group py-5">
-            <div class="card mb-3" style="max-width: 540px;">
-                <div class="card-body">
+<div class="row">
+        <div class="col my-3">
             {% for recipe in recipe_list %}
-                        <h5 class="card-title my-2">{{ recipe.name }}</h5>
+            <div class="card mb-3 mx-auto">
+                <div class="card-body">
+                    <div class="row" style="max width = 400px">
+                        <div class="col-md-3">
+                            <img src="recipe.img" class="img-fluid rounded-start" alt="...">
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="card-title my-2">{{ recipe.name }}</h5>
+                            <small class="card-text my-2">By: Username</small>
                             <p class="card-text my-2">Description</p>
-                            <a href="{% url 'recipe' recipe.id %}" class="btn btn-outline-success my-2 my-sm-0">View recipe</a>
-            {% endfor %}
-                            </div>
+                            <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
+                        </div>
+                    </div>
                 </div>
+            </div>
+            {% endfor %}
         </div>
+    </div>
 {% elif total_recipes == 0 %}
     <p>No recipes available.</p>
 {% endif %}
 
-<form method="post" action=".">
-    {% csrf_token %}
-    {% if view_count == 0 and total_recipes > 0 %}
-        <button type="submit" name="increment" value="5">View Recipes</button>
-    {% elif total_recipes > 0 %}
-        <button type="submit" name="increment" value="5">Load More Recipes</button>
-    {% endif %}
-</form>
+<div class="d-flex justify-content-center mt-4">
+    <form method="post" action=".">
+        {% csrf_token %}
+        {% if view_count == 0 and total_recipes > 0 %}
+            <button type="submit" name="increment" value="5" class="btn btn-success">View Recipes</button>
+        {% elif total_recipes > 0 %}
+            <button type="submit" name="increment" value="5" class="btn btn-success">Load More Recipes</button>
+        {% endif %}
+    </form>
+</div>
 {% endblock %}
 </body>
 </html>
