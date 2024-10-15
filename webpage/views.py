@@ -71,3 +71,10 @@ class RecipeView(generic.DetailView):
     template_name = 'recipes/description.html'
     model = Recipe
     context_object_name = 'recipe'
+
+
+class StepView(generic.DetailView):
+    """StepView view."""
+    template_name = 'recipes/steps.html'
+    model = Recipe
+    context_object_name = 'recipe'
