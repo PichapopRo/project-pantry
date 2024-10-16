@@ -3,6 +3,7 @@
 <body>
 {% block content %}
 <h1> This is description page </h1>
+<a href="{% url 'steps' recipe.id %}" class="btn btn-success">Start cooking!</a>
 {% endblock %}
 </body>
 </html>

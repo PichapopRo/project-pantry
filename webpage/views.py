@@ -71,3 +71,16 @@ class RecipeView(generic.DetailView):
     template_name = 'recipes/description.html'
     model = Recipe
     context_object_name = 'recipe'
+
+
+class StepView(generic.DetailView):
+    """StepView view for displaying the steps of a recipe."""
+    template_name = 'recipes/steps.html'
+    model = Recipe
+
+    def get_context_data(self, **kwargs):
+        """Add steps directly from RecipeStep model to the context."""
+        context = super().get_context_data(**kwargs)
+        recipe = self.get_object()
+        context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
+        return context

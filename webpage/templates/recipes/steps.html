@@ -1,8 +1,22 @@
-<html>
 {% extends 'base.html' %}
+<h2>Steps for {{ recipe.name }}</h2>
 <body>
 {% block content %}
-<h1> This is step page </h1>
+<div class="d-grid gap-2 d-md-block">
+  <a href="{% url 'recipe' recipe.id %}" class="btn btn-success my-3 mx-3" type="button">Go Back</a>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div class="card mx-auto">
+            {% for step in steps %}
+                <h4 class="mx-3 my-2">Step {{ step.number }}:</h4>
+                <p class="mx-3">{{ step.description }}</p>
+            {% empty %}
+                <p>No steps available for this recipe.</p>
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
-</body>
-</html>
