@@ -20,8 +20,8 @@
                         </div>
                         <div class="col-md-6">
                             <h5 class="card-title my-2">{{ recipe.name }}</h5>
-                            <small class="card-text my-2">By: Username</small>
-                            <p class="card-text my-2">Description</p>
+                            <small class="card-text my-2">By: {{ recipe.poster_id.username }}</small>
+                            <p class="card-text my-2">{{ recipe.poster_id.username }}</p>
                             <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
                         </div>
                     </div>
