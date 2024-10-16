@@ -4,10 +4,13 @@ import time
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from webpage.models import Recipe, Ingredient, Equipment, RecipeStep
+from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
+  
 from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
 
 API_KEY = config('API_KEY', default='fake-secret-key')
+proxy = GetDataProxy(GetDataSpoonacular())
 
 class Command(BaseCommand):    
     help = 'Fetch and store all recipes from Spoonacular API'
@@ -16,7 +19,7 @@ class Command(BaseCommand):
         query_params = {
             'apiKey': API_KEY,
             'number': 10,
-            'offset': 0
+            'offset': 10
         }
 
         url = 'https://api.spoonacular.com/recipes/complexSearch'
@@ -35,16 +38,7 @@ class Command(BaseCommand):
             return
 
         for recipe_summary in recipes:
-            recipe_id = recipe_summary['id']
-            builder = SpoonacularRecipeBuilder(
-                spoonacular_id=recipe_summary['id'],
-                name = recipe_summary['title']
-                )
-            builder.build_ingredient()
-            builder.build_equipment()
-            builder.build_step()
-            builder.build_details()
-            builder.build_recipe().save()
+            proxy.find_by_spoonacular_id(int(recipe_summary['id']))
             self.stdout.write(self.style.SUCCESS(f"Save {recipe_summary['title']} successfully."))
 
         query_params['offset'] += query_params['number']
