@@ -72,6 +72,15 @@ class Builder(ABC):
         :param user: The user that is the author of the recipe.
         """
         pass
+    
+    @abstractmethod
+    def build_spoonacular_id(self, spoonacular_id:int):
+        """
+        Build the spoonacular_id property of the Recipe class.
+        
+        :param spoonacular_id: The Spoonacular ID of the Recipe.
+        """
+        pass
 
 
 class NormalRecipeBuilder(Builder):
@@ -163,6 +172,10 @@ class NormalRecipeBuilder(Builder):
         :param user: The user that is the author of the recipe.
         """
         self.__recipe.poster_id = user
+        self.__recipe.save()
+        
+    def build_spoonacular_id(self, spoonacular_id:int):
+        self.__recipe.spoonacular_id = spoonacular_id
         self.__recipe.save()
 
 
@@ -307,11 +320,15 @@ class SpoonacularRecipeBuilder(Builder):
 
                 )
 
-    def build_user(self, user: User):
+    def build_user(self, user: User): # Bad code to be remove
         """
         Build the user which is the author of the recipe.
 
         :param user: The user that is the author of the recipe.
         """
-        self.__recipe.poster_id = user
-        self.__recipe.save()
+        pass
+        
+    def build_spoonacular_id(self):
+        """Build the Spoonacular ID for the Recipe class."""
+        self.__call_api()
+        self.__builder.build_spoonacular_id(int(self.__data["id"]))

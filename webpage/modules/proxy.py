@@ -69,7 +69,7 @@ class GetDataProxy(GetData, ABC):
             # Retrieve the recipe data from the API
             spoonacular_recipe_queryset = self._service.find_by_spoonacular_id(id)
             return spoonacular_recipe_queryset
-        return recipe_queryset
+        return recipe_queryset.first()
 
     def find_by_name(self, name: str) -> QuerySet[Recipe]:
         """
@@ -112,6 +112,7 @@ class GetDataSpoonacular(GetData):
         builder.build_equipment()
         builder.build_step()
         builder.build_details()
+        builder.build_spoonacular_id()
         builder.build_recipe().save()
         return builder.build_recipe()
 
