@@ -1,0 +1,20 @@
+[run]
+# Ignore files in standard library and virtual environment directories
+omit =
+    /usr/lib/*
+    /usr/local/lib/*
+    .local/*
+    env/*
+    */__init__.py  # Ignore package initialization files
+    */migrations/* # Ignore Django migration files
+    pantry/*
+    manage.py      # Ignore manage.py file
+    staticfiles/*
+    admin.py
+    apps.py
+    urls.py
+[report]
+# Ignore special methods like __str__ and __repr__
+exclude_lines =
+    def __str__(self):
+    def __repr__(self):
