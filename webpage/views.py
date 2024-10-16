@@ -77,4 +77,4 @@ class StepView(generic.DetailView):
     """StepView view."""
     template_name = 'recipes/steps.html'
     model = Recipe
-    context_object_name = 'recipe'
+    context_object_name = 'steps'

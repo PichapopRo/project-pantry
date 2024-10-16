@@ -5,4 +5,11 @@
 <h1> This is step page </h1>
 {% endblock %}
 </body>
+<div class="container">
+    <div class="row row-col-1">
+        {% for step in recipe.steps %}
+        <p>{{ step.description }}</p>
+        {% endfor %}
+    </div>
+</div>
 </html>
