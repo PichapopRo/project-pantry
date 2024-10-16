@@ -9,7 +9,7 @@
             {% for recipe in recipe_list %}
                 <li>
                     <fieldset>
-                        <a href="{% url 'recipe' recipe.id %}">{{ recipe.name }}</a>
+                        <a href="{% url 'recipe' recipe.id %}">{{ recipe.images }} {{ recipe.name }}</a>
                     </fieldset>
                 </li>
             {% endfor %}
