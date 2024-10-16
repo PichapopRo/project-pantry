@@ -25,6 +25,13 @@ class Builder(ABC):
         :return: A Recipe object that represents the constructed recipe.
         """
         pass
+    
+    @abstractmethod
+    def build_details(self):
+        """
+        Build the properties of the recipe.
+        """
+        pass
 
     @abstractmethod
     def build_ingredient(self, ingredient: Ingredient, amount: int, unit: str):
@@ -83,6 +90,12 @@ class NormalRecipeBuilder(Builder):
         :param user: The user that is the author of the recipe.
         """
         self.__recipe = Recipe.objects.create(name=name, poster_id=user)
+        
+    def build_details(self, **kwargs): # Bad code change later.
+        """Build the properties of the Recipe class"""
+        # Process keyword arguments
+        for key, value in kwargs.items():
+            setattr(self.__recipe, key, value)
 
     def build_recipe(self) -> Recipe:
         """
@@ -213,6 +226,12 @@ class SpoonacularRecipeBuilder(Builder):
                 self.__api_equipment_is_fetch = True
             else:
                 raise Exception("Cannot load the recipe")
+            
+    def build_details(self):
+        """Build the properties of the recipe."""
+        self.__call_api()
+        self.__builder.build_details(image=self.__data["image"])
+        self.__builder.build_details(estimated_time=self.__data["readyInMinutes"])        
     
     def build_recipe(self) -> Recipe:
         """

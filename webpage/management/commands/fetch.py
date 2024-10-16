@@ -43,6 +43,7 @@ class Command(BaseCommand):
             builder.build_ingredient()
             builder.build_equipment()
             builder.build_step()
+            builder.build_details()
             builder.build_recipe().save()
             self.stdout.write(self.style.SUCCESS(f"Save {recipe_summary['title']} successfully."))
 
