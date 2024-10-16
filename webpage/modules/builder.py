@@ -217,7 +217,10 @@ class SpoonacularRecipeBuilder(Builder):
                 raise Exception("Cannot load the recipe")
             
     def __fetch_equipment(self):
-        """Fetch the equipments of the recipe from the Spoonacular API"""
+        """
+        Fetch the equipments of the recipe from the Spoonacular API.
+        Raise an Exeption if the recipe cannot be found.
+        """
         if(not self.__api_equipment_is_fetch):
             response = requests.get(self.__equipment_url, params={'apiKey': API_KEY})
             
@@ -228,14 +231,26 @@ class SpoonacularRecipeBuilder(Builder):
                 raise Exception("Cannot load the recipe")
             
     def build_details(self):
-        """Build the properties of the recipe."""
+        """
+        Build the image and estimated_time properties of the recipe.
+        Raise an Exeption if the recipe cannot be found.
+        """
         self.__call_api()
         self.__builder.build_details(image=self.__data["image"])
-        self.__builder.build_details(estimated_time=self.__data["readyInMinutes"])        
-    
+        self.__builder.build_details(estimated_time=self.__data["readyInMinutes"])
+
+    def build_name(self):
+        """
+        Build the name of the recipe, if you have not already add it in the initialize.
+        Raise an Exeption if the recipe cannot be found.
+        """
+        self.__call_api()
+        self.__builder.build_details(name=self.__data["title"])
+
     def build_recipe(self) -> Recipe:
         """
         Return a Recipe object with data from Spoonacular API.
+        Raise an Exeption if the recipe cannot be found.
 
         :return: A Recipe object that represents the constructed recipe based on
         Spoonacular data.
@@ -245,6 +260,7 @@ class SpoonacularRecipeBuilder(Builder):
     def build_ingredient(self):
         """
         Build the ingredients for the recipe sourced from Spoonacular API.
+        Raise an Exeption if the recipe cannot be found.
         """
         self.__call_api()
                 
@@ -265,7 +281,9 @@ class SpoonacularRecipeBuilder(Builder):
     def build_step(self):
         """
         Build the step in the Spoonacular recipe.
+        Raise an Exeption if the recipe cannot be found.
         """
+        self.__call_api()
         for instruction in self.__data.get('analyzedInstructions', []):
             for step_data in instruction.get('steps', []):
                 self.__builder.build_step(step_data['step'])
@@ -273,6 +291,7 @@ class SpoonacularRecipeBuilder(Builder):
     def build_equipment(self):
         """
         Build the equipment needed for the recipe sourced from Spoonacular API.
+        Raise an Exeption if the recipe cannot be found.
         """
         self.__fetch_equipment()
         
