@@ -6,7 +6,7 @@ omit =
     .local/*
     env/*
     */__init__.py  # Ignore package initialization files
-    */migrations/* # Ignore Django migration files
+    migrations/* # Ignore Django migration files
     pantry/*
     manage.py      # Ignore manage.py file
     staticfiles/*
