@@ -1,15 +1,11 @@
-<html>
-{% extends 'base.html' %}
-<body>
-{% block content %}
-<h1> This is step page </h1>
-{% endblock %}
-</body>
-<div class="container">
-    <div class="row row-col-1">
-        {% for step in recipe.steps %}
-        <p>{{ step.description }}</p>
-        {% endfor %}
-    </div>
-</div>
-</html>
+<h2>Steps for {{ recipe.name }}</h2>
+
+<ol>
+  {% for step in steps %}
+    <li>
+      <strong>Step {{ step.number }}:</strong> {{ step.description }}
+    </li>
+  {% empty %}
+    <p>No steps available for this recipe.</p>
+  {% endfor %}
+</ol>
