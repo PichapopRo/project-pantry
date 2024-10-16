@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 <h2>Steps for {{ recipe.name }}</h2>
-
 <body>
 {% block content %}
 <div class="d-grid gap-2 d-md-block">
@@ -10,14 +9,14 @@
     <div class="row">
         <div class="col">
             <div class="card mx-auto">
-  {% for step in steps %}
-      <h4 class="mx-3 my-2">Step {{ step.number }}:</h4>
-            <p class="mx-3">{{ step.description }}</p>
-  {% empty %}
-    <p>No steps available for this recipe.</p>
-  {% endfor %}
+            {% for step in steps %}
+                <h4 class="mx-3 my-2">Step {{ step.number }}:</h4>
+                <p class="mx-3">{{ step.description }}</p>
+            {% empty %}
+                <p>No steps available for this recipe.</p>
+            {% endfor %}
             </div>
-    </div>
         </div>
     </div>
+</div>
 {% endblock %}
