@@ -26,4 +26,5 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path("admin/", admin.site.urls),
     path('signup/', views.register_view, name='signup'),
+    path('signout/', views.signout_view, name='signout'),
 ]

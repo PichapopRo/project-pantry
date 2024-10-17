@@ -2,7 +2,7 @@ from django.views import generic
 from .models import *
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
+from django.contrib.auth import login, logout, authenticate
 from webpage.forms import CustomRegisterForm
 
 
@@ -32,11 +32,30 @@ def register_view(request):
             user.save()
             login(request, user)
             messages.success(request, "Registration successful!")
-            return redirect('home')  # Redirect to home or another page
+            return redirect('recipe_list')  # Redirect to home or another page
     else:
         form = CustomRegisterForm()
 
     return render(request, 'registration/signup.html', {'form': form})
+
+
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('recipe_list')
+        else:
+            messages.error(request, "Invalid username or password")
+    return render(request, 'registration/login.html')
+
+
+
+def signout_view(request):
+    logout(request)
+    return redirect("recipe_list")
 
 
 class RecipeListView(generic.ListView):

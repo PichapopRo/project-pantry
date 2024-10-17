@@ -19,10 +19,7 @@
     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     {% if user.is_authenticated %}
-    <form action="{% url 'logout' %}" method="post" >
-      {% csrf_token %}
-      <button class="btn btn-outline-success mx-2">Log Out</button>
-    </form>
+    <a href="{% url 'signout' %}" class="btn btn-success mx-2">Log Out</a>
     {%  else  %}
       <a href="{% url 'login' %}?next={{request.path}}" class="btn btn-success mx-2">Login</a>
     {% endif %}
