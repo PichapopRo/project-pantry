@@ -41,7 +41,7 @@ def register_view(request):
 
 def signout_view(request):
     logout(request)
-    return render(request, 'recipes/recipe_list.html')
+    return redirect("recipe_list")
 
 
 class RecipeListView(generic.ListView):
