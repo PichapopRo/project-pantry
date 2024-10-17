@@ -26,9 +26,16 @@
 		<div class="row h-100 justify-content-center align-items-center">
 			<div class="col-md-6 col-lg-4 wrapper">
 				<h2 class="text-center mb-4">Login</h2>
-                {% if error_message %}
-                    <p style="color: red;">{{ error_message }}</p>
-                {% endif %}
+				{% if messages %}
+					<ul class="list-group mb-4">
+						{% for message in messages %}
+							<li class="list-group-item alert alert-dismissible alert-{{ message.tags }}">
+								{{ message }}
+								<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+							</li>
+						{% endfor %}
+					</ul>
+				{% endif %}
 				<form method="POST" class="login-form">
 					{% csrf_token %}
 					<div class="mb-3">
