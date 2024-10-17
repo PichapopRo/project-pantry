@@ -22,3 +22,8 @@ class CustomRegisterForm(forms.ModelForm):
         password_confirm = cleaned_data.get("password_confirm")
 
         return cleaned_data
+
+
+class LoginForm(forms.Form):
+    username = forms.CharField(label="Username")
+    password = forms.CharField(label="Password", widget=forms.PasswordInput)
