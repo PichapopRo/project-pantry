@@ -1,5 +1,5 @@
 from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, IngredientList, EquipmentList, \
-    Nutrition
+    Nutrition, NutritionList
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from abc import ABC, abstractmethod
@@ -342,23 +342,19 @@ class SpoonacularRecipeBuilder(Builder):
                 )
 
     def build_nutrition(self):
-        """Build the nutrition information for the recipe using Spoonacular API data."""
-        self.__call_api()
-        nutrition_data = self.__data.get('nutrition', {}).get('nutrients', [])
-        for nutrient in nutrition_data:
-            nutrition, _ = Nutrition.objects.get_or_create(
+        """Fetch and build nutrition data for the recipe."""
+        self.__call_api()  # Ensure API data is fetched first
+        nutrition_data = self.__data.get('nutrition', {})
+
+        for nutrient in nutrition_data.get('nutrients', []):
+            nutrition = Nutrition(
                 name=nutrient['name'],
-                defaults={
-                    'amount': nutrient['amount'],
-                    'unit': nutrient['unit']
-                }
+                amount=nutrient['amount'],
+                unit=nutrient['unit'],
+                spoonacular_id=nutrient.get('id', None)
             )
             nutrition.save()
-            self.__builder.build_nutrition(
-                nutrition=nutrition,
-                amount=nutrient['amount'],
-                unit=nutrient['unit']
-            )
+            self.__builder.build_nutrition(nutrition=nutrition)
 
     def build_user(self, user: User): # Bad code to be remove
         """
