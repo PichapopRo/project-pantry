@@ -19,7 +19,7 @@ class Command(BaseCommand):
         query_params = {
             'apiKey': API_KEY,
             'number': 10,
-            'offset': 10
+            'offset': 20
         }
 
         url = 'https://api.spoonacular.com/recipes/complexSearch'
