@@ -5,6 +5,9 @@ from django.db.models import QuerySet
 from webpage.models import Recipe, Equipment, EquipmentList
 from django.core.exceptions import ObjectDoesNotExist
 import requests
+from webpage.modules.builder import SpoonacularRecipeBuilder
+from decouple import config
+API_KEY = config('API_KEY')
 
 
 class GetData(ABC):
@@ -16,9 +19,9 @@ class GetData(ABC):
     """
 
     @abstractmethod
-    def find_by_id(self, id: int) -> Recipe:
+    def find_by_spoonacular_id(self, id: int) -> Recipe:
         """
-        Find the recipe using the recipe's id.
+        Find the recipe using the recipe's spooacular_id.
 
         :param id: The recipe id.
         """
@@ -51,107 +54,36 @@ class GetDataProxy(GetData, ABC):
         """
         self._service = service
 
-    class GetDataProxy(GetData):
+    def find_by_spoonacular_id(self, id: int) -> Recipe|None:
         """
-        Proxy class that controls access to the underlying GetData service.
+        Find the recipe using the recipe's spoonacular_id.
 
-        This class adds a layer of abstraction, allowing for operations
-        such as saving data into the database when retrieving recipes that do not
-        exist in the database from the API.
+        This method includes additional logic to save the data (including equipment)
+        into the database if the recipe does not exist.
+
+        :param id: The recipe spoonacular_id.
+        :return: The Recipe object with the specified ID, return None if not found.
         """
+        recipe_queryset: QuerySet = Recipe.objects.filter(spoonacular_id=id)
+        if not recipe_queryset.exists():
+            # Retrieve the recipe data from the API
+            spoonacular_recipe_queryset = self._service.find_by_spoonacular_id(id)
+            return spoonacular_recipe_queryset
+        return recipe_queryset.first()
 
-        def __init__(self, service: GetData):
-            """
-            Initialize with a specific service instance for data retrieval.
+    def find_by_name(self, name: str) -> QuerySet[Recipe]:
+        """
+        Find the recipe from the API using the recipe's name.
 
-            :param service: An instance of a class that implements the GetData interface.
-            """
-            self._service = service
-
-        def find_by_id(self, id: int) -> Recipe|None:
-            """
-            Find the recipe from the API using the recipe's ID.
-
-            This method includes additional logic to save the data (including equipment)
-            into the database if the recipe does not exist.
-
-            :param id: The recipe id.
-            :return: The Recipe object with the specified ID, return None if not found.
-            """
-            try:
-                recipe_queryset: Recipe = Recipe.objects.filter(spoonacular_id=id).first()
-            except ObjectDoesNotExist:
-                # Retrieve the recipe data from the API
-                recipe_data = self._service.find_by_id(id).first()
-                if recipe_data:
-                    # Save the recipe in the database
-                    recipe = Recipe(
-                        name=recipe_data.name,
-                        spoonacular_id=recipe_data.spoonacular_id,
-                        estimated_time=recipe_data.estimated_time,
-                        images=recipe_data.images,
-                    )
-                    recipe.save()
-
-                    # Save the associated equipment in the database
-                    for equipment_data in recipe_data.equipment:
-                        equipment, created = Equipment.objects.get_or_create(
-                            name=equipment_data.name,
-                            spoonacular_id=equipment_data.spoonacular_id,
-                            defaults={'picture': equipment_data.picture}
-                        )
-                        # Create the relationship between recipe and equipment
-                        EquipmentList.objects.create(
-                            equipment=equipment,
-                            recipe=recipe,
-                            amount=equipment_data.amount,
-                            unit=equipment_data.unit
-                        )
-
-                    # Return the saved recipe
-                    return Recipe.objects.filter(spoonacular_id=recipe.spoonacular_id)
-                # Return Recipe None if recipe no found.
-                return None
-            return recipe_queryset
-
-        def find_by_name(self, name: str) -> QuerySet[Recipe]:
-            """
-            Find the recipe from the API using the recipe's name.
-
-            :param name: The recipe name.
-            :return: QuerySet containing the Recipe object.
-            """
-            recipe_queryset = Recipe.objects.filter(name__contains = name)
-            if not recipe_queryset.exists():
-                # Retrieve the recipe data from the API
-                recipe_data = self._service.find_by_name(name).first()
-                if recipe_data:
-                    # Save the recipe in the database
-                    recipe = Recipe(
-                        name=recipe_data.name,
-                        spoonacular_id=recipe_data.spoonacular_id,
-                        estimated_time=recipe_data.estimated_time,
-                        images=recipe_data.images,
-                    )
-                    recipe.save()
-
-                    # Save the associated equipment in the database
-                    for equipment_data in recipe_data.equipment:
-                        equipment, created = Equipment.objects.get_or_create(
-                            name=equipment_data.name,
-                            spoonacular_id=equipment_data.spoonacular_id,
-                            defaults={'picture': equipment_data.picture}
-                        )
-                        # Create the relationship between recipe and equipment
-                        EquipmentList.objects.create(
-                            equipment=equipment,
-                            recipe=recipe,
-                            amount=equipment_data.amount,
-                            unit=equipment_data.unit
-                        )
-                    # Return the saved recipe
-                    return Recipe.objects.filter(spoonacular_id=recipe.spoonacular_id)
-            return recipe_queryset
+        :param name: The recipe name.
+        :return: QuerySet containing the Recipe object.
+        """
+        recipe_queryset = Recipe.objects.filter(name__contains = name)
+        if not recipe_queryset.exists():
+            # Retrieve the recipe data from the API
+            spoonacular_recipe_queryset = self._service.find_by_name(name)
+            return spoonacular_recipe_queryset
+        return recipe_queryset
 
 
 class GetDataSpoonacular(GetData):
@@ -163,44 +95,52 @@ class GetDataSpoonacular(GetData):
     """
 
     def __init__(self):
-        self.api_key = 'YOUR_SPOONACULAR_API_KEY'  # Replace with your actual API key
+        self.api_key = API_KEY  # Replace with your actual API key
         self.base_url = 'https://api.spoonacular.com/recipes'
 
-    def find_by_id(self, id: int) -> Recipe|None:
+    def find_by_spoonacular_id(self, id: int) -> Recipe:
         """
-        Find the recipe from Spoonacular's API using the recipe's ID.
+        Find the recipe from Spoonacular's API using the recipe's spoonacular_id.
 
-        :param id: The recipe id.
+        :param id: The Spooacular recipe id.
         :return: QuerySet containing the Recipe object corresponding to the provided ID.
+                 Raise an Exeption if the recipe cannot found.
         """
-        response = requests.get(f'{self.base_url}/{id}/information?apiKey={self.api_key}')
-        if response.status_code == 200:
-            data: dict = response.json()
-            # Create a Recipe object from the API response
-            recipe = Recipe(
-                name=data['title'],
-                spoonacular_id=data['id'],
-                estimated_time=data.get('readyInMinutes', 0),
-                images=data['image'],
-            )
-            return Recipe.objects.filter(
-                spoonacular_id=recipe.spoonacular_id)
-        return None
+        builder = SpoonacularRecipeBuilder(name="", spoonacular_id=id)
+        builder.build_name()
+        builder.build_ingredient()
+        builder.build_equipment()
+        builder.build_step()
+        builder.build_details()
+        builder.build_spoonacular_id()
+        builder.build_recipe().save()
+        return builder.build_recipe()
 
-    def find_by_name(self, name: str) -> QuerySet[Recipe]:
+    def find_by_name(self, name: str) -> list[SpoonacularRecipeBuilder]:
         """
         Find the recipe from Spoonacular's API using the recipe's name.
 
         :param name: The recipe name.
         :return: QuerySet containing the Recipe object corresponding to the provided name.
+                 Returns an empty list if cannot find any recipe.
         """
         response = requests.get(f'{self.base_url}/search?query={name}&apiKey={self.api_key}')
         if response.status_code == 200:
             data: dict = response.json()
-            if data['results']:
-                #TODO Implement lazy Recipe.
-                recipe_id = data['results'][0]['id']
-                # Use find_by_id to get full details
-                return self.find_by_id(recipe_id)
-        # Return an empty queryset if no recipes found
-        return Recipe.objects.none()
+            _return_list = []
+            recipes = data.get('results', [])
+            for recipe_summary in recipes:
+                builder = SpoonacularRecipeBuilder(
+                    spoonacular_id=recipe_summary['id'],
+                    name = recipe_summary['title']
+                )
+                builder.build_ingredient()
+                builder.build_equipment()
+                builder.build_step()
+                builder.build_details()
+                _return_list.append(builder.build_recipe().save())
+
+            return _return_list
+                
+        # Return an empty list if no recipes found
+        return []
