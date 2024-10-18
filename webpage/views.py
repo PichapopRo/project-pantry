@@ -7,6 +7,11 @@ from webpage.forms import CustomRegisterForm
 
 
 def register_view(request):
+    """
+    Register VIew for user creation.
+
+    :param request: Request from the server.
+    """
     if request.method == 'POST':
         form = CustomRegisterForm(request.POST)
         if form.is_valid():
@@ -40,6 +45,11 @@ def register_view(request):
 
 
 def login_view(request):
+    """
+    Login view for user login.
+
+    :param request: Request from the server.
+    """
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -52,8 +62,12 @@ def login_view(request):
     return render(request, 'registration/login.html')
 
 
-
 def signout_view(request):
+    """
+    Logout view for user to log user out and redirect to correct URL
+
+    :param request: Request from the server.
+    """
     logout(request)
     return redirect("recipe_list")
 
@@ -74,7 +88,8 @@ class RecipeListView(generic.ListView):
         """Handle POST request to increment view_count."""
         if 'increment' in request.POST:
             increment = int(request.POST.get('increment', 0))
-            request.session['view_count'] = request.session.get('view_count', 0) + increment
+            request.session['view_count'] = request.session.get('view_count',
+                                                                0) + increment
         return self.get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -101,5 +116,6 @@ class StepView(generic.DetailView):
         """Add steps directly from RecipeStep model to the context."""
         context = super().get_context_data(**kwargs)
         recipe = self.get_object()
-        context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
+        context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by(
+            'number')
         return context
