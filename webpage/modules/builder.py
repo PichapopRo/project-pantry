@@ -355,13 +355,11 @@ class SpoonacularRecipeBuilder(Builder):
                     'unit': nutrient['unit'],
                 }
             )
-            nutrition_list = NutritionList(
-                recipe=self.__builder.build_recipe(),
+            self.__builder.build_nutrition(
                 nutrition=nutrition,
                 amount=nutrient['amount'],
-                unit=nutrient['unit'],
+                unit=nutrient['unit']
             )
-            nutrition_list.save()
 
     def build_user(self, user: User): # Bad code to be remove
         """
