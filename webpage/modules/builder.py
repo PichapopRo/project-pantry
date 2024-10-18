@@ -175,6 +175,15 @@ class NormalRecipeBuilder(Builder):
         step = RecipeStep.objects.create(description=step_description, recipe=self.__recipe)
         step.number = number
         step.save()
+
+    def build_nutrition(self, nutrition: Nutrition, amount: int, unit: str):
+        nutrition = IngredientList(
+            recipe = self.__recipe,
+            ingredient  = nutrition,
+            amount = amount,
+            unit = unit
+        )
+        nutrition.save()
     
     def build_user(self, user: User):
         """
@@ -224,14 +233,14 @@ class SpoonacularRecipeBuilder(Builder):
         """
         # Create a test user
         user = User.objects.filter(username = "Spoonacular").first()
-        if(user is None):
+        if user is None:
             user = User(username = "Spoonacular", password=spoonacular_password)
             user.save()
         return user
         
     def __call_api(self):
         """Fetch the information about the recipe from the Spoonacular API"""
-        if(not self.__api_is_called):
+        if not self.__api_is_called:
             response = requests.get(self.__url, params={'apiKey': API_KEY})
             
             if response.status_code == 200:
