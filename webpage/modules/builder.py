@@ -1,4 +1,5 @@
-from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, IngredientList, EquipmentList
+from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, IngredientList, EquipmentList, \
+    Nutrition
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from abc import ABC, abstractmethod
@@ -43,6 +44,16 @@ class Builder(ABC):
         :param unit: The unit of the ingredient amount eg. Grams, Kg.
         """
         pass
+
+    @abstractmethod
+    def build_nutrition(self, nutrition: Nutrition, amount: int, unit: str):
+        """
+        Build the nutrition associated with the recipe.
+
+        :param nutrition: The nutrition used in the recipe.
+        :param amount: The amount of the nutrition needed in the recipe.
+        :param unit: The unit of the nutrition amount eg. Grams, Kg.
+        """
 
     @abstractmethod
     def build_equipment(self, equipment: Equipment, amount: int, unit: str):
