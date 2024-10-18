@@ -88,8 +88,7 @@ class RecipeListView(generic.ListView):
         """Handle POST request to increment view_count."""
         if 'increment' in request.POST:
             increment = int(request.POST.get('increment', 0))
-            request.session['view_count'] = request.session.get('view_count',
-                                                                0) + increment
+            request.session['view_count'] = request.session.get('view_count', 0) + increment
         return self.get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -116,6 +115,5 @@ class StepView(generic.DetailView):
         """Add steps directly from RecipeStep model to the context."""
         context = super().get_context_data(**kwargs)
         recipe = self.get_object()
-        context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by(
-            'number')
+        context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
         return context
