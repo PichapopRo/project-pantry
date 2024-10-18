@@ -60,6 +60,7 @@ class Recipe(models.Model):
     image = models.CharField(max_length=200, null=True, blank=True)
     poster_id = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
+    description = models.CharField(max_length=300, null=True, blank=True)
 
     def __str__(self) -> str:
         """Return the name of the recipe."""

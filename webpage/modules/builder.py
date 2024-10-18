@@ -251,6 +251,7 @@ class SpoonacularRecipeBuilder(Builder):
         self.__call_api()
         self.__builder.build_details(image=self.__data["image"])
         self.__builder.build_details(estimated_time=self.__data["readyInMinutes"])
+        self.__builder.build_details(description=self.__data["summary"])
 
     def build_name(self):
         """
