@@ -343,18 +343,25 @@ class SpoonacularRecipeBuilder(Builder):
 
     def build_nutrition(self):
         """Fetch and build nutrition data for the recipe."""
-        self.__call_api()  # Ensure API data is fetched first
+        self.__call_api()
         nutrition_data = self.__data.get('nutrition', {})
-
         for nutrient in nutrition_data.get('nutrients', []):
-            nutrition = Nutrition(
-                name=nutrient['name'],
+            # Create or get the Nutrition instance
+            nutrition, _ = Nutrition.objects.get_or_create(
+                spoonacular_id=nutrient.get('id', None),
+                defaults={
+                    'name': nutrient['name'],
+                    'amount': nutrient['amount'],
+                    'unit': nutrient['unit'],
+                }
+            )
+            nutrition_list = NutritionList(
+                recipe=self.__builder.build_recipe(),
+                nutrition=nutrition,
                 amount=nutrient['amount'],
                 unit=nutrient['unit'],
-                spoonacular_id=nutrient.get('id', None)
             )
-            nutrition.save()
-            self.__builder.build_nutrition(nutrition=nutrition)
+            nutrition_list.save()
 
     def build_user(self, user: User): # Bad code to be remove
         """

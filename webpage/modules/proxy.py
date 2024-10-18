@@ -137,8 +137,8 @@ class GetDataSpoonacular(GetData):
                 )
                 builder.build_ingredient()
                 builder.build_equipment()
-                builder.build_nutrition()
                 builder.build_step()
+                builder.build_nutrition()
                 builder.build_details()
                 _return_list.append(builder.build_recipe().save())
 
