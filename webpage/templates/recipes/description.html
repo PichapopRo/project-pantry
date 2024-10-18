@@ -2,8 +2,22 @@
 {% extends 'base.html' %}
 <body>
 {% block content %}
-<h1> This is description page </h1>
-<a href="{% url 'steps' recipe.id %}" class="btn btn-success">Start cooking!</a>
+<div class="d-grid gap-2 d-md-block">
+  <a href="{% url 'recipe' recipe.id %}" class="btn btn-success mt-3 mx-3" type="button">Go Back</a>
+</div>
+<div class="container mx-auto">
+            <div class="card mx-auto">
+                <h1 class="mx-3 mt-3">{{ recipe.name }}</h1>
+                <small class="card-text mx-3">By: {{ recipe.poster_id.username }}</small>
+                <h3 class="mx-3 mt-2">Description</h3>
+                <p>{{ recipe. }}</p>
+                <h3 class="mx-3 mt-2">Ingredients</h3>
+                <h3 class="mx-3 mt-2">Tools</h3>
+<div class="d-flex justify-content-center mt-3">
+<a href="{% url 'steps' recipe.id %}" class="btn btn-success mx-auto my-3" >Start cooking!</a>
+</div>
+</div>
+</div>
 {% endblock %}
 </body>
 </html>
