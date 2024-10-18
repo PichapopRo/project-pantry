@@ -254,7 +254,7 @@ class SpoonacularRecipeBuilder(Builder):
         Fetch the equipments of the recipe from the Spoonacular API.
         Raise an Exeption if the recipe cannot be found.
         """
-        if(not self.__api_equipment_is_fetch):
+        if not self.__api_equipment_is_fetch:
             response = requests.get(self.__equipment_url, params={'apiKey': API_KEY})
             
             if response.status_code == 200:
@@ -340,6 +340,25 @@ class SpoonacularRecipeBuilder(Builder):
                 equipment=equipment,
 
                 )
+
+    def build_nutrition(self):
+        """Build the nutrition information for the recipe using Spoonacular API data."""
+        self.__call_api()
+        nutrition_data = self.__data.get('nutrition', {}).get('nutrients', [])
+        for nutrient in nutrition_data:
+            nutrition, _ = Nutrition.objects.get_or_create(
+                name=nutrient['name'],
+                defaults={
+                    'amount': nutrient['amount'],
+                    'unit': nutrient['unit']
+                }
+            )
+            nutrition.save()
+            self.__builder.build_nutrition(
+                nutrition=nutrition,
+                amount=nutrient['amount'],
+                unit=nutrient['unit']
+            )
 
     def build_user(self, user: User): # Bad code to be remove
         """
