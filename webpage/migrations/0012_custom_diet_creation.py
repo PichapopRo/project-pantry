@@ -1,13 +1,13 @@
 from django.db import migrations
 
 def create_default_diets(apps, schema_editor):
-    Diet = apps.get_model('your_app_name', 'Diet')
+    Diet = apps.get_model('webpage', 'Diet')
     Diet.objects.bulk_create([
-        Diet(name="Vegan"),
-        Diet(name="Vegetarian"),
-        Diet(name="Pescatarian"),
-        Diet(name="Gluten-Free"),
-        Diet(name="Paleo"),
+        Diet(name="vegan"),
+        Diet(name="vegetarian"),
+        Diet(name="pescatarian"),
+        Diet(name="gluten-free"),
+        Diet(name="paleo"),
     ])
 
 class Migration(migrations.Migration):

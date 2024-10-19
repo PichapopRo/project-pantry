@@ -79,9 +79,14 @@ class RecipeListView(generic.ListView):
     context_object_name = 'recipe_list'
 
     def get_queryset(self):
-        """Return recipes limited by view_count."""
+        """Return recipes filtered by diet and limited by view_count."""
         view_count = self.request.session.get('view_count', 0)
         all_recipes = Recipe.objects.all()
+        # Get the selected diet from the request's GET parameters
+        selected_diet = self.request.GET.get('diet')
+        if selected_diet:
+            # Filter recipes by the selected diet
+            all_recipes = all_recipes.filter(diets__name=selected_diet)
         return all_recipes[:view_count]
 
     def post(self, request, *args, **kwargs):
@@ -92,10 +97,13 @@ class RecipeListView(generic.ListView):
         return self.get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        """Add the current view_count to the context."""
+        """Add the current view_count and diet filter to the context."""
         context = super().get_context_data(**kwargs)
         context['total_recipes'] = Recipe.objects.count()
         context['view_count'] = self.request.session.get('view_count', 0)
+        context['diets'] = Diet.objects.all()
+        context['selected_diet'] = self.request.GET.get('diet')
+
         return context
 
 

@@ -7,7 +7,17 @@
 {% extends 'base.html' %}
 <body>
 {% block content %}
-
+<form method="get">
+    <label for="diet">Choose a diet:</label>
+    <select name="diet" id="diet" onchange="this.form.submit()">
+        <option value="">All Diets</option>
+        {% for diet in diets %}
+        <option value="{{ diet.name }}" {% if diet.name == selected_diet %}selected{% endif %}>
+            {{ diet.name }}
+        </option>
+        {% endfor %}
+    </select>
+</form>
 {% if recipe_list %}
 <div class="row">
         <div class="col my-3">
