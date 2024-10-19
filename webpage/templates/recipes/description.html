@@ -2,7 +2,13 @@
 {% extends 'base.html' %}
 <body>
 {% block content %}
-<h1> This is description page </h1>
+<h1> {{  recipe.name  }} </h1>
+<div>
+    <img src="recipe.img" alt="...">
+</div>
+    <h4> The estimated time: {{  recipe.estimated_time  }} </h4>
+    <h4> The difficulty: {{  recipe.get_difficulty  }} </h4>
+    <h4> Created at: {{  recipe.created_at  }} </h4>
 <a href="{% url 'steps' recipe.id %}" class="btn btn-success">Start cooking!</a>
 {% endblock %}
 </body>
