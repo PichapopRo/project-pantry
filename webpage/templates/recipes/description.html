@@ -9,13 +9,19 @@
             <div class="card mx-auto">
                 <h1 class="mx-3 mt-3">{{ recipe.name }}</h1>
                 <small class="card-text mx-3">By: {{ recipe.poster_id.username }}</small>
+              <div>
+                <img src="recipe.img" alt="...">
+              </div>
+                <h3 class="mx-3 mt-2">The estimated time: {{  recipe.estimated_time  }}</h3>
+                <h3 class="mx-3 mt-2">The difficulty: {{  recipe.get_difficulty  }}</h3>
+                <h3 class="mx-3 mt-2">Created at: {{  recipe.created_at  }}</h3>
                 <h3 class="mx-3 mt-2">Description</h3>
                 <h3 class="mx-3 mt-2">Ingredients</h3>
                 <h3 class="mx-3 mt-2">Tools</h3>
-<div class="d-flex justify-content-center mt-3">
-<a href="{% url 'steps' recipe.id %}" class="btn btn-success mx-auto my-3" >Start cooking!</a>
-</div>
-</div>
+              <div class="d-flex justify-content-center mt-3">
+                <a href="{% url 'steps' recipe.id %}" class="btn btn-success mx-auto my-3" >Start cooking!</a>
+              </div>
+            </div>
 </div>
 {% endblock %}
 </body>
