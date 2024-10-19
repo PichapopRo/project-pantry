@@ -5,21 +5,21 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from webpage.models import Recipe, Ingredient, Equipment, RecipeStep
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
-  
+
 from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
 
 API_KEY = config('API_KEY', default='fake-secret-key')
 proxy = GetDataProxy(GetDataSpoonacular())
 
-class Command(BaseCommand):    
+class Command(BaseCommand):
     help = 'Fetch and store all recipes from Spoonacular API'
 
     def handle(self, *args, **kwargs):
         query_params = {
             'apiKey': API_KEY,
-            'number': 10,
-            'offset': 0
+            'number': 5,
+            'offset': 20
         }
 
         url = 'https://api.spoonacular.com/recipes/complexSearch'

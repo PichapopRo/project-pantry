@@ -54,7 +54,7 @@ class EquipmentList(models.Model):
 
 class Nutrition(models.Model):
     name = models.CharField(max_length=100)
-    amount = models.IntegerField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
     unit = models.CharField(max_length=50)
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
 

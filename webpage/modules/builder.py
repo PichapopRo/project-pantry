@@ -177,13 +177,13 @@ class NormalRecipeBuilder(Builder):
         step.save()
 
     def build_nutrition(self, nutrition: Nutrition, amount: int, unit: str):
-        nutrition = IngredientList(
+        nutrition_list = NutritionList.objects.create(
             recipe = self.__recipe,
-            ingredient  = nutrition,
+            nutrition=nutrition,
             amount = amount,
             unit = unit
         )
-        nutrition.save()
+        nutrition_list.save()
     
     def build_user(self, user: User):
         """
@@ -218,10 +218,12 @@ class SpoonacularRecipeBuilder(Builder):
         """
         self.__url = f'https://api.spoonacular.com/recipes/{spoonacular_id}/information'
         self.__equipment_url = f'https://api.spoonacular.com/recipes/{spoonacular_id}/equipmentWidget.json'
+        self.__nutrition_url = f'https://api.spoonacular.com/recipes/{spoonacular_id}/nutritionWidget.json'
         self.spoonacular_id = spoonacular_id
         self.name = name
         self.__api_is_called = False
         self.__api_equipment_is_fetch = False
+        self.__api_nutrition_is_fetch = False
         
         self.__builder = NormalRecipeBuilder(name=self.name, user=self.__create_spoonacular_user()) # This needs fixing later
         
@@ -260,6 +262,19 @@ class SpoonacularRecipeBuilder(Builder):
             if response.status_code == 200:
                 self.__equipement_data = response.json()
                 self.__api_equipment_is_fetch = True
+            else:
+                raise Exception("Cannot load the recipe")
+
+    def __fetch_nutrition(self):
+        """
+        Fetch the nutrition of the recipe from the Spoonacular API.
+        Raise an Exeption if the recipe cannot be found.
+        """
+        if not self.__api_nutrition_is_fetch:
+            response = requests.get(self.__nutrition_url, params={'apiKey': API_KEY})
+            if response.status_code == 200:
+                self.__nutrition_data = response.json()
+                self.__api_nutrition_is_fetch = True
             else:
                 raise Exception("Cannot load the recipe")
             
@@ -338,28 +353,25 @@ class SpoonacularRecipeBuilder(Builder):
             equipment.save()
             self.__builder.build_equipment(
                 equipment=equipment,
-
                 )
 
     def build_nutrition(self):
         """Fetch and build nutrition data for the recipe."""
-        self.__call_api()
-        nutrition_data = self.__data.get('nutrition', {})
-        for nutrient in nutrition_data.get('nutrients', []):
-            # Create or get the Nutrition instance
+        self.__fetch_nutrition()
+        print(self.__nutrition_data)
+        for nutrition_data in self.__nutrition_data.get('nutrition', []):
             nutrition, _ = Nutrition.objects.get_or_create(
-                spoonacular_id=nutrient.get('id', None),
-                defaults={
-                    'name': nutrient['name'],
-                    'amount': nutrient['amount'],
-                    'unit': nutrient['unit'],
-                }
+                name=nutrition_data['name'],
+                amount=nutrition_data['amount'],
+                unit=nutrition_data['unit'],
             )
+            nutrition.save()
             self.__builder.build_nutrition(
                 nutrition=nutrition,
-                amount=nutrient['amount'],
-                unit=nutrient['unit']
+                amount=nutrition_data['amount'],
+                unit=nutrition_data['unit'],
             )
+
 
     def build_user(self, user: User): # Bad code to be remove
         """
