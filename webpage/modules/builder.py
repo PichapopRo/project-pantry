@@ -358,12 +358,9 @@ class SpoonacularRecipeBuilder(Builder):
     def build_nutrition(self):
         """Fetch and build nutrition data for the recipe."""
         self.__fetch_nutrition()
-        print(self.__nutrition_data)
-        for nutrition_data in self.__nutrition_data.get('nutrition', []):
+        for nutrition_data in self.__nutrition_data.get('nutrients', []):
             nutrition, _ = Nutrition.objects.get_or_create(
                 name=nutrition_data['name'],
-                amount=nutrition_data['amount'],
-                unit=nutrition_data['unit'],
             )
             nutrition.save()
             self.__builder.build_nutrition(
