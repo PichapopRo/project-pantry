@@ -80,14 +80,37 @@ class RecipeListView(generic.ListView):
     context_object_name = 'recipe_list'
 
     def get_queryset(self):
-        """Return recipes filtered by diet and limited by view_count."""
+        """Return recipes filtered by diet, ingredient, max cooking time, and limited by view_count."""
         view_count = self.request.session.get('view_count', 0)
-        all_recipes = Recipe.objects.all()
-        selected_diet = self.request.GET.get('diet')
         recipe_filter = RecipeFilter()
+
+        # Retrieve parameters from the request
+        selected_diet = self.request.GET.get('diet')
+        ingredient = self.request.GET.get('ingredient')
+        max_cooking_time = self.request.GET.get('max_cooking_time')
+
+        # Start with all recipes
+        filtered_queryset = Recipe.objects.all()
+
+        # Apply diet filter if selected
         if selected_diet:
-            all_recipes = recipe_filter.queryset = recipe_filter.filter_by_diet(selected_diet)
-        return all_recipes[:view_count]
+            filtered_queryset = recipe_filter.filter_by_diet(selected_diet)
+
+        # Apply ingredient filter if specified
+        if ingredient:
+            filtered_queryset = filtered_queryset.intersection(
+                recipe_filter.filter_by_ingredient(ingredient))
+
+        # Apply max cooking time filter if specified
+        if max_cooking_time:
+            try:
+                max_cooking_time = int(max_cooking_time)  # Convert to int
+                filtered_queryset = filtered_queryset.intersection(
+                    recipe_filter.filter_by_max_cooking_time(max_cooking_time))
+            except ValueError:
+                pass  # Handle the case where max_cooking_time is not a valid integer
+
+        return filtered_queryset[:view_count]  # Limit results based on view_count
 
     def post(self, request, *args, **kwargs):
         """Handle POST request to increment view_count."""

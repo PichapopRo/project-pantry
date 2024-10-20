@@ -171,7 +171,7 @@ class RecipeFilter:
         :param ingredient: The ingredient to filter recipes by.
         :return: A filtered queryset of recipes.
         """
-        return self.queryset.filter(ingredients__name__icontains=ingredient)
+        return self.queryset.filter(ingredientlist__ingredient__name__icontains=ingredient.lower())
 
     def filter_by_max_cooking_time(self, estimated_time: int) -> QuerySet:
         """
