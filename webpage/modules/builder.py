@@ -1,4 +1,5 @@
-from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, IngredientList, EquipmentList
+from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, IngredientList, EquipmentList, \
+    Nutrition, NutritionList
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from abc import ABC, abstractmethod
@@ -43,6 +44,16 @@ class Builder(ABC):
         :param unit: The unit of the ingredient amount eg. Grams, Kg.
         """
         pass
+
+    @abstractmethod
+    def build_nutrition(self, nutrition: Nutrition, amount: int, unit: str):
+        """
+        Build the nutrition associated with the recipe.
+
+        :param nutrition: The nutrition used in the recipe.
+        :param amount: The amount of the nutrition needed in the recipe.
+        :param unit: The unit of the nutrition amount eg. Grams, Kg.
+        """
 
     @abstractmethod
     def build_equipment(self, equipment: Equipment, amount: int, unit: str):
@@ -164,6 +175,22 @@ class NormalRecipeBuilder(Builder):
         step = RecipeStep.objects.create(description=step_description, recipe=self.__recipe)
         step.number = number
         step.save()
+
+    def build_nutrition(self, nutrition: Nutrition, amount: int, unit: str):
+        """
+        Build the nutrition in recipe
+
+        :param nutrition: The nutrition used in the recipe.
+        :param amount: The amount of the nutrition needed in the recipe.
+        :param unit: The unit of the nutrition amount e.g. Grams, Kg.
+        """
+        nutrition_list = NutritionList.objects.create(
+            recipe = self.__recipe,
+            nutrition=nutrition,
+            amount = amount,
+            unit = unit
+        )
+        nutrition_list.save()
     
     def build_user(self, user: User):
         """
@@ -198,10 +225,12 @@ class SpoonacularRecipeBuilder(Builder):
         """
         self.__url = f'https://api.spoonacular.com/recipes/{spoonacular_id}/information'
         self.__equipment_url = f'https://api.spoonacular.com/recipes/{spoonacular_id}/equipmentWidget.json'
+        self.__nutrition_url = f'https://api.spoonacular.com/recipes/{spoonacular_id}/nutritionWidget.json'
         self.spoonacular_id = spoonacular_id
         self.name = name
         self.__api_is_called = False
         self.__api_equipment_is_fetch = False
+        self.__api_nutrition_is_fetch = False
         
         self.__builder = NormalRecipeBuilder(name=self.name, user=self.__create_spoonacular_user()) # This needs fixing later
         
@@ -213,14 +242,14 @@ class SpoonacularRecipeBuilder(Builder):
         """
         # Create a test user
         user = User.objects.filter(username = "Spoonacular").first()
-        if(user is None):
+        if user is None:
             user = User(username = "Spoonacular", password=spoonacular_password)
             user.save()
         return user
         
     def __call_api(self):
         """Fetch the information about the recipe from the Spoonacular API"""
-        if(not self.__api_is_called):
+        if not self.__api_is_called:
             response = requests.get(self.__url, params={'apiKey': API_KEY})
             
             if response.status_code == 200:
@@ -234,12 +263,25 @@ class SpoonacularRecipeBuilder(Builder):
         Fetch the equipments of the recipe from the Spoonacular API.
         Raise an Exeption if the recipe cannot be found.
         """
-        if(not self.__api_equipment_is_fetch):
+        if not self.__api_equipment_is_fetch:
             response = requests.get(self.__equipment_url, params={'apiKey': API_KEY})
             
             if response.status_code == 200:
                 self.__equipement_data = response.json()
                 self.__api_equipment_is_fetch = True
+            else:
+                raise Exception("Cannot load the recipe")
+
+    def __fetch_nutrition(self):
+        """
+        Fetch the nutrition of the recipe from the Spoonacular API.
+        Raise an Exeption if the recipe cannot be found.
+        """
+        if not self.__api_nutrition_is_fetch:
+            response = requests.get(self.__nutrition_url, params={'apiKey': API_KEY})
+            if response.status_code == 200:
+                self.__nutrition_data = response.json()
+                self.__api_nutrition_is_fetch = True
             else:
                 raise Exception("Cannot load the recipe")
             
@@ -318,8 +360,22 @@ class SpoonacularRecipeBuilder(Builder):
             equipment.save()
             self.__builder.build_equipment(
                 equipment=equipment,
-
                 )
+
+    def build_nutrition(self):
+        """Fetch and build nutrition data for the recipe."""
+        self.__fetch_nutrition()
+        for nutrition_data in self.__nutrition_data.get('nutrients', []):
+            nutrition, _ = Nutrition.objects.get_or_create(
+                name=nutrition_data['name'],
+            )
+            nutrition.save()
+            self.__builder.build_nutrition(
+                nutrition=nutrition,
+                amount=nutrition_data['amount'],
+                unit=nutrition_data['unit'],
+            )
+
 
     def build_user(self, user: User): # Bad code to be remove
         """

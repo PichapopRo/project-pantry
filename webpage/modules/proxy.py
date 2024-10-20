@@ -110,6 +110,7 @@ class GetDataSpoonacular(GetData):
         builder.build_name()
         builder.build_ingredient()
         builder.build_equipment()
+        builder.build_nutrition()
         builder.build_step()
         builder.build_details()
         builder.build_spoonacular_id()
@@ -137,10 +138,11 @@ class GetDataSpoonacular(GetData):
                 builder.build_ingredient()
                 builder.build_equipment()
                 builder.build_step()
+                builder.build_nutrition()
                 builder.build_details()
                 _return_list.append(builder.build_recipe().save())
 
             return _return_list
-                
+
         # Return an empty list if no recipes found
         return []
