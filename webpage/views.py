@@ -87,28 +87,20 @@ class RecipeListView(generic.ListView):
         # Retrieve parameters from the request
         selected_diet = self.request.GET.get('diet')
         ingredient = self.request.GET.get('ingredient')
-        max_cooking_time = self.request.GET.get('max_cooking_time')
-
-        # Start with all recipes
+        estimated_time = self.request.GET.get('estimated_time')
         filtered_queryset = Recipe.objects.all()
-
-        # Apply diet filter if selected
         if selected_diet:
             filtered_queryset = recipe_filter.filter_by_diet(selected_diet)
-
-        # Apply ingredient filter if specified
         if ingredient:
             filtered_queryset = filtered_queryset.intersection(
                 recipe_filter.filter_by_ingredient(ingredient))
-
-        # Apply max cooking time filter if specified
-        if max_cooking_time:
+        if estimated_time:
             try:
-                max_cooking_time = int(max_cooking_time)  # Convert to int
+                estimated_time = int(estimated_time)  # Convert to int
                 filtered_queryset = filtered_queryset.intersection(
-                    recipe_filter.filter_by_max_cooking_time(max_cooking_time))
+                    recipe_filter.filter_by_max_cooking_time(estimated_time))
             except ValueError:
-                pass  # Handle the case where max_cooking_time is not a valid integer
+                pass
 
         return filtered_queryset[:view_count]  # Limit results based on view_count
 
