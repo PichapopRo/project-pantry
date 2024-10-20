@@ -1,5 +1,5 @@
 from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, IngredientList, EquipmentList, \
-    Nutrition, NutritionList
+    Nutrition, NutritionList, Diet
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from abc import ABC, abstractmethod
@@ -362,6 +362,14 @@ class SpoonacularRecipeBuilder(Builder):
                 equipment=equipment,
                 )
 
+    def build_diet(self):
+        self.__call_api()
+        # Diet information from Spoonacular
+        diets_from_api = self.__data.get('diets', [])
+        for diet_name in diets_from_api:
+            diet, _ = Diet.objects.get_or_create(name=diet_name)
+            self.__builder.build_details(diets=[diet])
+
     def build_nutrition(self):
         """Fetch and build nutrition data for the recipe."""
         self.__fetch_nutrition()
@@ -375,7 +383,6 @@ class SpoonacularRecipeBuilder(Builder):
                 amount=nutrition_data['amount'],
                 unit=nutrition_data['unit'],
             )
-
 
     def build_user(self, user: User): # Bad code to be remove
         """

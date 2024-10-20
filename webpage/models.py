@@ -52,6 +52,15 @@ class EquipmentList(models.Model):
     unit = models.CharField(max_length=100, default="piece")
 
 
+class Diet(models.Model):
+    """A diet contains a different kind of diet restriction such as vegan or vegetarian."""
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        """Return the name of the diet."""
+        return self.name
+      
+
 class Nutrition(models.Model):
     """Nutrition, contains a nutrition for each recipe."""
     name = models.CharField(max_length=100)
@@ -69,6 +78,7 @@ class NutritionList(models.Model):
         return f'{self.nutrition.name}: {self.amount} {self.unit}'
 
 
+
 class Recipe(models.Model):
     """The recipe class containing information about the recipe and methods."""
     name = models.CharField(max_length=200, default='Unnamed Recipe')
@@ -78,6 +88,7 @@ class Recipe(models.Model):
     poster_id = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
     description = models.CharField(max_length=300, null=True, blank=True)
+    diets = models.ManyToManyField(Diet, related_name="recipes")
 
     def __str__(self) -> str:
         """Return the name of the recipe."""
