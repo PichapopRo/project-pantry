@@ -187,4 +187,4 @@ class RecipeFilter:
         :param equipment_name: The name of the equipment to filter by.
         :return: A filtered queryset of recipes.
         """
-        return self.queryset.filter(equipment__name__icontains=equipment_name)
+        return self.queryset.filter(equipmentlist__equipment__name__icontains=equipment_name)

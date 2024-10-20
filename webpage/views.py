@@ -88,12 +88,16 @@ class RecipeListView(generic.ListView):
         selected_diet = self.request.GET.get('diet')
         ingredient = self.request.GET.get('ingredient')
         estimated_time = self.request.GET.get('estimated_time')
+        equipment = self.request.GET.get('equipment')
         filtered_queryset = Recipe.objects.all()
         if selected_diet:
             filtered_queryset = recipe_filter.filter_by_diet(selected_diet)
         if ingredient:
             filtered_queryset = filtered_queryset.intersection(
                 recipe_filter.filter_by_ingredient(ingredient))
+        if equipment:
+            filtered_queryset = filtered_queryset.intersection(
+                recipe_filter.filter_by_equipment(equipment))
         if estimated_time:
             try:
                 estimated_time = int(estimated_time)  # Convert to int
