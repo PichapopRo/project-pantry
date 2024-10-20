@@ -59,6 +59,24 @@ class Diet(models.Model):
     def __str__(self):
         """Return the name of the diet."""
         return self.name
+      
+
+class Nutrition(models.Model):
+    """Nutrition, contains a nutrition for each recipe."""
+    name = models.CharField(max_length=100)
+    spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
+
+
+class NutritionList(models.Model):
+    """The relations representing which nutrition information is used in which recipe."""
+    nutrition = models.ForeignKey(Nutrition, on_delete=models.CASCADE)
+    recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    unit = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f'{self.nutrition.name}: {self.amount} {self.unit}'
+
 
 
 class Recipe(models.Model):
@@ -96,3 +114,7 @@ class Recipe(models.Model):
     def get_steps(self) -> QuerySet[RecipeStep]:
         """Return a queryset of steps in the recipe."""
         return RecipeStep.objects.filter(recipe=self)
+
+    def get_nutrition(self) -> QuerySet[NutritionList]:
+        """Return a queryset of NutritionList which contains the nutrition information for the recipe."""
+        return NutritionList.objects.filter(recipe=self)
