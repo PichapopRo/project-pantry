@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from webpage.forms import CustomRegisterForm
-from webpage.modules.proxy import RecipeFilter
+from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 
 
 def register_view(request):
@@ -82,14 +82,14 @@ class RecipeListView(generic.ListView):
     def get_queryset(self):
         """Return recipes filtered by diet, ingredient, max cooking time, and limited by view_count."""
         view_count = self.request.session.get('view_count', 0)
-        recipe_filter = RecipeFilter()
+        filtered_queryset = Recipe.objects.all()
+        recipe_filter = GetDataProxy(GetDataSpoonacular(), filtered_queryset)
 
         # Retrieve parameters from the request
         selected_diet = self.request.GET.get('diet')
         ingredient = self.request.GET.get('ingredient')
         estimated_time = self.request.GET.get('estimated_time')
         equipment = self.request.GET.get('equipment')
-        filtered_queryset = Recipe.objects.all()
         if selected_diet:
             filtered_queryset = recipe_filter.filter_by_diet(selected_diet)
         if ingredient:
