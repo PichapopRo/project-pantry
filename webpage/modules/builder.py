@@ -177,6 +177,13 @@ class NormalRecipeBuilder(Builder):
         step.save()
 
     def build_nutrition(self, nutrition: Nutrition, amount: int, unit: str):
+        """
+        Build the nutrition in recipe
+
+        :param nutrition: The nutrition used in the recipe.
+        :param amount: The amount of the nutrition needed in the recipe.
+        :param unit: The unit of the nutrition amount e.g. Grams, Kg.
+        """
         nutrition_list = NutritionList.objects.create(
             recipe = self.__recipe,
             nutrition=nutrition,

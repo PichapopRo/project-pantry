@@ -53,6 +53,7 @@ class EquipmentList(models.Model):
 
 
 class Nutrition(models.Model):
+    """Nutrition, contains a nutrition for each recipe."""
     name = models.CharField(max_length=100)
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
 
