@@ -55,7 +55,9 @@ class EquipmentList(models.Model):
 class Diet(models.Model):
     """A diet contains a different kind of diet restriction such as vegan or vegetarian."""
     name = models.CharField(max_length=100, unique=True)
+
     def __str__(self):
+        """Return the name of the diet."""
         return self.name
 
 
