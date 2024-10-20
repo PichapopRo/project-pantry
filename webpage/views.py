@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from webpage.forms import CustomRegisterForm
+from webpage.modules.proxy import RecipeFilter
 
 
 def register_view(request):
@@ -82,11 +83,10 @@ class RecipeListView(generic.ListView):
         """Return recipes filtered by diet and limited by view_count."""
         view_count = self.request.session.get('view_count', 0)
         all_recipes = Recipe.objects.all()
-        # Get the selected diet from the request's GET parameters
         selected_diet = self.request.GET.get('diet')
+        recipe_filter = RecipeFilter()
         if selected_diet:
-            # Filter recipes by the selected diet
-            all_recipes = all_recipes.filter(diets__name=selected_diet)
+            all_recipes = recipe_filter.queryset = recipe_filter.filter_by_diet(selected_diet)
         return all_recipes[:view_count]
 
     def post(self, request, *args, **kwargs):
