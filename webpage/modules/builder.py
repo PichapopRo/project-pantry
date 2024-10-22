@@ -286,12 +286,10 @@ class SpoonacularRecipeBuilder(Builder):
             else:
                 raise Exception("Cannot load the recipe")
 
-    @staticmethod
-    def strip_html(html_content):
+    def __strip_html(self, html_content):
         """Convert HTML content to plain text."""
         soup = BeautifulSoup(html_content, 'html.parser')
         return soup.get_text(separator='').strip()
-
 
     def build_details(self):
         """
@@ -301,7 +299,7 @@ class SpoonacularRecipeBuilder(Builder):
         self.__call_api()
         self.__builder.build_details(image=self.__data["image"])
         self.__builder.build_details(estimated_time=self.__data["readyInMinutes"])
-        cleaned_description = self.strip_html(self.__data["summary"])
+        cleaned_description = self.__strip_html(self.__data["summary"])
         self.__builder.build_details(description=cleaned_description)
 
     def build_name(self):
