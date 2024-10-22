@@ -286,8 +286,13 @@ class SpoonacularRecipeBuilder(Builder):
             else:
                 raise Exception("Cannot load the recipe")
 
-    def __strip_html(self, html_content):
-        """Convert HTML content to plain text."""
+    def __strip_html(self, html_content: str) -> str:
+        """
+        Convert HTML content to plain text.
+
+        :param html_content: The HTML content to be converted.
+        :return: The plain text extracted from the HTML content.
+        """
         soup = BeautifulSoup(html_content, 'html.parser')
         return soup.get_text(separator='').strip()
 
