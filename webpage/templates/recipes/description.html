@@ -2,14 +2,42 @@
 {% extends 'base.html' %}
 <body>
 {% block content %}
-<h1> {{  recipe.name  }} </h1>
-<div>
-    <img src="recipe.img" alt="...">
+<div class="container mt-5">
+    <h1 class="text-center">{{ recipe.name }}</h1>
+    <div class="text-center my-4">
+        <img src="{{ recipe.img }}" alt="{{ recipe.name }}" class="img-fluid rounded">
+    </div>
+    <div class="recipe-details mb-4">
+        <h4>Estimated Time: {{ recipe.estimated_time }}</h4>
+        <h4>Difficulty: {{ recipe.get_difficulty }}</h4>
+        <h4>Created At: {{ recipe.created_at }}</h4>
+    </div>
+    <div class="equipments-section mb-4">
+        <h3>Equipments</h3>
+        <ul class="list-group">
+            {% for equipment in recipe.get_equipments %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ forloop.counter }}. {{ equipment.equipment.name }}: {{ equipment.amount }} {{ equipment.unit }}</span>
+                    <img src="{{ equipment.equipment.picture }}" alt="{{ equipment.equipment.name }}" class="img-thumbnail">
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="ingredients-section mb-4">
+        <h3>Ingredients</h3>
+        <ul class="list-group">
+            {% for ingredient in recipe.get_ingredients %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ forloop.counter }}. {{ ingredient.ingredient.name }}: {{ ingredient.amount }} {{ ingredient.unit }}</span>
+                    <img src="{{ ingredient.ingredient.picture }}" alt="{{ ingredient.ingredient.name }}" class="img-thumbnail">
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="text-center mt-5">
+        <a href="{% url 'steps' recipe.id %}" class="btn btn-success btn-lg">Start Cooking!</a>
+    </div>
 </div>
-    <h4> The estimated time: {{  recipe.estimated_time  }} </h4>
-    <h4> The difficulty: {{  recipe.get_difficulty  }} </h4>
-    <h4> Created at: {{  recipe.created_at  }} </h4>
-<a href="{% url 'steps' recipe.id %}" class="btn btn-success">Start cooking!</a>
 {% endblock %}
 </body>
 </html>
