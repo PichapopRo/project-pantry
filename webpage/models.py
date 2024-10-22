@@ -52,14 +52,43 @@ class EquipmentList(models.Model):
     unit = models.CharField(max_length=100, default="piece")
 
 
+class Diet(models.Model):
+    """A diet contains a different kind of diet restriction such as vegan or vegetarian."""
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        """Return the name of the diet."""
+        return self.name
+      
+
+class Nutrition(models.Model):
+    """Nutrition, contains a nutrition for each recipe."""
+    name = models.CharField(max_length=100)
+    spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
+
+
+class NutritionList(models.Model):
+    """The relations representing which nutrition information is used in which recipe."""
+    nutrition = models.ForeignKey(Nutrition, on_delete=models.CASCADE)
+    recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    unit = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f'{self.nutrition.name}: {self.amount} {self.unit}'
+
+
+
 class Recipe(models.Model):
     """The recipe class containing information about the recipe and methods."""
     name = models.CharField(max_length=200, default='Unnamed Recipe')
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
     estimated_time = models.FloatField(default=0)
-    images = models.ImageField(upload_to='recipe_images/', blank=True)
+    image = models.CharField(max_length=200, null=True, blank=True)
     poster_id = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
+    description = models.CharField(max_length=300, null=True, blank=True)
+    diets = models.ManyToManyField(Diet, related_name="recipes")
 
     def __str__(self) -> str:
         """Return the name of the recipe."""
@@ -85,3 +114,7 @@ class Recipe(models.Model):
     def get_steps(self) -> QuerySet[RecipeStep]:
         """Return a queryset of steps in the recipe."""
         return RecipeStep.objects.filter(recipe=self)
+
+    def get_nutrition(self) -> QuerySet[NutritionList]:
+        """Return a queryset of NutritionList which contains the nutrition information for the recipe."""
+        return NutritionList.objects.filter(recipe=self)
