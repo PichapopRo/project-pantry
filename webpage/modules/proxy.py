@@ -35,6 +35,16 @@ class GetData(ABC):
         :param name: The recipe name.
         """
         pass
+    
+    @abstractmethod
+    def filter(self, offset: int, number: int, **kwargs) -> list[Recipe]:
+        """
+        Filter the recipe using a given filter, offset and number.
+        
+        :param offset: The offset number of the recipes.
+        :param number: The number of the recipes you wanted.
+        :param kwargs: The filter 
+        """
 
 
 class GetDataProxy(GetData):
@@ -46,7 +56,7 @@ class GetDataProxy(GetData):
     exist in the database from the API.
     """
 
-    def __init__(self, service: GetData, queryset: QuerySet):  # bad code
+    def __init__(self, service: GetData, queryset: QuerySet=QuerySet()):  # bad code
         """
         Initialize with a specific service instance for data retrieval.
 
@@ -54,6 +64,15 @@ class GetDataProxy(GetData):
         """
         self._service = service
         self._queryset = queryset
+        
+    def filter(self, offset: int, number: int, **kwargs) -> list[Recipe]:
+        try:
+            recipe_list: list = list(Recipe.objects.filter(kwargs)[offset:offset + number])
+        except IndexError:
+            start_index = offset + number - len(Recipe.objects.filter(kwargs))
+            queryset: QuerySet = Recipe.objects.filter(kwargs)
+            recipe_list: list = list(queryset[offset:len(queryset)])
+            recipe_list += self._service.filter(offset=start_index, number=number, **kwargs)        
 
     def find_by_spoonacular_id(self, id: int) -> Recipe|None:
         """
