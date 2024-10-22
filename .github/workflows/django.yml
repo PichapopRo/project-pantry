@@ -11,7 +11,7 @@ env:
   ALLOWED_HOSTS: '*'
   TIME_ZONE: 'Asia/Bangkok'
   SECRET_KEY: ${{secrets.SECRET_KEY}}
-  SPOONACULAR_PASSWORD: 'fnwoI55BOJNFJhuh298'
+  SPOONACULAR_PASSWORD: ${{secrets.SPOONACULAR_PASSWORD}}
   API_KEY: 'fake-key'
 
 jobs:
