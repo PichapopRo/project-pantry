@@ -142,5 +142,5 @@ class StepView(generic.DetailView):
         """Add steps directly from RecipeStep model to the context."""
         context = super().get_context_data(**kwargs)
         recipe = self.get_object()
-        context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
+        context['steps'] = recipe.get_steps().order_by('number')
         return context
