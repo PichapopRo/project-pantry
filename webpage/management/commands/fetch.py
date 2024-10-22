@@ -18,8 +18,8 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         query_params = {
             'apiKey': API_KEY,
-            'number': 5,
-            'offset': 10
+            'number': 15,
+            'offset': 15
         }
 
         url = 'https://api.spoonacular.com/recipes/complexSearch'
