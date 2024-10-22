@@ -40,8 +40,27 @@ class RecipeModelTest(TestCase):
         self.assertEqual(equipments.first().equipment.name, "Pan")
 
     def test_get_steps(self):
-        """Test the get_steps method."""
-        RecipeStep.objects.create(number=1, description="Boil water", recipe=self.recipe)
-        steps = self.recipe.get_steps()
-        self.assertEqual(steps.count(), 1)
-        self.assertEqual(steps.first().description, "Boil water")
+        """
+        Test if the steps are returned in the correct order.
+
+        This test ensures that six steps are created and retrieved in the
+        correct ascending order based on the step number.
+        """
+        RecipeStep.objects.create(number=3, description="Third step", recipe=self.recipe)
+        RecipeStep.objects.create(number=1, description="First step", recipe=self.recipe)
+        RecipeStep.objects.create(number=2, description="Second step", recipe=self.recipe)
+        RecipeStep.objects.create(number=6, description="Sixth step", recipe=self.recipe)
+        RecipeStep.objects.create(number=4, description="Fourth step", recipe=self.recipe)
+        RecipeStep.objects.create(number=5, description="Fifth step", recipe=self.recipe)
+        steps = self.recipe.get_steps().order_by('number')
+        step_descriptions = [step.description for step in steps]
+        expected_order = [
+            "First step", "Second step", "Third step",
+            "Fourth step", "Fifth step", "Sixth step"
+        ]
+        self.assertEqual(step_descriptions, expected_order)
+
+    def tearDown(self):
+        """Clean up after tests."""
+        self.recipe.delete()
+        self.user.delete()
