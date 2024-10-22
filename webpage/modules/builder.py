@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from abc import ABC, abstractmethod
 import requests
 from decouple import config
+from bs4 import BeautifulSoup
 
 API_KEY = config('API_KEY', default='fake-secret-key')
 spoonacular_password = config('SPOONACULAR_PASSWORD')
@@ -284,7 +285,14 @@ class SpoonacularRecipeBuilder(Builder):
                 self.__api_nutrition_is_fetch = True
             else:
                 raise Exception("Cannot load the recipe")
-            
+
+    @staticmethod
+    def strip_html(html_content):
+        """Convert HTML content to plain text."""
+        soup = BeautifulSoup(html_content, 'html.parser')
+        return soup.get_text(separator='').strip()
+
+
     def build_details(self):
         """
         Build the image and estimated_time properties of the recipe.
@@ -293,7 +301,8 @@ class SpoonacularRecipeBuilder(Builder):
         self.__call_api()
         self.__builder.build_details(image=self.__data["image"])
         self.__builder.build_details(estimated_time=self.__data["readyInMinutes"])
-        self.__builder.build_details(description=self.__data["summary"])
+        cleaned_description = self.strip_html(self.__data["summary"])
+        self.__builder.build_details(description=cleaned_description)
 
     def build_name(self):
         """
