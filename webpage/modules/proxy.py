@@ -119,6 +119,9 @@ class GetDataProxy(GetData):
         """
         return self._queryset.filter(equipmentlist__equipment__name__icontains=equipment_name)
 
+    def order_by_character(self):
+        return self._queryset.order_by('character')
+
 
 class GetDataSpoonacular(GetData):
     """
