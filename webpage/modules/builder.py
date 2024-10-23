@@ -296,6 +296,24 @@ class SpoonacularRecipeBuilder(Builder):
         soup = BeautifulSoup(html_content, 'html.parser')
         return soup.get_text(separator='').strip()
 
+    def __link_equipment_image(self, plain_text):
+        """
+        Convert a plain text picture of the equipment (e.g. 'pan.jpg') to a URL of the image.
+
+        :param plain_text: The plain text extracted from the HTML content.
+        :return: The URL of the image.
+        """
+        return f'https://img.spoonacular.com/equipment_100x100/{plain_text}'
+
+    def __link_ingredient_image(self, plain_text):
+        """
+        Convert a plain text picture of the ingredient (e.g. 'apple.jpg') to a URL of the image.
+
+        :param plain_text: The plain text extracted from the HTML content.
+        :return: The URL of the image.
+        """
+        return f'https://img.spoonacular.com/ingredients_100x100/{plain_text}'
+
     def build_details(self):
         """
         Build the image and estimated_time properties of the recipe.
@@ -337,7 +355,7 @@ class SpoonacularRecipeBuilder(Builder):
             ingredient, _ = Ingredient.objects.get_or_create(
                 spoonacular_id=ingredient_data['id'],
                 defaults={'name': ingredient_data['name'],
-                          'picture': ingredient_data['image'],}
+                          'picture': self.__link_ingredient_image(ingredient_data['image']),}
             )
             ingredient.save()
             self.__builder.build_ingredient(
@@ -367,7 +385,7 @@ class SpoonacularRecipeBuilder(Builder):
         for equipment_data in self.__equipement_data.get('equipment', []):
             equipment, _ = Equipment.objects.get_or_create(
                 name = equipment_data['name'],
-                picture = equipment_data['image']
+                picture = self.__link_equipment_image(equipment_data['image'])
             )
             equipment.save()
             self.__builder.build_equipment(
