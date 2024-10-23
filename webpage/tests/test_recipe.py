@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
 from webpage.models import Recipe, IngredientList, EquipmentList, Equipment, Ingredient, RecipeStep
 from django.test import TestCase
+import pytest
 
+@pytest.mark.django_db
 class RecipeModelTest(TestCase):
     """Test suite for the Recipe model."""
 
