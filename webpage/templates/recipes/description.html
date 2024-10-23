@@ -3,7 +3,7 @@
 <body>
 {% block content %}
 <div class="d-grid gap-2 d-md-block">
-    <a href="{% url 'recipe' recipe.id %}" class="btn btn-success my-3 mx-3" type="button">Go Back</a>
+    <a href="{% url 'recipe_list' %}" class="btn btn-success my-3 mx-3" type="button">Go Back</a>
 </div>
 <div class="container mt-5">
     <h1 class="text-center">{{ recipe.name }}</h1>
