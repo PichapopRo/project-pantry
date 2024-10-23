@@ -2,15 +2,19 @@
 {% extends 'base.html' %}
 <body>
 {% block content %}
+<div class="d-grid gap-2 d-md-block">
+    <a href="{% url 'recipe' recipe.id %}" class="btn btn-success my-3 mx-3" type="button">Go Back</a>
+</div>
 <div class="container mt-5">
     <h1 class="text-center">{{ recipe.name }}</h1>
     <div class="text-center my-4">
         <img src="{{ recipe.img }}" alt="{{ recipe.name }}" class="img-fluid rounded">
     </div>
     <div class="recipe-details mb-4">
-        <h4>Estimated Time: {{ recipe.estimated_time }}</h4>
+        <h4>Estimated Time: {{ recipe.estimated_time }} minutes</h4>
         <h4>Difficulty: {{ recipe.get_difficulty }}</h4>
-        <h4>Created At: {{ recipe.created_at }}</h4>
+        <h4>Diets: {{ recipe.diets.name }}</h4>
+        <h4>Description: {{ recipe.description }}</h4>
     </div>
     <div class="equipments-section mb-4">
         <h3>Equipments</h3>
