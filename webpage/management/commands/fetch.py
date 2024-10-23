@@ -1,12 +1,7 @@
-from io import StringIO
 import requests
 import time
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
-from webpage.models import Recipe, Ingredient, Equipment, RecipeStep
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
-
-from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
 
 API_KEY = config('API_KEY', default='fake-secret-key')
