@@ -296,6 +296,12 @@ class SpoonacularRecipeBuilder(Builder):
         soup = BeautifulSoup(html_content, 'html.parser')
         return soup.get_text(separator='').strip()
 
+    def __link_equipment_image(self, plain_text):
+        return f'https://img.spoonacular.com/equipment_100x100/{plain_text}'
+
+    def __link_ingredient_image(self, plain_text):
+        return f'https://img.spoonacular.com/ingredients_100x100/{plain_text}'
+
     def build_details(self):
         """
         Build the image and estimated_time properties of the recipe.

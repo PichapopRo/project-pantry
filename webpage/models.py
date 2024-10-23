@@ -7,7 +7,7 @@ class Ingredient(models.Model):
     """An ingredient contains the name, a spoonacauar_id(if exists) and a link to a picture."""
     name = models.CharField(max_length=100, default='Unnamed Ingredient')
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
-    picture = models.URLField(default='', null=True)
+    picture = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         """Return the ingredient name."""
@@ -18,7 +18,7 @@ class Equipment(models.Model):
     """Equipment contains the name, a spoonacauar_id(if exists) and a link to a picture."""
     name = models.CharField(max_length=100, default='Unnamed Equipment')
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
-    picture = models.URLField(default='')
+    picture = models.CharField(default='')
 
     def __str__(self):
         """Return the equipment name."""
