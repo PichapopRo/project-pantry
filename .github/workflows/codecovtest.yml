@@ -1,7 +1,18 @@
 name: CodeCoverage
 
-on: 
-  push
+on:
+    push:
+      branches: [ "**" ]
+    pull_request:
+      branches: [ "main" ]
+
+env:
+  DEBUG: True
+  ALLOWED_HOSTS: '*'
+  TIME_ZONE: 'Asia/Bangkok'
+  SECRET_KEY: ${{secrets.SECRET_KEY}}
+  SPOONACULAR_PASSWORD: ${{secrets.SPOONACULAR_PASSWORD}}
+  API_KEY: 'fake-key'
 
 jobs:
   test:
