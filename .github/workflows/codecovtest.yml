@@ -1,0 +1,49 @@
+name: CodeCoverage
+
+on:
+    push:
+      branches: [ "**" ]
+    pull_request:
+      branches: [ "main" ]
+
+env:
+  DEBUG: True
+  ALLOWED_HOSTS: '*'
+  TIME_ZONE: 'Asia/Bangkok'
+  SECRET_KEY: ${{secrets.SECRET_KEY}}
+  SPOONACULAR_PASSWORD: ${{secrets.SPOONACULAR_PASSWORD}}
+  API_KEY: 'fake-key'
+  DJANGO_SETTINGS_MODULE: 'pantry.settings'
+
+jobs:
+  test:
+    name: Run tests and collect coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+            python-version: '3.11'
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+
+      - name: Install dependencies
+        run: pip install pytest pytest-cov pytest-django
+
+      - name: Apply migrations
+        run: python manage.py migrate
+
+      - name: Run tests
+        run: pytest --cov
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

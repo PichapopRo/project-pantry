@@ -1,8 +1,9 @@
 from unittest import TestCase
 from django.contrib.auth.models import User
 from webpage.models import RecipeStep, Recipe
+import pytest
 
-
+@pytest.mark.django_db
 class RecipeStepModelTest(TestCase):
     """Test suite for the RecipeStep model."""
 

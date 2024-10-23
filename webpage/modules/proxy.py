@@ -2,8 +2,7 @@
 
 from abc import ABC, abstractmethod
 from django.db.models import QuerySet
-from webpage.models import Recipe, Equipment, EquipmentList
-from django.core.exceptions import ObjectDoesNotExist
+from webpage.models import Recipe
 import requests
 from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
@@ -55,7 +54,7 @@ class GetDataProxy(GetData):
         self._service = service
         self._queryset = queryset
 
-    def find_by_spoonacular_id(self, id: int) -> Recipe|None:
+    def find_by_spoonacular_id(self, id: int) -> Recipe | None:
         """
         Find the recipe using the recipe's spoonacular_id.
 
@@ -79,7 +78,7 @@ class GetDataProxy(GetData):
         :param name: The recipe name.
         :return: QuerySet containing the Recipe object.
         """
-        recipe_queryset = Recipe.objects.filter(name__contains = name)
+        recipe_queryset = Recipe.objects.filter(name__contains=name)
         if not recipe_queryset.exists():
             # Retrieve the recipe data from the API
             spoonacular_recipe_queryset = self._service.find_by_name(name)
@@ -89,6 +88,7 @@ class GetDataProxy(GetData):
     def filter_by_diet(self, diet: str) -> QuerySet:
         """
         Filter recipes based on a diet type (e.g., 'vegan', 'vegetarian').
+
         :param diet: The diet to filter recipes by.
         :return: A filtered queryset of recipes.
         """
@@ -97,6 +97,7 @@ class GetDataProxy(GetData):
     def filter_by_ingredient(self, ingredient: str) -> QuerySet:
         """
         Filter recipes by a specific ingredient.
+
         :param ingredient: The ingredient to filter recipes by.
         :return: A filtered queryset of recipes.
         """
@@ -106,6 +107,7 @@ class GetDataProxy(GetData):
     def filter_by_max_cooking_time(self, estimated_time: int) -> QuerySet:
         """
         Filter recipes by a maximum cooking time (in minutes).
+
         :param estimated_time: Estimated cooking time in minutes.
         :return: A filtered queryset of recipes.
         """
@@ -114,6 +116,7 @@ class GetDataProxy(GetData):
     def filter_by_equipment(self, equipment_name: str) -> QuerySet:
         """
         Filter recipes by required equipment.
+
         :param equipment_name: The name of the equipment to filter by.
         :return: A filtered queryset of recipes.
         """
@@ -129,6 +132,7 @@ class GetDataSpoonacular(GetData):
     """
 
     def __init__(self):
+        """Initialize API_KEY and base_url."""
         self.api_key = API_KEY  # Replace with your actual API key
         self.base_url = 'https://api.spoonacular.com/recipes'
 
@@ -167,7 +171,7 @@ class GetDataSpoonacular(GetData):
             for recipe_summary in recipes:
                 builder = SpoonacularRecipeBuilder(
                     spoonacular_id=recipe_summary['id'],
-                    name = recipe_summary['title']
+                    name=recipe_summary['title']
                 )
                 builder.build_ingredient()
                 builder.build_equipment()

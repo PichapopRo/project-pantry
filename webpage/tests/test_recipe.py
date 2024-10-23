@@ -1,11 +1,13 @@
 from django.contrib.auth.models import User
 from webpage.models import Recipe, IngredientList, EquipmentList, Equipment, Ingredient, RecipeStep
 from django.test import TestCase
+import pytest
 
 class RecipeModelTest(TestCase):
     """Test suite for the Recipe model."""
 
     @classmethod
+    @pytest.mark.django_db(transaction=True)
     def setUpTestData(cls):
         """Create initial data for all test methods."""
         cls.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
