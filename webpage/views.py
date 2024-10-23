@@ -157,7 +157,6 @@ class RandomizerView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         recipe_count = Recipe.objects.count()
-
         if recipe_count > 0:
             random_index = random.randint(0, recipe_count - 1)
             context['recipe'] = Recipe.objects.all()[random_index]
