@@ -27,6 +27,7 @@
     <button type="submit">Filter</button>
 </form>
     <form method="GET" action="">
+    {% csrf_token %}
     <label>
         <input type="checkbox" name="name_order" value="1"
             {% if request.GET.name_order %} checked {% endif %}>
