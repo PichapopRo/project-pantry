@@ -13,6 +13,7 @@ env:
   SECRET_KEY: ${{secrets.SECRET_KEY}}
   SPOONACULAR_PASSWORD: ${{secrets.SPOONACULAR_PASSWORD}}
   API_KEY: 'fake-key'
+  DJANGO_SETTINGS_MODULE: 'pantry/settings.py'
 
 jobs:
   test:
@@ -26,6 +27,8 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v4
+        with:
+            python-version: '3.11'
 
       - name: Install requirements
         run: pip install -r requirements.txt
