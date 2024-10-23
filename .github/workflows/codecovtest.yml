@@ -37,8 +37,11 @@ jobs:
       - name: Install dependencies
         run: pip install pytest pytest-cov pytest-django
 
+      - name: Apply migrations
+        run: python manage.py migrate
+
       - name: Run tests
-        run: python manage.py test --cov
+        run: pytest --cov
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
