@@ -3,11 +3,10 @@ from django.contrib.auth.models import User
 from webpage.models import RecipeStep, Recipe
 import pytest
 
-
+@pytest.mark.django_db
 class RecipeStepModelTest(TestCase):
     """Test suite for the RecipeStep model."""
 
-    @pytest.mark.django_db(transaction=True)
     def setUp(self):
         """
         Create a user, a recipe, and a recipe step instance to use in the tests.
