@@ -151,9 +151,12 @@ class StepView(generic.DetailView):
 
 
 class RandomizerView(generic.TemplateView):
+    """RandomizerView to get random recipe from the database."""
+
     template_name = 'recipes/randomizer.html'
 
     def get_context_data(self, **kwargs):
+        """Randomize Recipe from the database."""
         context = super().get_context_data(**kwargs)
         recipe_count = Recipe.objects.count()
         if recipe_count > 0:
