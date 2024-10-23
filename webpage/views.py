@@ -125,7 +125,6 @@ class RecipeListView(generic.ListView):
         context['view_count'] = self.request.session.get('view_count', 0)
         context['diets'] = Diet.objects.all()
         context['selected_diet'] = self.request.GET.get('diet')
-
         return context
 
 
