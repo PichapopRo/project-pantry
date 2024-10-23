@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from webpage.forms import CustomRegisterForm
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
+import random
 
 
 def register_view(request):
@@ -144,3 +145,19 @@ class StepView(generic.DetailView):
         recipe = self.get_object()
         context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
         return context
+
+
+class RandomizerView(generic.ListView):
+    """View to display a random recipe."""
+    model = Recipe
+    template_name = 'recipes/randomizer.html'
+    context_object_name = 'recipe'
+
+    def get_object(self, queryset=None):
+        """Override get_object to return a random recipe."""
+        recipe_count = Recipe.objects.count()
+
+        if recipe_count > 0:
+            random_index = random.randint(0, recipe_count - 1)
+            return Recipe.objects.all()[random_index]
+        return None
