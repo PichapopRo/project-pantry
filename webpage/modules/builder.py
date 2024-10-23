@@ -343,7 +343,7 @@ class SpoonacularRecipeBuilder(Builder):
             ingredient, _ = Ingredient.objects.get_or_create(
                 spoonacular_id=ingredient_data['id'],
                 defaults={'name': ingredient_data['name'],
-                          'picture': ingredient_data['image'],}
+                          'picture': self.__link_ingredient_image(ingredient_data['image']),}
             )
             ingredient.save()
             self.__builder.build_ingredient(
@@ -373,7 +373,7 @@ class SpoonacularRecipeBuilder(Builder):
         for equipment_data in self.__equipement_data.get('equipment', []):
             equipment, _ = Equipment.objects.get_or_create(
                 name = equipment_data['name'],
-                picture = equipment_data['image']
+                picture = self.__link_equipment_image(equipment_data['image'])
             )
             equipment.save()
             self.__builder.build_equipment(
