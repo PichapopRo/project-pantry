@@ -156,7 +156,6 @@ class RandomizerView(generic.ListView):
     def get_object(self, queryset=None):
         """Override get_object to return a random recipe."""
         recipe_count = Recipe.objects.count()
-
         if recipe_count > 0:
             random_index = random.randint(0, recipe_count - 1)
             return Recipe.objects.all()[random_index]
