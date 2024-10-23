@@ -1,5 +1,5 @@
 from django.views import generic
-from .models import *
+from .models import Recipe, Diet, RecipeStep
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate

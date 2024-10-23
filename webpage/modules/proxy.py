@@ -2,8 +2,7 @@
 
 from abc import ABC, abstractmethod
 from django.db.models import QuerySet
-from webpage.models import Recipe, Equipment, EquipmentList
-from django.core.exceptions import ObjectDoesNotExist
+from webpage.models import Recipe
 import requests
 from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
@@ -55,7 +54,7 @@ class GetDataProxy(GetData):
         self._service = service
         self._queryset = queryset
 
-    def find_by_spoonacular_id(self, id: int) -> Recipe|None:
+    def find_by_spoonacular_id(self, id: int) -> Recipe | None:
         """
         Find the recipe using the recipe's spoonacular_id.
 
@@ -79,7 +78,7 @@ class GetDataProxy(GetData):
         :param name: The recipe name.
         :return: QuerySet containing the Recipe object.
         """
-        recipe_queryset = Recipe.objects.filter(name__contains = name)
+        recipe_queryset = Recipe.objects.filter(name__contains=name)
         if not recipe_queryset.exists():
             # Retrieve the recipe data from the API
             spoonacular_recipe_queryset = self._service.find_by_name(name)
@@ -167,7 +166,7 @@ class GetDataSpoonacular(GetData):
             for recipe_summary in recipes:
                 builder = SpoonacularRecipeBuilder(
                     spoonacular_id=recipe_summary['id'],
-                    name = recipe_summary['title']
+                    name=recipe_summary['title']
                 )
                 builder.build_ingredient()
                 builder.build_equipment()

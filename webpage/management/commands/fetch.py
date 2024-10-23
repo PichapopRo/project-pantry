@@ -1,16 +1,12 @@
-from io import StringIO
 import requests
 import time
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
-from webpage.models import Recipe, Ingredient, Equipment, RecipeStep
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
-
-from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
 
 API_KEY = config('API_KEY', default='fake-secret-key')
 proxy = GetDataProxy(GetDataSpoonacular())
+
 
 class Command(BaseCommand):
     help = 'Fetch and store all recipes from Spoonacular API'
@@ -43,4 +39,3 @@ class Command(BaseCommand):
 
         query_params['offset'] += query_params['number']
         time.sleep(1)  # Respect API rate limits
-

@@ -3,6 +3,7 @@ from django.db.models import QuerySet
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+
 class Ingredient(models.Model):
     """An ingredient contains the name, a spoonacauar_id(if exists) and a link to a picture."""
     name = models.CharField(max_length=100, default='Unnamed Ingredient')
@@ -59,7 +60,7 @@ class Diet(models.Model):
     def __str__(self):
         """Return the name of the diet."""
         return self.name
-      
+
 
 class Nutrition(models.Model):
     """Nutrition, contains a nutrition for each recipe."""
@@ -76,7 +77,6 @@ class NutritionList(models.Model):
 
     def __str__(self):
         return f'{self.nutrition.name}: {self.amount} {self.unit}'
-
 
 
 class Recipe(models.Model):

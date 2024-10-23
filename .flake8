@@ -1,3 +1,4 @@
 [flake8]
 exclude = .git,__pycache__,venv,.env,migrations,pantry,manage.py,tests,apps.py,admin.py,forms.py
 max-line-length = 127
+ignore = W293
