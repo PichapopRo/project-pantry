@@ -1,4 +1,5 @@
 # Project Pantry - A new way to browse your recipe
+[![codecov](https://codecov.io/gh/PichapopRo/project-pantry/graph/badge.svg?token=QJ8UVLHBVG)](https://codecov.io/gh/PichapopRo/project-pantry)
 This recipe application aims to help home cooks improve their experience and reduce headaches during their cooking sessions.
 
 This app is created as a part of the [Individual Software Process](https://cpske.github.io/ISP) course at [Kasetsart University](www.ku.ac.th) in the academic year 2024.
