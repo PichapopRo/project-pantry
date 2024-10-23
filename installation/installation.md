@@ -148,7 +148,7 @@ echo TIME_ZONE=Asia/Bangkok >> .env
 ## Testing the application
 The test can be done with the following command.
 ```sh
-python manage.py test polls
+python manage.py test
 ```
 
 ## Installation notes
