@@ -231,7 +231,6 @@ class SpoonacularRecipeBuilder(Builder):
         self.__api_is_called = False
         self.__api_equipment_is_fetch = False
         self.__api_nutrition_is_fetch = False
-        
         self.__builder = NormalRecipeBuilder(name=self.name, user=self.__create_spoonacular_user()) # This needs fixing later
         
     def __create_spoonacular_user(self) -> User: # Fix later
