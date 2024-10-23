@@ -3,11 +3,11 @@ from webpage.models import Recipe, IngredientList, EquipmentList, Equipment, Ing
 from django.test import TestCase
 import pytest
 
-@pytest.mark.django_db(transaction=True)
 class RecipeModelTest(TestCase):
     """Test suite for the Recipe model."""
 
     @classmethod
+    @pytest.mark.django_db(transaction=True)
     def setUpTestData(cls):
         """Create initial data for all test methods."""
         cls.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpassword')
