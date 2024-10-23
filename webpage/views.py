@@ -1,7 +1,7 @@
 """The view handles the requests and handling data to the webpage."""
 
 from django.views import generic
-from .models import Recipe, Diet, RecipeStep
+from webpage.models import Recipe, Diet, RecipeStep
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
@@ -67,7 +67,7 @@ def login_view(request):
 
 def signout_view(request):
     """
-    Logout view for user to log user out and redirect to correct URL
+    Logout view for user to log user out and redirect to correct URL.
 
     :param request: Request from the server.
     """
@@ -130,6 +130,7 @@ class RecipeListView(generic.ListView):
 
 class RecipeView(generic.DetailView):
     """RecipeView view."""
+
     template_name = 'recipes/description.html'
     model = Recipe
     context_object_name = 'recipe'
@@ -137,6 +138,7 @@ class RecipeView(generic.DetailView):
 
 class StepView(generic.DetailView):
     """StepView view for displaying the steps of a recipe."""
+
     template_name = 'recipes/steps.html'
     model = Recipe
 
