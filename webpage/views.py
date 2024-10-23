@@ -92,6 +92,8 @@ class RecipeListView(generic.ListView):
         equipment = self.request.GET.get('equipment')
         name_order = self.request.GET.get('name_order')
         difficulty = self.request.GET.get('difficulty')
+        created_at = self.request.GET.get('created_at')
+        # filter
         if selected_diet:
             filtered_queryset = recipe_filter.filter_by_diet(selected_diet)
         if ingredient:
@@ -107,10 +109,13 @@ class RecipeListView(generic.ListView):
                     recipe_filter.filter_by_max_cooking_time(estimated_time))
             except ValueError:
                 pass
+        # Sort (order by)
         if name_order:
             filtered_queryset = filtered_queryset.order_by('name')
         if difficulty:
             filtered_queryset = filtered_queryset.order_by('estimated_time')
+        if created_at:
+            filtered_queryset = filtered_queryset.order_by('created_at')
         return filtered_queryset[:view_count]
 
     def post(self, request, *args, **kwargs):

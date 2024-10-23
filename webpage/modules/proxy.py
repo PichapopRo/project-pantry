@@ -127,7 +127,11 @@ class GetDataProxy(GetData):
         return self._queryset.order_by('name')
 
     def order_by_difficulty(self):
-        return self._queryset.order_by('difficulty')
+        return self._queryset.order_by('estimated_time')
+
+    def order_by_created_date(self):
+        return self._queryset.order_by('created_at')
+
 
 
 class GetDataSpoonacular(GetData):

@@ -37,6 +37,11 @@
             {% if request.GET.difficulty %} checked {% endif %}>
         Sort by Difficulty
     </label>
+        <label>
+        <input type="checkbox" name="created_at" value="1"
+            {% if request.GET.difficulty %} checked {% endif %}>
+        Sort by Created Time
+    </label>
     <button type="submit">Sort</button>
 </form>
 {% if recipe_list %}
