@@ -8,37 +8,46 @@
 <body>
 {% block content %}
 <form method="get">
-    <label for="diet">Filter by diet:</label>
-    <select name="diet" id="diet">
-        <option value="">All Diets</option>
-        {% for diet in diets %}
-        <option value="{{ diet.name }}" {% if diet.name == selected_diet %}selected{% endif %}>{{ diet.name }}</option>
-        {% endfor %}
-    </select>
+    <div class="input-group mt-3">
+        <div class="card mx-auto">
+        <div class="input-group-prepend  mx-auto">
+            <div class="btn mt-2">
+        <select class= "btn" name="diet" id="diet">
+            <option value="">All Diets</option>
+            {% for diet in diets %}
+            <option value="{{ diet.name }}" {% if diet.name == selected_diet %}selected{% endif %}>{{ diet.name }}</option>
+            {% endfor %}
+        </select>
+            <input type="number" min="0" class="form-control mt-2" name="estimated_time" id="estimated_time" value="{{ estimated_time }}" placeholder="Estimated time">
+            </div>
+                <div class="btn">
+                <input type="text" class="form-control mt-2" name="ingredient" id="ingredient" value="{{ selected_ingredient }}" placeholder="Ingredient">
+                <input type="text" class="form-control mt-2" name="equipment" id="equipment" value="{{ selected_equipment }}" placeholder="Equipment">
+            </div>
+                <div class="btn">
+            <input type="text" class="form-control mt-2" placeholder="Enter keyword">
 
-    <label for="ingredient">Filter by ingredient:</label>
-    <input type="text" name="ingredient" id="ingredient" value="{{ selected_ingredient }}" placeholder="Enter ingredient">
-    <label for="equipment">Filter by equipment:</label>
-    <input type="text" name="equipment" id="equipment" value="{{ selected_equipment }}" placeholder="Enter equipment">
-    <label for="estimated_time">Estimated Time (minutes):</label>
-    <input type="number" name="estimated_time" id="estimated_time" value="{{ estimated_time }}" placeholder="Enter estimated time">
+                    <button class="btn-success form-control mt-2" type="submit">Filter</button>
+            </div>
+            </div>
+        </div>
+        </div>
 
-    <button type="submit">Filter</button>
 </form>
 {% if recipe_list %}
-<div class="row">
+<div class="container">
         <div class="col my-3">
             {% for recipe in recipe_list %}
             <div class="card mb-3 mx-auto">
                 <div class="card-body">
                     <div class="row" style="max width = 400px">
                         <div class="col-md-3">
-                            <img src="recipe.img" class="img-fluid rounded-start" alt="...">
+                            <img src="{{ recipe.image }}" class="img-fluid rounded-start" alt="{{ recipe.name }}">
                         </div>
-                        <div class="col-md-6">
-                            <h5 class="card-title my-2">{{ recipe.name }}</h5>
-                            <small class="card-text my-2">By: {{ recipe.poster_id.username }}</small>
-                            <p class="card-text my-2">Description</p>
+                        <div class="col">
+                            <h4 class="card-title">{{ recipe.name }}</h4>
+                            <small class="card-text">By: {{ recipe.poster_id.username }}</small>
+                            <p class="card-text my-2">{{ recipe.description }}</p>
                             <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
                         </div>
                     </div>
