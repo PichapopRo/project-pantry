@@ -297,9 +297,21 @@ class SpoonacularRecipeBuilder(Builder):
         return soup.get_text(separator='').strip()
 
     def __link_equipment_image(self, plain_text):
+        """
+        Convert a plain text picture of the equipment (e.g. 'pan.jpg') to a URL of the image.
+
+        :param plain_text: The plain text extracted from the HTML content.
+        :return: The URL of the image.
+        """
         return f'https://img.spoonacular.com/equipment_100x100/{plain_text}'
 
     def __link_ingredient_image(self, plain_text):
+        """
+        Convert a plain text picture of the ingredient (e.g. 'apple.jpg') to a URL of the image.
+
+        :param plain_text: The plain text extracted from the HTML content.
+        :return: The URL of the image.
+        """
         return f'https://img.spoonacular.com/ingredients_100x100/{plain_text}'
 
     def build_details(self):
