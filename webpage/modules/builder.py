@@ -364,6 +364,7 @@ class SpoonacularRecipeBuilder(Builder):
             )
 
     def build_diet(self):
+        """Build the diet for the recipe"""
         self.__call_api()
         # Diet information from Spoonacular
         diets_from_api = self.__data.get('diets', [])

@@ -1,3 +1,5 @@
+"""The view handles the requests and handling data to the webpage."""
+
 from django.views import generic
 from .models import Recipe, Diet, RecipeStep
 from django.contrib import messages
