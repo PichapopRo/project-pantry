@@ -1,3 +1,4 @@
+"""URL configuration for the recipe application."""
 from django.urls import path
 from . import views
 
