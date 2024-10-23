@@ -35,10 +35,10 @@ jobs:
 
 
       - name: Install dependencies
-        run: pip install pytest pytest-cov
+        run: pip install pytest pytest-cov pytest-django
 
       - name: Run tests
-        run: pytest --cov
+        run: python manage.py test --cov
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
