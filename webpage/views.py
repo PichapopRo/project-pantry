@@ -90,6 +90,8 @@ class RecipeListView(generic.ListView):
         ingredient = self.request.GET.get('ingredient')
         estimated_time = self.request.GET.get('estimated_time')
         equipment = self.request.GET.get('equipment')
+        name_order = self.request.GET.get('name_order')
+        difficulty = self.request.GET.get('difficulty')
         if selected_diet:
             filtered_queryset = recipe_filter.filter_by_diet(selected_diet)
         if ingredient:
@@ -105,8 +107,11 @@ class RecipeListView(generic.ListView):
                     recipe_filter.filter_by_max_cooking_time(estimated_time))
             except ValueError:
                 pass
-
-        return filtered_queryset[:view_count]  # Limit results based on view_count
+        if name_order:
+            filtered_queryset = filtered_queryset.order_by('name')
+        if difficulty:
+            filtered_queryset = filtered_queryset.order_by('estimated_time')
+        return filtered_queryset[:view_count]
 
     def post(self, request, *args, **kwargs):
         """Handle POST request to increment view_count."""

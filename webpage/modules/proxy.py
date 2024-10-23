@@ -89,6 +89,7 @@ class GetDataProxy(GetData):
     def filter_by_diet(self, diet: str) -> QuerySet:
         """
         Filter recipes based on a diet type (e.g., 'vegan', 'vegetarian').
+
         :param diet: The diet to filter recipes by.
         :return: A filtered queryset of recipes.
         """
@@ -97,6 +98,7 @@ class GetDataProxy(GetData):
     def filter_by_ingredient(self, ingredient: str) -> QuerySet:
         """
         Filter recipes by a specific ingredient.
+
         :param ingredient: The ingredient to filter recipes by.
         :return: A filtered queryset of recipes.
         """
@@ -106,6 +108,7 @@ class GetDataProxy(GetData):
     def filter_by_max_cooking_time(self, estimated_time: int) -> QuerySet:
         """
         Filter recipes by a maximum cooking time (in minutes).
+
         :param estimated_time: Estimated cooking time in minutes.
         :return: A filtered queryset of recipes.
         """
@@ -114,13 +117,17 @@ class GetDataProxy(GetData):
     def filter_by_equipment(self, equipment_name: str) -> QuerySet:
         """
         Filter recipes by required equipment.
+
         :param equipment_name: The name of the equipment to filter by.
         :return: A filtered queryset of recipes.
         """
         return self._queryset.filter(equipmentlist__equipment__name__icontains=equipment_name)
 
-    def order_by_character(self):
-        return self._queryset.order_by('character')
+    def order_by_name(self):
+        return self._queryset.order_by('name')
+
+    def order_by_difficulty(self):
+        return self._queryset.order_by('difficulty')
 
 
 class GetDataSpoonacular(GetData):
