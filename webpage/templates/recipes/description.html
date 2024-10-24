@@ -12,28 +12,28 @@
         <img src="{{ recipe.image }}" alt="{{ recipe.name }}" class="img-fluid rounded">
     </div>
     <div class="recipe-details mb-4">
-        <h5 class="mx-3 mt-3">Estimated Time: {{ recipe.estimated_time }} minutes</h5>
-        <h5 class="mx-3 mt-2">Difficulty: {{ recipe.get_difficulty }}</h5>
-        <h5 class="mx-3 mt-2">Diets: {{ recipe.diets.name }}</h5>
-        <h5 class="mx-3 mt-2">Description:</h5>
-        <p class="mx-3 mt-2">{{ recipe.description }}</p>
-    <div class="equipments-section mb-4">
-        <h3 class="mx-3">Equipment</h3>
+        <h5 class="mx-4 mt-3">Estimated Time: {{ recipe.estimated_time }} minutes</h5>
+        <h5 class="mx-4 mt-2">Difficulty: {{ recipe.get_difficulty }}</h5>
+        <h5 class="mx-4 mt-2">Diets: {{ recipe.diets.name }}</h5>
+        <h5 class="mx-4 mt-2">Description:</h5>
+        <p class="mx-4 mt-2">{{ recipe.description }}</p>
+    <div class="equipments-section">
+        <h3 class="mx-4">Equipment</h3>
         <div class="row mx-3">
             {% for equipment in recipe.get_equipments %}
-            <div class="col-lg-3 d-flex align-items-stretch">
+            <div class="col-lg-3 d-flex align-items-stretch mt-3">
             <div class="card text-center mb-3 h-100 w-100">
             <img src="{{ equipment.equipment.picture }}" alt="{{ equipment.equipment.name }}" class="card-img-top img-fluid mx-auto mt-3"  style="width:100px; height: 100px">
             <h4 class="card-title">{{ equipment.equipment.name }}</h4>
             </div>
-                </div>
+            </div>
             {% endfor %}
         </div>
-</div>
-            </div>
-    <div class="ingredients-section mb-4">
-        <h3 class="mx-3">Ingredients</h3>
-        <div class="row mx-3">
+    </div>
+    </div>
+    <div class="ingredients-section">
+        <h3 class="mx-4">Ingredients</h3>
+        <div class="row mx-3 my-3">
             {% for ingredient in recipe.get_ingredients %}
             <div class="col-lg-3 d-flex align-items-stretch mt-3">
             <div class="card text-center mb-3 h-100 w-100">
@@ -43,16 +43,13 @@
             </div>
             </div>
             {% endfor %}
-
                 </div>
             </div>
         </div>
-    <div class="text-center mt-5">
+    <div class="text-center">
         <a href="{% url 'steps' recipe.id %}" class="btn btn-success btn-lg">Start Cooking!</a>
     </div>
 </div>
-    </div>
-    </div>
 {% endblock %}
 </body>
 </html>

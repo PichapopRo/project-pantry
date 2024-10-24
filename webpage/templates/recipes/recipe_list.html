@@ -7,7 +7,9 @@
 {% extends 'base.html' %}
 <body>
 {% block content %}
+<div class="container">
 <form method="get">
+    <div class="col my-3">
     <div class="input-group mt-3">
         <div class="card mx-auto">
         <div class="input-group-prepend  mx-auto">
@@ -32,10 +34,9 @@
             </div>
         </div>
         </div>
-
+        </div>
 </form>
 {% if recipe_list %}
-<div class="container">
         <div class="col my-3">
             {% for recipe in recipe_list %}
             <div class="card mb-3 mx-auto">
