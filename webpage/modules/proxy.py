@@ -34,6 +34,13 @@ class GetData(ABC):
         :param name: The recipe name.
         """
         pass
+    
+    @abstractmethod
+    def filter_recipe(self, name:str):
+        """
+        Filter the recipe.
+        """
+        pass
 
 
 class GetDataProxy(GetData):
