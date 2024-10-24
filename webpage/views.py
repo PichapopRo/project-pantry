@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from webpage.forms import CustomRegisterForm
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
+import random
 
 
 def register_view(request):
@@ -124,7 +125,6 @@ class RecipeListView(generic.ListView):
         context['view_count'] = self.request.session.get('view_count', 0)
         context['diets'] = Diet.objects.all()
         context['selected_diet'] = self.request.GET.get('diet')
-
         return context
 
 
@@ -147,4 +147,22 @@ class StepView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         recipe = self.get_object()
         context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
+        return context
+
+
+class RandomizerView(generic.TemplateView):
+    """RandomizerView to get random recipe from the database."""
+
+    template_name = 'recipes/randomizer.html'
+
+    def get_context_data(self, **kwargs):
+        """Randomize Recipe from the database."""
+        context = super().get_context_data(**kwargs)
+        recipe_count = Recipe.objects.count()
+        if recipe_count > 0:
+            random_index = random.randint(0, recipe_count - 1)
+            context['recipe'] = Recipe.objects.all()[random_index]
+        else:
+            context['recipe'] = None
+
         return context
