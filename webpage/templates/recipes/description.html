@@ -5,48 +5,53 @@
 <div class="d-grid gap-2 d-md-block">
     <a href="{% url 'recipe_list' %}" class="btn btn-success my-3 mx-3" type="button">Go Back</a>
 </div>
-<div class="container mt-5">
+<div class="container">
 <div class="card mb-3 mx-auto">
     <h1 class="text-center mx-3 mt-3">{{ recipe.name }}</h1>
-    <div class="text-center card-text mx-3">
+    <div class="text-center card-text mx-3 mt-3">
         <img src="{{ recipe.image }}" alt="{{ recipe.name }}" class="img-fluid rounded">
     </div>
     <div class="recipe-details mb-4">
-        <h5 class="mx-3 mt-2">Estimated Time: {{ recipe.estimated_time }} minutes</h5>
+        <h5 class="mx-3 mt-3">Estimated Time: {{ recipe.estimated_time }} minutes</h5>
         <h5 class="mx-3 mt-2">Difficulty: {{ recipe.get_difficulty }}</h5>
         <h5 class="mx-3 mt-2">Diets: {{ recipe.diets.name }}</h5>
         <h5 class="mx-3 mt-2">Description:</h5>
         <p class="mx-3 mt-2">{{ recipe.description }}</p>
     <div class="equipments-section mb-4">
         <h3 class="mx-3">Equipment</h3>
-        <div class="row">
-            <div class="col-6">
-                <div class="card-deck ml-3 d-reflex">
+        <div class="row mx-3">
             {% for equipment in recipe.get_equipments %}
-            <div class="card text-center col">
-            <img src="{{ equipment.equipment.picture }}" alt="{{ equipment.equipment.name }}" class="card-img-top rounded mx-auto"  style="width:100px; height: 100px">
+            <div class="col-lg-3 d-flex align-items-stretch">
+            <div class="card text-center mb-3 h-100 w-100">
+            <img src="{{ equipment.equipment.picture }}" alt="{{ equipment.equipment.name }}" class="card-img-top img-fluid mx-auto mt-3"  style="width:100px; height: 100px">
             <h4 class="card-title">{{ equipment.equipment.name }}</h4>
             </div>
-                {% endfor %}
+                </div>
+            {% endfor %}
         </div>
 </div>
             </div>
-    </div>
     <div class="ingredients-section mb-4">
-        <h3 class="mx-3 mt-2">Ingredients</h3>
-        <ul class="list-group">
+        <h3 class="mx-3">Ingredients</h3>
+        <div class="row mx-3">
             {% for ingredient in recipe.get_ingredients %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>{{ forloop.counter }}. {{ ingredient.ingredient.name }}: {{ ingredient.amount }} {{ ingredient.unit }}</span>
-                    <img src="{{ ingredient.ingredient.picture }}" alt="{{ ingredient.ingredient.name }}" class="img-thumbnail">
-                </li>
+            <div class="col-lg-3 d-flex align-items-stretch mt-3">
+            <div class="card text-center mb-3 h-100 w-100">
+            <img src="{{ ingredient.ingredient.picture }}" alt="{{ ingredient.ingredient.name }}" class="card-img-top mx-auto mt-3 img-fluid"  style="width:100px; height: 100px">
+            <h4 class="card-title">{{ ingredient.ingredient.name }}</h4>
+            <p class="card-text">{{ ingredient.amount }} {{ ingredient.unit }}</p>
+            </div>
+            </div>
             {% endfor %}
-        </ul>
-    </div>
+
+                </div>
+            </div>
+        </div>
     <div class="text-center mt-5">
         <a href="{% url 'steps' recipe.id %}" class="btn btn-success btn-lg">Start Cooking!</a>
     </div>
 </div>
+    </div>
     </div>
 {% endblock %}
 </body>
