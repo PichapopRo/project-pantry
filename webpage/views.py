@@ -11,9 +11,7 @@ from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 
 def register_view(request):
     """
-    Register VIew for user creation.
-
-    :param request: Request from the server.
+    Register View for user creation.
     """
     if request.method == 'POST':
         form = CustomRegisterForm(request.POST)
@@ -23,24 +21,25 @@ def register_view(request):
 
             # Validate password length
             if len(password) < 8:
-                messages.error(request, "Password must be at least 8 "
-                                        "characters long")
-                return render(request, 'registration/signup.html',
-                              {'form': form})
+                messages.error(request, "Password must be at least 8 characters long")
+                return render(request, 'registration/signup.html', {'form': form})
 
             # Validate password match
             if password != password_confirm:
                 messages.error(request, "Passwords do not match")
-                return render(request, 'registration/signup.html',
-                              {'form': form})
+                return render(request, 'registration/signup.html', {'form': form})
 
-            # If everything is fine, create the user
+            # Create and log in the user if form is valid
             user = form.save(commit=False)
             user.set_password(password)
             user.save()
             login(request, user)
-            messages.success(request, "Registration successful!")
-            return redirect('recipe_list')  # Redirect to home or another page
+            return redirect('recipe_list')
+        else:
+            # Display validation errors from the form
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field.capitalize()}: {error}")
     else:
         form = CustomRegisterForm()
 
@@ -53,16 +52,22 @@ def login_view(request):
 
     :param request: Request from the server.
     """
+    if request.user.is_authenticated:
+        return redirect('recipe_list')  # Redirect if already logged in
+
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
             login(request, user)
+            messages.success(request, "Login successful!")
             return redirect('recipe_list')
         else:
             messages.error(request, "Invalid username or password")
-    return render(request, 'registration/login.html')
+
+    return render(request, 'registration/login.html', {'messages': messages.get_messages(request)})
 
 
 def signout_view(request):
