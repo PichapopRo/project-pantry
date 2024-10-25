@@ -3,14 +3,32 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
-<body style="background-color: #a7c49a;">
-<nav class="navbar navbar-expand-lg navbar-light bg-light mx-auto" style="background-color: #a7c49a;">
-  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-    <div class="navbar-nav">
-      <a class="nav-item nav-link active" href="/recipes/">Home</a>
-    </div>
-  </div>
+<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top" style="background-color: #a7c49a;">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+      <a class="nav-link " href="/recipes/">Home</a>
+      </li>
+    </ul>
 </nav>
-</body>
+<style>
+		body {
+			background-color: #a7c49a;
+		}
+        .btn-success {
+            background-color: #74ad59;
+            border-color: transparent;
+        }
+        .btn-success:hover{
+            background-color: #74ad59;
+            border-color: transparent;
+        }
+        h4{
+            color: #59704e
+        }
+        container{
+            width: 80%;
+            min-height: 100%;
+        }
+	</style>
 {% block content %}
 {% endblock %}

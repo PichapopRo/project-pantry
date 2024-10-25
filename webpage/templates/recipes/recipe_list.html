@@ -7,7 +7,9 @@
 {% extends 'base.html' %}
 <body>
 {% block content %}
+<div class="container">
 <form method="get">
+    <div class="col my-3">
     <div class="input-group mt-3">
         <div class="card mx-auto">
         <div class="input-group-prepend  mx-auto">
@@ -32,10 +34,9 @@
             </div>
         </div>
         </div>
-
+        </div>
 </form>
 {% if recipe_list %}
-<div class="container">
         <div class="col my-3">
             {% for recipe in recipe_list %}
             <div class="card mb-3 mx-auto">
@@ -45,7 +46,7 @@
                             <img src="{{ recipe.image }}" class="img-fluid rounded-start" alt="{{ recipe.name }}">
                         </div>
                         <div class="col">
-                            <h4 class="card-title">{{ recipe.name }}</h4>
+                            <h4 class="card-title mt-2">{{ recipe.name }}</h4>
                             <small class="card-text">By: {{ recipe.poster_id.username }}</small>
                             <p class="card-text my-2">{{ recipe.description }}</p>
                             <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
