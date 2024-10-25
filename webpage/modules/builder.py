@@ -314,7 +314,7 @@ class SpoonacularRecipeBuilder(Builder):
         :param plain_text: The plain text extracted from the HTML content.
         :return: The URL of the image.
         """
-        return f'https://img.spoonacular.com/equipment_100x100/{plain_text}'
+        return f'https://img.spoonacular.com/equipment_500x500/{plain_text}'
 
     def __link_ingredient_image(self, plain_text):
         """
@@ -323,7 +323,7 @@ class SpoonacularRecipeBuilder(Builder):
         :param plain_text: The plain text extracted from the HTML content.
         :return: The URL of the image.
         """
-        return f'https://img.spoonacular.com/ingredients_100x100/{plain_text}'
+        return f'https://img.spoonacular.com/ingredients_500x500/{plain_text}'
 
     def build_details(self):
         """
