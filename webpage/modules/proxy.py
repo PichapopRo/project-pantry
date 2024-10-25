@@ -45,7 +45,7 @@ class GetDataProxy(GetData):
     exist in the database from the API.
     """
 
-    def __init__(self, service: GetData, queryset: QuerySet):  # bad code
+    def __init__(self, service: GetData, queryset=QuerySet()):  # bad code
         """
         Initialize with a specific service instance for data retrieval.
 
