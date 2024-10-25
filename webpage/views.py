@@ -149,10 +149,9 @@ class StepView(generic.DetailView):
         context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
         return context
 
+
 def random_recipe_view(request):
-    """
-    Redirects the user to a random recipe detail page.
-    """
+    """Redirects the user to a random recipe detail page."""
     recipe_count = Recipe.objects.count()
     if recipe_count > 0:
         random_index = random.randint(0, recipe_count - 1)
