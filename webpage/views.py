@@ -12,6 +12,8 @@ from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 def register_view(request):
     """
     Register View for user creation.
+
+    :param request: Request from the server.
     """
     if request.method == 'POST':
         form = CustomRegisterForm(request.POST)
