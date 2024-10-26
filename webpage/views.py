@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from webpage.forms import CustomRegisterForm
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
+import random
 
 
 def register_view(request):
@@ -136,7 +137,6 @@ class RecipeListView(generic.ListView):
         context['selected_ingredient'] = self.request.GET.get('ingredient', '')
         context['selected_equipment'] = self.request.GET.get('equipment', '')
         context['query'] = self.request.GET.get('query', '')
-
         return context
 
 
@@ -160,3 +160,15 @@ class StepView(generic.DetailView):
         recipe = self.get_object()
         context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
         return context
+
+
+def random_recipe_view(request):
+    """Redirects the user to a random recipe detail page."""
+    recipe_count = Recipe.objects.count()
+    if recipe_count > 0:
+        random_index = random.randint(0, recipe_count - 1)
+        random_recipe = Recipe.objects.all()[random_index]
+        return redirect('recipe', pk=random_recipe.id)
+    else:
+        messages.error(request, "No recipes available.")
+        return redirect('recipe_list')
