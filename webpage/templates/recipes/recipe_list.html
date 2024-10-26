@@ -47,11 +47,11 @@
                         </div>
                         <div class="col">
                             {% if recipe.get_difficulty == "Easy" %}
-                            <h4><span class="badge badge-pill badge-success">Easy</span></h4>
+                                <h4><a href="?difficulty=Easy" class="badge badge-pill badge-success">Easy</a></h4>
                             {% elif recipe.get_difficulty == "Medium" %}
-                            <h4><span class="badge badge-pill badge-warning">Medium</span></h4>
+                                <h4><a href="?difficulty=Medium" class="badge badge-pill badge-warning">Medium</a></h4>
                             {% elif recipe.get_difficulty == "Hard" %}
-                            <h4><span class="badge badge-pill badge-danger">Hard</span></h4>
+                                <h4><a href="?difficulty=Hard" class="badge badge-pill badge-danger">Hard</a></h4>
                             {% endif %}
                             <h3 class="card-title">{{ recipe.name }}</h3>
                             <small class="card-text">By: {{ recipe.poster_id.username }}</small>
