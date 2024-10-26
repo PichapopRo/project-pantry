@@ -91,14 +91,15 @@ class RecipeListView(generic.ListView):
     def get_queryset(self):
         """Return recipes filtered by diet, ingredient, max cooking time, and limited by view_count."""
         view_count = self.request.session.get('view_count', 0)
+        query = self.request.GET.get('query', '')
         filtered_queryset = Recipe.objects.all()
         recipe_filter = GetDataProxy(GetDataSpoonacular(), filtered_queryset)
-
-        # Retrieve parameters from the request
         selected_diet = self.request.GET.get('diet')
         ingredient = self.request.GET.get('ingredient')
         estimated_time = self.request.GET.get('estimated_time')
         equipment = self.request.GET.get('equipment')
+        if query:
+            filtered_queryset = recipe_filter.find_by_name(query)
         if selected_diet:
             filtered_queryset = recipe_filter.filter_by_diet(selected_diet)
         if ingredient:
@@ -131,6 +132,10 @@ class RecipeListView(generic.ListView):
         context['view_count'] = self.request.session.get('view_count', 0)
         context['diets'] = Diet.objects.all()
         context['selected_diet'] = self.request.GET.get('diet')
+        context['estimated_time'] = self.request.GET.get('estimated_time', '')
+        context['selected_ingredient'] = self.request.GET.get('ingredient', '')
+        context['selected_equipment'] = self.request.GET.get('equipment', '')
+        context['query'] = self.request.GET.get('query', '')
 
         return context
 
