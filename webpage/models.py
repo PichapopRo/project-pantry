@@ -50,7 +50,7 @@ class IngredientList(models.Model):
 
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
-    amount = models.IntegerField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
     unit = models.CharField(max_length=100)
 
 
@@ -59,7 +59,7 @@ class EquipmentList(models.Model):
 
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
     recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
-    amount = models.IntegerField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
     unit = models.CharField(max_length=100, default="piece")
 
 
