@@ -45,7 +45,7 @@ class GetDataProxy(GetData):
     exist in the database from the API.
     """
 
-    def __init__(self, service: GetData, queryset: QuerySet):  # bad code
+    def __init__(self, service: GetData, queryset: QuerySet = QuerySet()):  # bad code
         """
         Initialize with a specific service instance for data retrieval.
 
@@ -121,6 +121,17 @@ class GetDataProxy(GetData):
         :return: A filtered queryset of recipes.
         """
         return self._queryset.filter(equipmentlist__equipment__name__icontains=equipment_name)
+
+    def filter_by_difficulty(self, difficulty: str) -> QuerySet:
+        """
+        Filter recipes by difficulty using the `get_difficulty` method.
+
+        :param difficulty: The difficulty to filter by.
+        :return: A filtered queryset of recipes.
+        """
+        recipes = self._queryset.all()
+        filtered_recipes = [recipe for recipe in recipes if recipe.get_difficulty() == difficulty]
+        return Recipe.objects.filter(id__in=[recipe.id for recipe in filtered_recipes])
 
 
 class GetDataSpoonacular(GetData):
