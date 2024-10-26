@@ -46,19 +46,21 @@
                             <img src="{{ recipe.image }}" class="img-fluid rounded-start" alt="{{ recipe.name }}">
                         </div>
                         <div class="col">
-                            {% if recipe.get_difficulty == "Easy" %}
+                            <div class="col">
+                                {% if recipe.get_difficulty == "Easy" %}
                                 <h4><a href="?difficulty=Easy" class="badge badge-pill badge-success">Easy</a></h4>
-                            {% elif recipe.get_difficulty == "Medium" %}
+                                {% elif recipe.get_difficulty == "Medium" %}
                                 <h4><a href="?difficulty=Medium" class="badge badge-pill badge-warning">Medium</a></h4>
-                            {% elif recipe.get_difficulty == "Hard" %}
+                                {% elif recipe.get_difficulty == "Hard" %}
                                 <h4><a href="?difficulty=Hard" class="badge badge-pill badge-danger">Hard</a></h4>
-                            {% endif %}
-                        <div class="col">
-                            <h3 class="card-title">{{ recipe.name }}</h3>
-                            <small class="card-text">By: {{ recipe.poster_id.username }}</small>
-                            <p class="card-text my-2">{{ recipe.description }}</p>
-                            <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
-                        </div>
+                                {% endif %}
+                            </div>
+                            <div class="col">
+                                <h3 class="card-title">{{ recipe.name }}</h3>
+                                <small class="card-text">By: {{ recipe.poster_id.username }}</small>
+                                <p class="card-text my-2">{{ recipe.description }}</p>
+                                <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
+                            </div>
                         </div>
                     </div>
                 </div>
