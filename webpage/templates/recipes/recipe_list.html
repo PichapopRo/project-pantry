@@ -46,7 +46,14 @@
                             <img src="{{ recipe.image }}" class="img-fluid rounded-start" alt="{{ recipe.name }}">
                         </div>
                         <div class="col">
-                            <h4 class="card-title mt-2">{{ recipe.name }}</h4>
+                            {% if recipe.get_difficulty == "Easy" %}
+                            <h4><span class="badge badge-pill badge-success">Easy</span></h4>
+                            {% elif recipe.get_difficulty == "Medium" %}
+                            <h4><span class="badge badge-pill badge-warning">Medium</span></h4>
+                            {% elif recipe.get_difficulty == "Hard" %}
+                            <h4><span class="badge badge-pill badge-danger">Hard</span></h4>
+                            {% endif %}
+                            <h3 class="card-title">{{ recipe.name }}</h3>
                             <small class="card-text">By: {{ recipe.poster_id.username }}</small>
                             <p class="card-text my-2">{{ recipe.description }}</p>
                             <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
