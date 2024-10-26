@@ -42,21 +42,25 @@
             <div class="card mb-3 mx-auto">
                 <div class="card-body">
                     <div class="row" style="max width = 400px">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <img src="{{ recipe.image }}" class="img-fluid rounded-start" alt="{{ recipe.name }}">
                         </div>
                         <div class="col">
-                            {% if recipe.get_difficulty == "Easy" %}
-                            <h4><span class="badge badge-pill badge-success">Easy</span></h4>
-                            {% elif recipe.get_difficulty == "Medium" %}
-                            <h4><span class="badge badge-pill badge-warning">Medium</span></h4>
-                            {% elif recipe.get_difficulty == "Hard" %}
-                            <h4><span class="badge badge-pill badge-danger">Hard</span></h4>
-                            {% endif %}
-                            <h3 class="card-title">{{ recipe.name }}</h3>
-                            <small class="card-text">By: {{ recipe.poster_id.username }}</small>
-                            <p class="card-text my-2">{{ recipe.description }}</p>
-                            <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
+                            <div class="col p-0 m-0">
+                                {% if recipe.get_difficulty == "Easy" %}
+                                <h4><a href="?difficulty=Easy" class="badge badge-pill badge-success">Easy</a></h4>
+                                {% elif recipe.get_difficulty == "Medium" %}
+                                <h4><a href="?difficulty=Medium" class="badge badge-pill badge-warning">Medium</a></h4>
+                                {% elif recipe.get_difficulty == "Hard" %}
+                                <h4><a href="?difficulty=Hard" class="badge badge-pill badge-danger">Hard</a></h4>
+                                {% endif %}
+                            </div>
+                            <div class="col p-0 m-0">
+                                <h3 class="card-title">{{ recipe.name }}</h3>
+                                <small class="card-text">By: {{ recipe.poster_id.username }}</small>
+                                <p class="card-text my-2">{{ recipe.description }}</p>
+                                <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
+                            </div>
                         </div>
                     </div>
                 </div>
