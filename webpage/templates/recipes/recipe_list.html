@@ -47,7 +47,7 @@
                         <div class="col">
                             <h4 class="card-title">{{ recipe.name }}</h4>
                             <small class="card-text">By: {{ recipe.poster_id.username }}</small>
-                            <p class="card-text my-2">{{ recipe.description }}</p>
+                            <p class="card-text my-2">{{ recipe.description|truncatechars:300 }}</p>
                             <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
                         </div>
                     </div>
@@ -64,9 +64,9 @@
     <form method="post" action=".">
         {% csrf_token %}
         {% if view_count == 0 and total_recipes > 0 %}
-            <button type="submit" name="increment" value="5" class="btn btn-success">View Recipes</button>
+            <button type="submit" name="increment" value="5" class="btn btn-success" id="load-more">View Recipes</button>
         {% elif total_recipes > 0 %}
-            <button type="submit" name="increment" value="5" class="btn btn-success">Load More Recipes</button>
+            <button type="submit" name="increment" value="5" class="btn btn-success" id="load-more">Load More Recipes</button>
         {% endif %}
     </form>
 </div>
