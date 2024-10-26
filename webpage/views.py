@@ -93,6 +93,7 @@ class RecipeListView(generic.ListView):
         """Return recipes filtered by diet, ingredient, max cooking time, and limited by view_count."""
         view_count = self.request.session.get('view_count', 0)
         query = self.request.GET.get('query', '')
+        difficulty = self.request.GET.get('difficulty')
         filtered_queryset = Recipe.objects.all()
         recipe_filter = GetDataProxy(GetDataSpoonacular(), filtered_queryset)
         selected_diet = self.request.GET.get('diet')
@@ -116,8 +117,9 @@ class RecipeListView(generic.ListView):
                     recipe_filter.filter_by_max_cooking_time(estimated_time))
             except ValueError:
                 pass
-
-        return filtered_queryset[:view_count]  # Limit results based on view_count
+        if difficulty:
+            filtered_queryset = recipe_filter.filter_by_difficulty(difficulty)
+        return filtered_queryset[:view_count]
 
     def post(self, request, *args, **kwargs):
         """Handle POST request to increment view_count."""
@@ -136,6 +138,7 @@ class RecipeListView(generic.ListView):
         context['estimated_time'] = self.request.GET.get('estimated_time', '')
         context['selected_ingredient'] = self.request.GET.get('ingredient', '')
         context['selected_equipment'] = self.request.GET.get('equipment', '')
+        context['selected_difficulty'] = self.request.GET.get('difficulty', '')
         context['query'] = self.request.GET.get('query', '')
         return context
 
