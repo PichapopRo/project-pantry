@@ -14,12 +14,12 @@
     <div class="recipe-details mb-4">
         <h5 class="mx-4 mt-3">Estimated Time: {{ recipe.estimated_time }} minutes</h5>
         <h5 class="mx-4 mt-2">Difficulty: {{ recipe.get_difficulty }}</h5>
-        <h5 class="mx-4 mt-2">Diets:</h5>
+        <h5 class="mx-4 mt-2">Diet Restrictions:</h5>
         <ul class="mx-4 mt-2">
             {% for diet in recipe.diets.all %}
-                <li>{{ diet.name }}</li>
+                <p>- {{ diet.name }}</p>
             {% empty %}
-                <li>No diet restrictions</li>
+                <p>No diet restrictions</p>
             {% endfor %}
         </ul>
         <h5 class="mx-4 mt-2">Description:</h5>
