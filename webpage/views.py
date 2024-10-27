@@ -126,7 +126,8 @@ class RecipeListView(generic.ListView):
         if 'increment' in request.POST:
             increment = int(request.POST.get('increment', 0))
             request.session['view_count'] = request.session.get('view_count', 0) + increment
-        return self.get(request, *args, **kwargs)
+            request.session['button_clicked'] = True
+        return redirect(request.path)
 
     def get_context_data(self, **kwargs):
         """Add the current view_count and diet filter to the context."""
@@ -140,6 +141,9 @@ class RecipeListView(generic.ListView):
         context['selected_equipment'] = self.request.GET.get('equipment', '')
         context['selected_difficulty'] = self.request.GET.get('difficulty', '')
         context['query'] = self.request.GET.get('query', '')
+        context['button_clicked'] = self.request.session.pop('button_clicked',
+                                                             False)
+        
         return context
 
 
