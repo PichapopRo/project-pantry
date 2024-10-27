@@ -162,6 +162,7 @@ class GetDataSpoonacular(GetData):
         builder.build_nutrition()
         builder.build_step()
         builder.build_details()
+        builder.build_diet()
         builder.build_spoonacular_id()
         builder.build_recipe().save()
         return builder.build_recipe()
@@ -188,6 +189,7 @@ class GetDataSpoonacular(GetData):
                 builder.build_equipment()
                 builder.build_step()
                 builder.build_nutrition()
+                builder.build_diet()
                 builder.build_details()
                 _return_list.append(builder.build_recipe().save())
 

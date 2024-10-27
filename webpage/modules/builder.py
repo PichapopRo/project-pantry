@@ -410,13 +410,13 @@ class SpoonacularRecipeBuilder(Builder):
             )
 
     def build_diet(self):
-        """Build the diet for the recipe."""
+        """Build and add diets to the recipe based on API data and query restrictions."""
         self.__call_api()
-        # Diet information from Spoonacular
         diets_from_api = self.__data.get('diets', [])
-        for diet_name in diets_from_api:
-            diet, _ = Diet.objects.get_or_create(name=diet_name)
-            self.__builder.build_details(diets=[diet])
+        recipe = self.__builder.build_recipe()
+        diet_objects = [Diet.objects.get_or_create(name=diet.capitalize())[0] for diet in
+                        diets_from_api]
+        recipe.diets.set(diet_objects)
 
     def build_nutrition(self):
         """Fetch and build nutrition data for the recipe."""
