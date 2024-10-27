@@ -88,6 +88,15 @@ class Builder(ABC):
         :param user: The user that is the author of the recipe.
         """
         pass
+    
+    @abstractmethod
+    def build_diet(self, diet: Diet):
+        """
+        Add one Diet class into the recipe.
+        
+        :param diet: A diet class to be added into the Recipe's diet.
+        """
+        pass
 
     @abstractmethod
     def build_spoonacular_id(self, spoonacular_id: int):
@@ -115,6 +124,7 @@ class NormalRecipeBuilder(Builder):
         :param user: The user that is the author of the recipe.
         """
         self.__recipe = Recipe.objects.create(name=name, poster_id=user)
+        self.__diet_list = []
 
     def build_details(self, **kwargs):  # Bad code change later.
         """Build the properties of the Recipe class."""
@@ -205,6 +215,15 @@ class NormalRecipeBuilder(Builder):
         """
         self.__recipe.poster_id = user
         self.__recipe.save()
+        
+    def build_diet(self, diet: Diet):
+        """
+        Add one Diet class into the recipe.
+        
+        :param diet: A diet class to be added into the Recipe's diet.
+        """
+        self.__diet_list.append(diet)
+        self.__recipe.diets.set(self.__diet_list)
 
     def build_spoonacular_id(self, spoonacular_id: int):
         """
@@ -410,13 +429,12 @@ class SpoonacularRecipeBuilder(Builder):
             )
 
     def build_diet(self):
-        """Build the diet for the recipe."""
+        """Build and add diets to the recipe based on API data and query restrictions."""
         self.__call_api()
-        # Diet information from Spoonacular
         diets_from_api = self.__data.get('diets', [])
-        for diet_name in diets_from_api:
-            diet, _ = Diet.objects.get_or_create(name=diet_name)
-            self.__builder.build_details(diets=[diet])
+        for diet in diets_from_api:
+            diet_object = Diet.objects.get_or_create(name=diet.capitalize())[0]
+            self.__builder.build_diet(diet_object)
 
     def build_nutrition(self):
         """Fetch and build nutrition data for the recipe."""
