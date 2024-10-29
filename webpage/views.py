@@ -192,6 +192,12 @@ def random_recipe_view(request):
 
 @login_required
 def toggle_favorite(request, recipe_id):
+    """
+    Toggle favorite of a recipe.
+
+    :param request: Request from the server.
+    :param recipe_id: Recipe ID.
+    """
     try:
         recipe = Recipe.objects.get(id=recipe_id)
         user = request.user
