@@ -6,6 +6,7 @@ from webpage.models import Recipe
 import requests
 from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
+from filter_objects import FilterParam
 API_KEY = config('API_KEY')
 
 
@@ -36,7 +37,7 @@ class GetData(ABC):
         pass
     
     @abstractmethod
-    def filter_recipe(self, name:str):
+    def filter_recipe(self, param: FilterParam) -> list[Recipe]:
         """
         Filter the recipe.
         """
