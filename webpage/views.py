@@ -195,13 +195,10 @@ def toggle_favorite(request, recipe_id):
     try:
         recipe = Recipe.objects.get(id=recipe_id)
         user = request.user
-
         favorite, created = Favourite.objects.get_or_create(recipe=recipe, user=user)
         if created:
-            # Recipe added to favorites
             return JsonResponse({'favorited': True})
         else:
-            # Recipe removed from favorites
             favorite.delete()
             return JsonResponse({'favorited': False})
     except Recipe.DoesNotExist:
