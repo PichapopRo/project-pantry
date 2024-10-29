@@ -2,12 +2,9 @@
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views import generic
-from django.views import View
-from django.views.decorators.csrf import csrf_exempt
-
 from webpage.models import Recipe, Diet, RecipeStep, Favourite
 from django.contrib import messages
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from webpage.forms import CustomRegisterForm
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
