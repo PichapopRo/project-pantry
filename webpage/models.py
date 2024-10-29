@@ -157,4 +157,5 @@ class Favourite(models.Model):
             return None
 
     def __str__(self):
+        """Return the name of the favourite."""
         return f'Favourite {self.recipe} by {self.user}'
