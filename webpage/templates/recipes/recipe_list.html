@@ -54,6 +54,21 @@
                                 {% elif recipe.get_difficulty == "Hard" %}
                                 <h4><a href="?difficulty=Hard" class="badge badge-pill badge-danger">Hard</a></h4>
                                 {% endif %}
+                                <small>Favorites: {{ recipe.favourites }}</small>
+                                {% if user.is_authenticated %}
+                                <form action="{% url 'toggle_favourite' recipe.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit">
+                                        {% if recipe.id in user_favorites %}
+                                            Remove from Favorites
+                                        {% else %}
+                                            Add to Favorites
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            {% else %}
+                                <p><a href="{% url 'login' %}">Log in to favorite this recipe</a></p>
+                            {% endif %}
                             </div>
                             <div class="col p-0 m-0">
                                 <h3 class="card-title">{{ recipe.name }}</h3>

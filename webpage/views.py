@@ -143,7 +143,12 @@ class RecipeListView(generic.ListView):
         context['query'] = self.request.GET.get('query', '')
         context['button_clicked'] = self.request.session.pop('button_clicked',
                                                              False)
-        
+        if self.request.user.is_authenticated:
+            context['user_favorites'] = Favourite.objects.filter(
+                user=self.request.user).values_list('recipe_id', flat=True)
+        else:
+            context['user_favorites'] = []
+
         return context
 
 
@@ -187,6 +192,6 @@ def toggle_favourite(request, recipe_id):
         favourite, created = Favourite.objects.get_or_create(recipe=recipe, user=request.user)
         if not created:
             favourite.delete()
-        return redirect('recipe_detail', recipe_id=recipe_id)
+        return redirect('recipe_list')
     else:
         return redirect('login')
