@@ -1,9 +1,9 @@
 """The view handles the requests and handling data to the webpage."""
 
 from django.views import generic
-from webpage.models import Recipe, Diet, RecipeStep
+from webpage.models import Recipe, Diet, RecipeStep, Favourite
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from webpage.forms import CustomRegisterForm
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
@@ -179,3 +179,14 @@ def random_recipe_view(request):
     else:
         messages.error(request, "No recipes available.")
         return redirect('recipe_list')
+
+
+def toggle_favourite(request, recipe_id):
+    if request.user.is_authenticated:
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        favourite, created = Favourite.objects.get_or_create(recipe=recipe, user=request.user)
+        if not created:
+            favourite.delete()
+        return redirect('recipe_detail', recipe_id=recipe_id)
+    else:
+        return redirect('login')

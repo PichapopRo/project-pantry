@@ -152,7 +152,7 @@ class Favourite(models.Model):
         if not user or not user.is_authenticated:
             return None
         try:
-            return Favourite.objects.filter(recipe=recipe, user=user)
+            return cls.objects.filter(user=user).select_related('recipe')
         except Favourite.DoesNotExist:
             return None
 
