@@ -1,6 +1,10 @@
 """The view handles the requests and handling data to the webpage."""
-
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.views import generic
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+
 from webpage.models import Recipe, Diet, RecipeStep, Favourite
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
@@ -186,12 +190,19 @@ def random_recipe_view(request):
         return redirect('recipe_list')
 
 
-def toggle_favourite(request, recipe_id):
-    if request.user.is_authenticated:
-        recipe = get_object_or_404(Recipe, id=recipe_id)
-        favourite, created = Favourite.objects.get_or_create(recipe=recipe, user=request.user)
-        if not created:
-            favourite.delete()
-        return redirect('recipe_list')
-    else:
-        return redirect('login')
+@login_required
+def toggle_favorite(request, recipe_id):
+    try:
+        recipe = Recipe.objects.get(id=recipe_id)
+        user = request.user
+
+        favorite, created = Favourite.objects.get_or_create(recipe=recipe, user=user)
+        if created:
+            # Recipe added to favorites
+            return JsonResponse({'favorited': True})
+        else:
+            # Recipe removed from favorites
+            favorite.delete()
+            return JsonResponse({'favorited': False})
+    except Recipe.DoesNotExist:
+        return JsonResponse({'error': 'Recipe not found'}, status=404)
