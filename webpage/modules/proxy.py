@@ -6,8 +6,8 @@ from webpage.models import Recipe
 import requests
 from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
-from filter_objects import FilterParam
-from recipe_facade import RecipeFacade
+from webpage.modules.filter_objects import FilterParam
+from webpage.modules.recipe_facade import RecipeFacade
 API_KEY = config('API_KEY')
 
 
@@ -29,11 +29,12 @@ class GetData(ABC):
         pass
 
     @abstractmethod
-    def find_by_name(self, name: str) -> QuerySet[Recipe]:
+    def find_by_name(self, name: str) -> list[RecipeFacade]:
         """
         Find the recipe using the recipe's name.
 
         :param name: The recipe name.
+        :return: A list containing the RecipeFacade object.
         """
         pass
     
@@ -80,19 +81,24 @@ class GetDataProxy(GetData):
             return spoonacular_recipe_queryset
         return recipe_queryset.first()
 
-    def find_by_name(self, name: str) -> QuerySet[Recipe]:
+    def find_by_name(self, name: str) -> list[RecipeFacade]:
         """
         Find the recipe from the API using the recipe's name.
 
         :param name: The recipe name.
-        :return: QuerySet containing the Recipe object.
+        :return: A list containing the RecipeFacade object.
         """
+        _list = []
         recipe_queryset = Recipe.objects.filter(name__contains=name)
         if not recipe_queryset.exists():
             # Retrieve the recipe data from the API
             spoonacular_recipe_queryset = self._service.find_by_name(name)
             return spoonacular_recipe_queryset
-        return recipe_queryset
+        for recipe in recipe_queryset:
+            facade = RecipeFacade()
+            facade.set_recipe(recipe)
+            _list.append(facade)
+        return _list
 
     def filter_by_diet(self, diet: str) -> QuerySet:
         """
@@ -168,7 +174,7 @@ class GetDataSpoonacular(GetData):
         builder.build_recipe().save()
         return builder.build_recipe()
 
-    def find_by_name(self, name: str) -> list[SpoonacularRecipeBuilder]:
+    def find_by_name(self, name: str) -> list[RecipeFacade]:
         """
         Find the recipe from Spoonacular's API using the recipe's name.
 
@@ -181,17 +187,14 @@ class GetDataSpoonacular(GetData):
             data: dict = response.json()
             _return_list = []
             recipes = data.get('results', [])
-            for recipe_summary in recipes:
-                builder = SpoonacularRecipeBuilder(
-                    spoonacular_id=recipe_summary['id'],
-                    name=recipe_summary['title']
+            for recipe in recipes:
+                facade = RecipeFacade()
+                facade.set_by_spoonacular(
+                    name=recipe["name"],
+                    id=recipe['id'],
+                    image=recipe["image"]
                 )
-                builder.build_ingredient()
-                builder.build_equipment()
-                builder.build_step()
-                builder.build_nutrition()
-                builder.build_details()
-                _return_list.append(builder.build_recipe().save())
+                _return_list.append(facade)
 
             return _return_list
 
