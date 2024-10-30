@@ -1,5 +1,13 @@
 from dataclasses import dataclass, field
 from typing import List
+from enum import Enum
+
+class FilterOptions(Enum):
+    includeIngredients = 'ingredientlist__ingredient__name__icontains'
+    equipment = 'equipmentlist__equipment__name__icontains'
+    diet = 'diets__name__icontains'
+    maxReadyTime = 'estimated_time__lte'
+
 
 @dataclass
 class FilterParam:
@@ -7,23 +15,19 @@ class FilterParam:
     offset: int
     number: int
     includeIngredients: List[str]
-    excludeIngredients: List[str]
     equipment: List[str]
     diet: List[str]
     maxReadyTime: int  # Ensure this is placed before any default arguments
     cuisine: str
 
-    def add_ingredient(self, ingredient_name: str, include: bool = True):
+    def add_ingredient(self, ingredient_name: str):
         """
         Add the ingredient into the filter options.
         
         :param ingredient_name: The name of the ingredient.
         :param include: If set to true, the ingredient will be included.
         """
-        if include:
-            self.includeIngredients.append(ingredient_name)
-        else:
-            self.excludeIngredients.append(ingredient_name)
+        self.includeIngredients.append(ingredient_name)
 
     def __get_string(self, _list: List[str]) -> str:
         """
@@ -51,7 +55,9 @@ class FilterParam:
         return self.__get_string(self.cuisine)
 
     def get_param(self) -> dict:
-        _dict = {}
-        for param in field(FilterParam):
-            _dict[param.name] = getattr(self, param.name)
-        return _dict
+        return {
+            'includeIngredients': self.includeIngredients,
+            'equipment': self.equipment_str,
+            'diet': self.diet_str,
+            'maxReadyTime': self.maxReadyTime
+        }
