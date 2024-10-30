@@ -7,6 +7,7 @@ import requests
 from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
 from filter_objects import FilterParam
+from recipe_facade import RecipeFacade
 API_KEY = config('API_KEY')
 
 
@@ -129,6 +130,9 @@ class GetDataProxy(GetData):
         :return: A filtered queryset of recipes.
         """
         return self._queryset.filter(equipmentlist__equipment__name__icontains=equipment_name)
+    
+    def filter_recipe(self, param: FilterParam) -> list[Recipe]:
+        return super().filter_recipe(param)
 
 
 class GetDataSpoonacular(GetData):
@@ -143,6 +147,7 @@ class GetDataSpoonacular(GetData):
         """Initialize API_KEY and base_url."""
         self.api_key = API_KEY  # Replace with your actual API key
         self.base_url = 'https://api.spoonacular.com/recipes'
+        self.__complex_url = 'https://api.spoonacular.com/recipes/complexSearch'
 
     def find_by_spoonacular_id(self, id: int) -> Recipe:
         """
@@ -192,3 +197,33 @@ class GetDataSpoonacular(GetData):
 
         # Return an empty list if no recipes found
         return []
+    
+    def filter_recipe(self, param: FilterParam) -> list[RecipeFacade]:
+        query_params: dict[str, str|int|bool|list] = {
+            'apiKey': API_KEY,
+        }
+        query_params.update(param.get_param())
+        
+        response = requests.get(self.__complex_url, params=query_params)
+
+        if response.status_code != 200:
+            raise Exception("Cannot retrieve the information")
+        
+        data = response.json()
+        recipes = data.get('results', [])
+
+        if not recipes:
+            raise Exception("Cannot find the recipe")
+        
+        _list: list[RecipeFacade] = []
+        for recipe in recipes:
+            recipe_facade = RecipeFacade()
+            recipe_facade.set_by_spoonacular(
+                name = recipe["title"],
+                id = recipe["id"],
+                image = recipe["image"]
+            )
+            _list.append(recipe_facade)
+            
+        return _list
+        
