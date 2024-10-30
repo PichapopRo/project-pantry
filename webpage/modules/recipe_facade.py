@@ -8,18 +8,39 @@ class RecipeFacade(): # Quite a bad code, fix later.
     """
     
     def __init__(self):
+        """Initialize the class"""
         self.__recipe: Recipe|None = None
     
     def set_recipe(self, recipe: Recipe):
+        """
+        Set up the class using already-existing recipe.
+        
+        :param recipe: The recipe to be used in the facade.
+        """
         self.__recipe = recipe
+        self.image = recipe.image
+        self.name = recipe.name
+        self.id = recipe.spoonacular_id
     
-    def set_by_spoonacular(self, name: str, id:str, picture: str|None):
+    def set_by_spoonacular(self, name: str, id:str, image: str|None):
+        """
+        Set up the class using newly-fetched recipe.
+        
+        :param name: The recipe name.
+        :param id: The recipe's id.
+        :param image: The url of the recipe's image.
+        """
         self.__recipe = None
-        self.picture = picture
+        self.image = image
         self.name = name
         self.id = id
         
     def get_recipe(self) -> Recipe:
+        """
+        Get the recipe class.
+        
+        :return: The recipe that you are dealing with.
+        """
         if self.__recipe is not None:
             return self.__recipe
         if self.id is not None:
