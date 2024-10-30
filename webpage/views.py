@@ -89,6 +89,7 @@ class RecipeListView(generic.ListView):
 
     template_name = 'recipes/recipe_list.html'
     context_object_name = 'recipe_list'
+    paginate_by = 5
 
     def get_queryset(self):
         """Return recipes filtered by diet, ingredient, max cooking time, and limited by view_count."""
@@ -123,12 +124,21 @@ class RecipeListView(generic.ListView):
         return filtered_queryset[:view_count]
 
     def post(self, request, *args, **kwargs):
-        """Handle POST request to increment view_count."""
-        if 'increment' in request.POST:
-            increment = int(request.POST.get('increment', 0))
-            request.session['view_count'] = request.session.get('view_count', 0) + increment
-            request.session['button_clicked'] = True
-        return redirect(request.path)
+        # Handle POST request to load more recipes
+        offset = int(request.POST.get('offset', 0))
+        recipes = self.get_queryset()[offset:offset + self.paginate_by]
+        recipes_data = [
+            {
+                'id': recipe.id,
+                'name': recipe.name,
+                'description': recipe.description,
+                'image': recipe.image,
+                'favorite_count': recipe.favourite_set.count(),
+                'difficulty': recipe.get_difficulty(),
+            } for recipe in recipes
+        ]
+        has_next_page = len(recipes) == self.paginate_by
+        return JsonResponse({'recipes': recipes_data, 'has_next_page': has_next_page})
 
     def get_context_data(self, **kwargs):
         """Add the current view_count and diet filter to the context."""

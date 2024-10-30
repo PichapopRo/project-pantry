@@ -88,7 +88,7 @@
         </div>
 </form>
 {% if recipe_list %}
-        <div class="col my-3">
+        <div class="col my-3 recipe-container">
             {% for recipe in recipe_list %}
             <div class="card mb-3 mx-auto">
                 <div class="card-body">
@@ -138,15 +138,94 @@
     <p>No recipes available.</p>
 {% endif %}
 <div class="d-flex justify-content-center mt-4">
-    <form method="post" action=".">
-        {% csrf_token %}
-        {% if view_count == 0 and total_recipes > 0 %}
-            <button type="submit" name="increment" value="5" class="btn btn-success" id="load-more" {% if button_clicked %}autofocus{% endif %}>View Recipes</button>
-        {% elif total_recipes > 0 %}
-            <button type="submit" name="increment" value="5" class="btn btn-success" id="load-more" {% if button_clicked %}autofocus{% endif %}>Load More Recipes</button>
-        {% endif %}
-    </form>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" id="load-more" class="btn btn-success" data-offset="{{ recipe_list|length }}">
+      Load More Recipes
+    </button>
+  </form>
 </div>
+
 {% endblock %}
+
+<script>
+    $(document).ready(function() {
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        function loadMoreRecipes(offset) {
+            $.ajax({
+                url: "{% url 'recipe_list' %}",
+                method: 'POST',
+                data: {
+                    'offset': offset,
+                    'csrfmiddlewaretoken': csrftoken
+                },
+                success: function(response) {
+                    // Log the response for debugging
+                    console.log("Received response:", response);
+
+                    // Check if there are recipes in the response
+                    if (response.recipes.length > 0) {
+                        response.recipes.forEach(function(recipe) {
+                            $('#recipe-container').append(`
+                                <div class="card mb-3 mx-auto">
+                                    <div class="card-body">
+                                        <div class="row" style="max-width: 400px">
+                                            <div class="col-md-4">
+                                                <img src="${recipe.image}" class="img-fluid rounded-start" alt="${recipe.name}">
+                                            </div>
+                                            <div class="col">
+                                                <h3>${recipe.name}</h3>
+                                                <p>${recipe.description}</p>
+                                                <small>Favorites: ${recipe.favorite_count}</small>
+                                                <a href="/recipes/${recipe.id}" class="btn btn-primary">View Recipe</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `);
+                        });
+
+                        // Update the offset
+                        offset += response.recipes.length;
+                        $('#load-more').data('offset', offset);
+
+                        // Hide button if no more recipes are available
+                        if (response.recipes.length < {{ view.paginate_by }}) {
+                            $('#load-more').hide();
+                        }
+                    } else {
+                        // Optionally handle the case where no recipes are returned
+                        console.log("No more recipes to load.");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log("Error loading more recipes:", error);
+                }
+            });
+        }
+
+        $('#load-more').on('click', function() {
+            let offset = $(this).data('offset');
+            loadMoreRecipes(offset);
+        });
+    });
+</script>
+
 </body>
 </html>
