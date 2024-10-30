@@ -1,19 +1,55 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from webpage.models import Recipe, Ingredient, Equipment, Diet, Step
 from enum import Enum    
     
 @dataclass
 class FilterParam:
-    include: list[dict[str, str|float|int]]
-    exclude: list[dict[str, str|float|int]]
+    """A parameter class uses to store the filter's parameter."""
+    includeIngredients: list[str]
+    excludeIngredients: list[str]
+    equipment: list[str]
+    diet: list[str]
+    maxReadyTime: int
+    cuisine: str
     offset: int = 0
     number: int = 0
 
-    def add_filter(self, filter_name: str, filter_value: int|float|str, include: bool = True):
+    def add_ingredient(self, ingredient_name: str, include: bool = True):
+        """
+        Add the ingredient into the filter options.
+        
+        :param ingredient_name: The name of the ingredient name.
+        :param include: If set to true, the it means that you want that ingredient included in.
+        """
         if include:
-            self.include.append({filter_name: filter_value})
+            self.includeIngredients.append(ingredient_name)
         else:
-            self.exclude.append({filter_name: filter_value})
+            self.excludeIngredients.append(ingredient_name)
+            
+    def __get_string(self, _list: list[str]) -> str:
+        return ','.join(_list)
+            
+    @property
+    def equipment(self) -> str:
+        return self.__get_string(self.equipment)
+    
+    @property
+    def diet(self) -> str:
+        return self.__get_string(self.diet)
+    
+    @property
+    def cuisine(self) -> str:
+        return self.__get_string(self.cuisine)
+    
+    def get_param(self) -> dict:
+        _dict = {}
+        for param in field(self):
+            _dict.update(
+                {
+                    param.name,
+                    getattr(self, param.name)
+                }
+            )
     
     
     
