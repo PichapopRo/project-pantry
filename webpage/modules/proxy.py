@@ -8,6 +8,7 @@ from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
 from webpage.modules.filter_objects import FilterParam, FilterOptions
 from webpage.modules.recipe_facade import RecipeFacade
+import copy
 API_KEY = config('API_KEY')
 
 
@@ -39,9 +40,12 @@ class GetData(ABC):
         pass
     
     @abstractmethod
-    def filter_recipe(self, param: FilterParam) -> list[Recipe]:
+    def filter_recipe(self, param: FilterParam) -> list[RecipeFacade]:
         """
         Filter the recipe.
+        
+        :param param: The filter parameter object.
+        :return: List with RecipeFacade representing the recipe.
         """
         pass
 
@@ -137,7 +141,13 @@ class GetDataProxy(GetData):
         """
         return self._queryset.filter(equipmentlist__equipment__name__icontains=equipment_name)
     
-    def filter_recipe(self, param: FilterParam) -> list[Recipe]:
+    def filter_recipe(self, param: FilterParam) -> list[RecipeFacade]:
+        """
+        Filter the recipe.
+        
+        :param param: The filter parameter object.
+        :return: List with RecipeFacade representing the recipe.
+        """
         queryset = Recipe.objects.all()
         for _filter in param.get_param():
             _dict = {
@@ -146,9 +156,12 @@ class GetDataProxy(GetData):
             queryset.filter(_dict)
         
         number = 0
+        later_part = []
         if len(queryset) <= param.number + param.offset:
             number = len(queryset)
-            # TODO change the param's number and call the service class
+            new_param: FilterParam = copy.copy(param)
+            new_param.number = len(queryset) + 1
+            later_part = self._service.filter_recipe(new_param)
         else:
             number = param.number + param.offset
         _list = []
@@ -156,7 +169,7 @@ class GetDataProxy(GetData):
             facade = RecipeFacade()
             facade.set_recipe(recipe)
             _list.append(facade)
-        return _list
+        return _list + later_part
 
 
 class GetDataSpoonacular(GetData):
@@ -220,6 +233,12 @@ class GetDataSpoonacular(GetData):
         return []
     
     def filter_recipe(self, param: FilterParam) -> list[RecipeFacade]:
+        """
+        Filter the recipe.
+        
+        :param param: The filter parameter object.
+        :return: List with RecipeFacade representing the recipe.
+        """
         query_params: dict[str, str|int|bool|list] = {
             'apiKey': API_KEY,
         }
