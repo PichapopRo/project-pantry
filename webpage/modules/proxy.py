@@ -6,7 +6,7 @@ from webpage.models import Recipe
 import requests
 from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
-from webpage.modules.filter_objects import FilterParam
+from webpage.modules.filter_objects import FilterParam, FilterOptions
 from webpage.modules.recipe_facade import RecipeFacade
 API_KEY = config('API_KEY')
 
@@ -138,7 +138,25 @@ class GetDataProxy(GetData):
         return self._queryset.filter(equipmentlist__equipment__name__icontains=equipment_name)
     
     def filter_recipe(self, param: FilterParam) -> list[Recipe]:
-        return super().filter_recipe(param)
+        queryset = Recipe.objects.all()
+        for _filter in param.get_param():
+            _dict = {
+                FilterOptions[_filter]: param[_filter]
+            }
+            queryset.filter(_dict)
+        
+        number = 0
+        if len(queryset) <= param.number + param.offset:
+            number = len(queryset)
+            # TODO change the param's number and call the service class
+        else:
+            number = param.number + param.offset
+        _list = []
+        for recipe in queryset[param.number-1: number]:
+            facade = RecipeFacade()
+            facade.set_recipe(recipe)
+            _list.append(facade)
+        return _list
 
 
 class GetDataSpoonacular(GetData):
