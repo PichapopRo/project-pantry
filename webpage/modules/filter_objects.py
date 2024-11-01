@@ -14,24 +14,23 @@ class FilterParam:
     """A parameter class used to store the filter's parameters."""
     offset: int
     number: int
-    includeIngredients: List[str]
-    equipment: List[str]
-    diet: List[str]
-    maxReadyTime: int  # Ensure this is placed before any default arguments
-    cuisine: str
+    includeIngredients: List[str] = field(default_factory=list)
+    equipment: List[str] = field(default_factory=list)
+    diet: List[str] = field(default_factory=list)
+    maxReadyTime: int = 9999
+    cuisine: List[str] = field(default_factory=list)
 
     def add_ingredient(self, ingredient_name: str):
         """
         Add the ingredient into the filter options.
         
         :param ingredient_name: The name of the ingredient.
-        :param include: If set to true, the ingredient will be included.
         """
         self.includeIngredients.append(ingredient_name)
 
     def __get_string(self, _list: List[str]) -> str:
         """
-        Turn the list of parameter into a string format according to Spoonacular.
+        Turn the list of parameters into a string format according to Spoonacular.
         
         :return: The string format according to Spoonacular.
         """
@@ -40,7 +39,7 @@ class FilterParam:
     @property
     def equipment_str(self) -> str:
         """
-        Get the Spoonacular
+        Get the string representation of equipment for Spoonacular.
         
         :return: The string format according to Spoonacular.
         """
@@ -61,3 +60,9 @@ class FilterParam:
             'diet': self.diet_str,
             'maxReadyTime': self.maxReadyTime
         }
+
+    def __repr__(self) -> str:
+        return (f"FilterParam(offset={self.offset}, number={self.number}, "
+                f"includeIngredients={self.includeIngredients}, equipment={self.equipment}, "
+                f"diet={self.diet}, maxReadyTime={self.maxReadyTime}, "
+                f"cuisine={self.cuisine})")

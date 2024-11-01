@@ -59,14 +59,13 @@ class GetDataProxy(GetData):
     exist in the database from the API.
     """
 
-    def __init__(self, service: GetData, queryset: QuerySet):  # bad code
+    def __init__(self, service: GetData):  # bad code
         """
         Initialize with a specific service instance for data retrieval.
 
         :param service: An instance of a class that implements the GetData interface.
         """
         self._service = service
-        self._queryset = queryset
 
     def find_by_spoonacular_id(self, id: int) -> Recipe | None:
         """
@@ -104,43 +103,6 @@ class GetDataProxy(GetData):
             _list.append(facade)
         return _list
 
-    def filter_by_diet(self, diet: str) -> QuerySet:
-        """
-        Filter recipes based on a diet type (e.g., 'vegan', 'vegetarian').
-
-        :param diet: The diet to filter recipes by.
-        :return: A filtered queryset of recipes.
-        """
-        return self._queryset.filter(diets__name__icontains=diet)
-
-    def filter_by_ingredient(self, ingredient: str) -> QuerySet:
-        """
-        Filter recipes by a specific ingredient.
-
-        :param ingredient: The ingredient to filter recipes by.
-        :return: A filtered queryset of recipes.
-        """
-        return self._queryset.filter(
-            ingredientlist__ingredient__name__icontains=ingredient.lower())
-
-    def filter_by_max_cooking_time(self, estimated_time: int) -> QuerySet:
-        """
-        Filter recipes by a maximum cooking time (in minutes).
-
-        :param estimated_time: Estimated cooking time in minutes.
-        :return: A filtered queryset of recipes.
-        """
-        return self._queryset.filter(estimated_time__lte=estimated_time)
-
-    def filter_by_equipment(self, equipment_name: str) -> QuerySet:
-        """
-        Filter recipes by required equipment.
-
-        :param equipment_name: The name of the equipment to filter by.
-        :return: A filtered queryset of recipes.
-        """
-        return self._queryset.filter(equipmentlist__equipment__name__icontains=equipment_name)
-    
     def filter_recipe(self, param: FilterParam) -> list[RecipeFacade]:
         """
         Filter the recipe.
