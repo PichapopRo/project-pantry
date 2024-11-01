@@ -206,3 +206,10 @@ def toggle_favorite(request, recipe_id):
             return JsonResponse({'favorited': False})
     except Recipe.DoesNotExist:
         return JsonResponse({'error': 'Recipe not found'}, status=404)
+
+
+def user_page_view(request):
+    user = request.user
+    favourite = Favourite.objects.filter(user=user)
+    context = {"favourites": favourite}
+    return render(request, "user_page.html", context)
