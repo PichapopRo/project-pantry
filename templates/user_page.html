@@ -25,6 +25,7 @@
             headers: { 'X-CSRFToken': csrftoken }
         });
 
+        // AJAX function for favorite button
         $('.favorite-btn').click(function(e) {
             e.preventDefault();
             let button = $(this);
@@ -40,8 +41,10 @@
                         button.text('Unfavorite');
                         favoriteCountElement.text(parseInt(favoriteCountElement.text()) + 1);
                     } else {
+                        // Update button text and remove the recipe card if unfavorited
                         button.text('Favorite');
                         favoriteCountElement.text(parseInt(favoriteCountElement.text()) - 1);
+                        $('#recipe-card-' + recipeId).fadeOut(); // Hides the recipe card
                     }
                 },
                 error: function(xhr, status, error) {
@@ -51,14 +54,16 @@
             });
         });
     });
-    </script>
+</script>
+</head>
+<html>
 {% extends 'base.html' %}
+<body>
 {% block content %}
-<h1>Hello!</h1>
 {% if favourites %}
-<div class="col my-3">
+        <div class="col my-3">
             {% for favourite in favourites %}
-            <div class="card mb-3 mx-auto">
+            <div class="card mb-3 mx-auto" id="recipe-card-{{ favourite.recipe.id }}">
                 <div class="card-body">
                     <div class="row" style="max width = 400px">
                         <div class="col-md-4">
@@ -66,19 +71,19 @@
                         </div>
                         <div class="col">
                             <div class="col p-0 m-0">
-                                {% if recipe.get_difficulty == "Easy" %}
+                                {% if favourite.recipe.get_difficulty == "Easy" %}
                                 <h4><a href="?difficulty=Easy" class="badge badge-pill badge-success">Easy</a></h4>
-                                {% elif recipe.get_difficulty == "Medium" %}
+                                {% elif favourite.recipe.get_difficulty == "Medium" %}
                                 <h4><a href="?difficulty=Medium" class="badge badge-pill badge-warning">Medium</a></h4>
-                                {% elif recipe.get_difficulty == "Hard" %}
+                                {% elif favourite.recipe.get_difficulty == "Hard" %}
                                 <h4><a href="?difficulty=Hard" class="badge badge-pill badge-danger">Hard</a></h4>
                                 {% endif %}
                                 <small>Favorites: <span class="favorite-count" id="favorite-count-{{ favourite.recipe.id }}">{{ favourite.recipe.favourite_set.count }}</span></small>
                                 {% if user.is_authenticated %}
                                     <form method="post">
                                     {% csrf_token %}
-                                <button class="btn btn-outline-primary favorite-btn" data-recipe-id="{{ recipe.id }}">
-                                    {% if recipe.id in favorites %}
+                                <button class="btn btn-outline-primary favorite-btn" data-recipe-id="{{ favourite.recipe.id }}">
+                                    {% if favourite.recipe.id in favorites %}
                                         Unfavorite
                                     {% else %}
                                         Favorite
@@ -101,5 +106,5 @@
             </div>
             {% endfor %}
         </div>
-{% endif %}
+    {% endif %}
 {% endblock %}
