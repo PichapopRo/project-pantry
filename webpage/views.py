@@ -1,7 +1,8 @@
 """The view handles the requests and handling data to the webpage."""
-
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.views import generic
-from webpage.models import Recipe, Diet, RecipeStep
+from webpage.models import Recipe, Diet, RecipeStep, Favourite
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
@@ -143,7 +144,12 @@ class RecipeListView(generic.ListView):
         context['query'] = self.request.GET.get('query', '')
         context['button_clicked'] = self.request.session.pop('button_clicked',
                                                              False)
-        
+        if self.request.user.is_authenticated:
+            context['user_favorites'] = Favourite.objects.filter(
+                user=self.request.user).values_list('recipe_id', flat=True)
+        else:
+            context['user_favorites'] = []
+
         return context
 
 
@@ -179,3 +185,24 @@ def random_recipe_view(request):
     else:
         messages.error(request, "No recipes available.")
         return redirect('recipe_list')
+
+
+@login_required
+def toggle_favorite(request, recipe_id):
+    """
+    Toggle favorite of a recipe.
+
+    :param request: Request from the server.
+    :param recipe_id: Recipe ID.
+    """
+    try:
+        recipe = Recipe.objects.get(id=recipe_id)
+        user = request.user
+        favorite, created = Favourite.objects.get_or_create(recipe=recipe, user=user)
+        if created:
+            return JsonResponse({'favorited': True})
+        else:
+            favorite.delete()
+            return JsonResponse({'favorited': False})
+    except Recipe.DoesNotExist:
+        return JsonResponse({'error': 'Recipe not found'}, status=404)

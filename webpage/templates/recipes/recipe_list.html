@@ -2,6 +2,57 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        $.ajaxSetup({
+            headers: { 'X-CSRFToken': csrftoken }
+        });
+
+        // AJAX function for favorite button
+        $('.favorite-btn').click(function(e) {
+            e.preventDefault();
+            let button = $(this);
+            let recipeId = button.data('recipe-id');
+            let favoriteCountElement = $('#favorite-count-' + recipeId);
+
+            $.ajax({
+                url: `/recipes/${recipeId}/toggle_favorite/`,
+                method: 'POST',
+                data: { csrfmiddlewaretoken: csrftoken },
+                success: function(response) {
+                    if (response.favorited) {
+                        button.text('Unfavorite');
+                        favoriteCountElement.text(parseInt(favoriteCountElement.text()) + 1);
+                    } else {
+                        button.text('Favorite');
+                        favoriteCountElement.text(parseInt(favoriteCountElement.text()) - 1);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(`Error: ${status} - ${error}`);
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+    });
+    </script>
 </head>
 <html>
 {% extends 'base.html' %}
@@ -54,6 +105,21 @@
                                 {% elif recipe.get_difficulty == "Hard" %}
                                 <h4><a href="?difficulty=Hard" class="badge badge-pill badge-danger">Hard</a></h4>
                                 {% endif %}
+                                <small>Favorites: <span class="favorite-count" id="favorite-count-{{ recipe.id }}">{{ recipe.favourite_set.count }}</span></small>
+                                {% if user.is_authenticated %}
+                                    <form method="post">
+                                    {% csrf_token %}
+                                <button class="btn btn-outline-primary favorite-btn" data-recipe-id="{{ recipe.id }}">
+                                    {% if recipe.id in favorites %}
+                                        Unfavorite
+                                    {% else %}
+                                        Favorite
+                                    {% endif %}
+                                </button>
+                                    </form>
+                            {% else %}
+                                <p><a href="{% url 'login' %}">Log in to favorite this recipe</a></p>
+                            {% endif %}
                             </div>
                             <div class="col p-0 m-0">
                                 <h3 class="card-title">{{ recipe.name }}</h3>
