@@ -1,17 +1,19 @@
 """The view handles the requests and handling data to the webpage."""
-
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.views import generic
-from webpage.models import Recipe, Diet, RecipeStep
+from webpage.models import Recipe, Diet, RecipeStep, Favourite
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from webpage.forms import CustomRegisterForm
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
+import random
 
 
 def register_view(request):
     """
-    Register VIew for user creation.
+    Register View for user creation.
 
     :param request: Request from the server.
     """
@@ -23,24 +25,25 @@ def register_view(request):
 
             # Validate password length
             if len(password) < 8:
-                messages.error(request, "Password must be at least 8 "
-                                        "characters long")
-                return render(request, 'registration/signup.html',
-                              {'form': form})
+                messages.error(request, "Password must be at least 8 characters long")
+                return render(request, 'registration/signup.html', {'form': form})
 
             # Validate password match
             if password != password_confirm:
                 messages.error(request, "Passwords do not match")
-                return render(request, 'registration/signup.html',
-                              {'form': form})
+                return render(request, 'registration/signup.html', {'form': form})
 
-            # If everything is fine, create the user
+            # Create and log in the user if form is valid
             user = form.save(commit=False)
             user.set_password(password)
             user.save()
             login(request, user)
-            messages.success(request, "Registration successful!")
-            return redirect('recipe_list')  # Redirect to home or another page
+            return redirect('recipe_list')
+        else:
+            # Display validation errors from the form
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field.capitalize()}: {error}")
     else:
         form = CustomRegisterForm()
 
@@ -53,16 +56,22 @@ def login_view(request):
 
     :param request: Request from the server.
     """
+    if request.user.is_authenticated:
+        return redirect('recipe_list')  # Redirect if already logged in
+
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
             login(request, user)
+            messages.success(request, "Login successful!")
             return redirect('recipe_list')
         else:
             messages.error(request, "Invalid username or password")
-    return render(request, 'registration/login.html')
+
+    return render(request, 'registration/login.html', {'messages': messages.get_messages(request)})
 
 
 def signout_view(request):
@@ -84,14 +93,16 @@ class RecipeListView(generic.ListView):
     def get_queryset(self):
         """Return recipes filtered by diet, ingredient, max cooking time, and limited by view_count."""
         view_count = self.request.session.get('view_count', 0)
+        query = self.request.GET.get('query', '')
+        difficulty = self.request.GET.get('difficulty')
         filtered_queryset = Recipe.objects.all()
         recipe_filter = GetDataProxy(GetDataSpoonacular(), filtered_queryset)
-
-        # Retrieve parameters from the request
         selected_diet = self.request.GET.get('diet')
         ingredient = self.request.GET.get('ingredient')
         estimated_time = self.request.GET.get('estimated_time')
         equipment = self.request.GET.get('equipment')
+        if query:
+            filtered_queryset = recipe_filter.find_by_name(query)
         if selected_diet:
             filtered_queryset = recipe_filter.filter_by_diet(selected_diet)
         if ingredient:
@@ -107,15 +118,17 @@ class RecipeListView(generic.ListView):
                     recipe_filter.filter_by_max_cooking_time(estimated_time))
             except ValueError:
                 pass
-
-        return filtered_queryset[:view_count]  # Limit results based on view_count
+        if difficulty:
+            filtered_queryset = recipe_filter.filter_by_difficulty(difficulty)
+        return filtered_queryset[:view_count]
 
     def post(self, request, *args, **kwargs):
         """Handle POST request to increment view_count."""
         if 'increment' in request.POST:
             increment = int(request.POST.get('increment', 0))
             request.session['view_count'] = request.session.get('view_count', 0) + increment
-        return self.get(request, *args, **kwargs)
+            request.session['button_clicked'] = True
+        return redirect(request.path)
 
     def get_context_data(self, **kwargs):
         """Add the current view_count and diet filter to the context."""
@@ -124,6 +137,18 @@ class RecipeListView(generic.ListView):
         context['view_count'] = self.request.session.get('view_count', 0)
         context['diets'] = Diet.objects.all()
         context['selected_diet'] = self.request.GET.get('diet')
+        context['estimated_time'] = self.request.GET.get('estimated_time', '')
+        context['selected_ingredient'] = self.request.GET.get('ingredient', '')
+        context['selected_equipment'] = self.request.GET.get('equipment', '')
+        context['selected_difficulty'] = self.request.GET.get('difficulty', '')
+        context['query'] = self.request.GET.get('query', '')
+        context['button_clicked'] = self.request.session.pop('button_clicked',
+                                                             False)
+        if self.request.user.is_authenticated:
+            context['user_favorites'] = Favourite.objects.filter(
+                user=self.request.user).values_list('recipe_id', flat=True)
+        else:
+            context['user_favorites'] = []
 
         return context
 
@@ -148,3 +173,36 @@ class StepView(generic.DetailView):
         recipe = self.get_object()
         context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
         return context
+
+
+def random_recipe_view(request):
+    """Redirects the user to a random recipe detail page."""
+    recipe_count = Recipe.objects.count()
+    if recipe_count > 0:
+        random_index = random.randint(0, recipe_count - 1)
+        random_recipe = Recipe.objects.all()[random_index]
+        return redirect('recipe', pk=random_recipe.id)
+    else:
+        messages.error(request, "No recipes available.")
+        return redirect('recipe_list')
+
+
+@login_required
+def toggle_favorite(request, recipe_id):
+    """
+    Toggle favorite of a recipe.
+
+    :param request: Request from the server.
+    :param recipe_id: Recipe ID.
+    """
+    try:
+        recipe = Recipe.objects.get(id=recipe_id)
+        user = request.user
+        favorite, created = Favourite.objects.get_or_create(recipe=recipe, user=user)
+        if created:
+            return JsonResponse({'favorited': True})
+        else:
+            favorite.delete()
+            return JsonResponse({'favorited': False})
+    except Recipe.DoesNotExist:
+        return JsonResponse({'error': 'Recipe not found'}, status=404)

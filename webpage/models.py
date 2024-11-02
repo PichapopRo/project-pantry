@@ -50,7 +50,7 @@ class IngredientList(models.Model):
 
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
-    amount = models.IntegerField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
     unit = models.CharField(max_length=100)
 
 
@@ -59,7 +59,7 @@ class EquipmentList(models.Model):
 
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
     recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
-    amount = models.IntegerField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
     unit = models.CharField(max_length=100, default="piece")
 
 
@@ -118,6 +118,11 @@ class Recipe(models.Model):
         else:
             return 'Hard'
 
+    @property
+    def favourites(self):
+        """Return the favourites of the recipe."""
+        return self.favourite_set.count()
+
     def get_ingredients(self) -> QuerySet[IngredientList]:
         """Return a queryset of IngredientList which contains the ingredients of the recipe."""
         return IngredientList.objects.filter(recipe=self)
@@ -133,3 +138,24 @@ class Recipe(models.Model):
     def get_nutrition(self) -> QuerySet[NutritionList]:
         """Return a queryset of NutritionList which contains the nutrition information for the recipe."""
         return NutritionList.objects.filter(recipe=self)
+
+
+class Favourite(models.Model):
+    """Favourites are used to store favourite recipes."""
+
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    @classmethod
+    def get_favourites(cls, recipe: Recipe, user: User):
+        """Return a queryset of Favourite recipes."""
+        if not user or not user.is_authenticated:
+            return None
+        try:
+            return cls.objects.filter(user=user).select_related('recipe')
+        except Favourite.DoesNotExist:
+            return None
+
+    def __str__(self):
+        """Return the name of the favourite."""
+        return f'Favourite {self.recipe} by {self.user}'
