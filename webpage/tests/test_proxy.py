@@ -54,7 +54,3 @@ class GetDataSpoonacularTest(TestCase):
         self.assertEqual(recipe.estimated_time, 45)
         self.assertEqual(recipe.description, "This is a mock salad.")
         self.assertEqual(recipe.poster_id, self.user)
-
-
-
-

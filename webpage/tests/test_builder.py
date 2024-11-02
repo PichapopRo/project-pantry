@@ -111,12 +111,12 @@ class TestSpoonacularRecipeBuilder(TestCase):
         cls.builder = SpoonacularRecipeBuilder(name="Mock Salad",
                                                spoonacular_id="123456")
         cls.recipe = cls.builder.build_recipe()
+        cls.user, _ = User.objects.get_or_create(username="Spoonacular")
 
     def test_create_spoonacular_user(self):
         """Test the __create_spoonacular_user method on the SpoonacularRecipeBuilder."""
-        user, _ = User.objects.get_or_create(username="Spoonacular")
         created_user = self.builder._SpoonacularRecipeBuilder__create_spoonacular_user()
-        self.assertEqual(user, created_user)
+        self.assertEqual(self.user, created_user)
 
     @patch('requests.get')
     def test_call_api_success(self, mock_get):
@@ -277,7 +277,7 @@ class TestSpoonacularRecipeBuilder(TestCase):
     def test_build_recipe(self):
         """Test the build_recipe method on the SpoonacularRecipeBuilder."""
         self.assertEqual(self.recipe.name, "Mock Salad")
-        self.assertEqual(self.recipe.poster_id.name, "Spoonacular")
+        self.assertEqual(self.recipe.poster_id, self.user)
 
     @patch('requests.get')
     def test_build_ingredient(self, mock_get):
