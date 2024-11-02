@@ -123,7 +123,11 @@ class RecipeListView(generic.ListView):
         return filtered_queryset[:view_count]
 
     def post(self, request, *args, **kwargs):
-        """Handle POST request to increment view_count."""
+        """
+        Handle POST request to increment view_count.
+
+        :param request: HttpRequest from the server.
+        """
         if 'increment' in request.POST:
             increment = int(request.POST.get('increment', 0))
             request.session['view_count'] = request.session.get('view_count', 0) + increment
@@ -176,7 +180,11 @@ class StepView(generic.DetailView):
 
 
 def random_recipe_view(request):
-    """Redirects the user to a random recipe detail page."""
+    """
+    Redirects the user to a random recipe detail page.
+
+    :param request: Request from the server.
+    """
     recipe_count = Recipe.objects.count()
     if recipe_count > 0:
         random_index = random.randint(0, recipe_count - 1)
@@ -209,14 +217,18 @@ def toggle_favorite(request, recipe_id):
 
 
 class UserPageView(generic.ListView):
+    """UserPageView view."""
+
     model = Favourite
     template_name = "user_page.html"
     context_object_name = "favourites"  # Name for use in the template
 
     def get_queryset(self):
+        """Return user favorite recipe"""
         return Favourite.objects.filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
+        """Extend the context data to include the IDs of the user's favorite recipes."""
         context = super().get_context_data(**kwargs)
         favourite_ids = [f.recipe.id for f in context["favourites"]]
         context["favourite_ids"] = favourite_ids
