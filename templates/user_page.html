@@ -24,8 +24,7 @@
         $.ajaxSetup({
             headers: { 'X-CSRFToken': csrftoken }
         });
-
-        // AJAX function for favorite button
+        
         $('.favorite-btn').click(function(e) {
             e.preventDefault();
             let button = $(this);
@@ -41,10 +40,9 @@
                         button.text('Unfavorite');
                         favoriteCountElement.text(parseInt(favoriteCountElement.text()) + 1);
                     } else {
-                        // Update button text and remove the recipe card if unfavorited
                         button.text('Favorite');
                         favoriteCountElement.text(parseInt(favoriteCountElement.text()) - 1);
-                        $('#recipe-card-' + recipeId).fadeOut(); // Hides the recipe card
+                        $('#recipe-card-' + recipeId).fadeOut();
                     }
                 },
                 error: function(xhr, status, error) {
@@ -83,7 +81,7 @@
                                     <form method="post">
                                     {% csrf_token %}
                                 <button class="btn btn-outline-primary favorite-btn" data-recipe-id="{{ favourite.recipe.id }}">
-                                    {% if favourite.recipe.id in favorites %}
+                                    {% if favourite.recipe.id in favourite_ids %}
                                         Unfavorite
                                     {% else %}
                                         Favorite

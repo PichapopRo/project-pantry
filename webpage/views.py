@@ -208,8 +208,16 @@ def toggle_favorite(request, recipe_id):
         return JsonResponse({'error': 'Recipe not found'}, status=404)
 
 
-def user_page_view(request):
-    user = request.user
-    favourite = Favourite.objects.filter(user=user)
-    context = {"favourites": favourite}
-    return render(request, "user_page.html", context)
+class UserPageView(generic.ListView):
+    model = Favourite
+    template_name = "user_page.html"
+    context_object_name = "favourites"  # Name for use in the template
+
+    def get_queryset(self):
+        return Favourite.objects.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        favourite_ids = [f.recipe.id for f in context["favourites"]]
+        context["favourite_ids"] = favourite_ids
+        return context

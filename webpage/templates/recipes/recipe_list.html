@@ -110,7 +110,7 @@
                                     <form method="post">
                                     {% csrf_token %}
                                 <button class="btn btn-outline-primary favorite-btn" data-recipe-id="{{ recipe.id }}">
-                                    {% if recipe.id in favorites %}
+                                    {% if recipe.id in user_favorites %}
                                         Unfavorite
                                     {% else %}
                                         Favorite
