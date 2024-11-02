@@ -1,5 +1,6 @@
 """Provide a facade for the SpoonacularRecipeBuilder and Recipe."""
 
+
 from webpage.modules.builder import SpoonacularRecipeBuilder
 from webpage.models import Recipe
 
