@@ -1,4 +1,4 @@
-"""This module provides an objects related to filtering"""
+"""This module provides an objects related to filtering."""
 
 from dataclasses import dataclass, field
 from typing import List
@@ -7,6 +7,7 @@ from typing import List
 @dataclass
 class FilterParam:
     """A parameter class used to store the filter's parameters."""
+    
     offset: int
     number: int
     includeIngredients: List[str] = field(default_factory=list)
@@ -34,7 +35,7 @@ class FilterParam:
 
     @property
     def ingredient_str(self) -> str:
-        """"
+        """
         Get the string representation of ingredient for Spoonacular.
         
         :return: The string format according to Spoonacular.
@@ -83,7 +84,7 @@ class FilterParam:
         }
 
     def __repr__(self) -> str:
-        """Return the representation string of the object"""
+        """Return the representation string of the object."""
         return (f"FilterParam(offset={self.offset}, number={self.number}, "
                 f"includeIngredients={self.includeIngredients}, equipment={self.equipment}, "
                 f"diet={self.diet}, maxReadyTime={self.maxReadyTime}, "

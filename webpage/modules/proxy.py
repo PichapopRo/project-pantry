@@ -1,4 +1,4 @@
-"""These classes may not be used in iteration 1."""
+"""This module saves the data fetched from the API into the database if it doesn't exists."""
 
 from abc import ABC, abstractmethod
 from django.db.models import QuerySet
@@ -8,7 +8,6 @@ from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
 from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
-import copy
 import logging
 API_KEY = config('API_KEY')
 logger = logging.getLogger("proxy class")
@@ -243,6 +242,12 @@ class GetDataSpoonacular(GetData):
     
     @classmethod
     def get_django_filter(cls, param_name: str):
+        """
+        Get the Django filter parameter key from Spoonacular filter parameter key.
+        
+        :param param_name: The name (or key) of the Spoonacular parameter.
+        :return: The name (or key) of the Django filter parameter.
+        """
         _keys = {
             'includeIngredients': 'ingredientlist__ingredient__name__icontains',
             'equipment': 'equipmentlist__equipment__name__icontains',
