@@ -1,13 +1,7 @@
+"""This module provides an objects related to filtering"""
+
 from dataclasses import dataclass, field
 from typing import List
-from enum import Enum
-
-
-class FilterOptions(Enum):
-    includeIngredients = 'ingredientlist__ingredient__name__icontains'
-    equipment = 'equipmentlist__equipment__name__icontains'
-    diet = 'diets__name__icontains'
-    maxReadyTime = 'estimated_time__lte'
 
 
 @dataclass
