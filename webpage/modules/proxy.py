@@ -13,6 +13,7 @@ import logging
 API_KEY = config('API_KEY')
 logger = logging.getLogger("proxy class")
 
+
 class GetData(ABC):
     """
     Abstract base class defining the interface for data retrieval from a recipe API.
@@ -134,7 +135,7 @@ class GetDataProxy(GetData):
             start = param.offset
         _list = []
         logger.debug(f"param.number: {start}, number: {stop}")
-        for recipe in queryset[start-1: stop]:
+        for recipe in queryset[start - 1: stop]:
             facade = RecipeFacade()
             facade.set_recipe(recipe)
             _list.append(facade)
@@ -208,7 +209,7 @@ class GetDataSpoonacular(GetData):
         :param param: The filter parameter object.
         :return: List with RecipeFacade representing the recipe.
         """
-        query_params: dict[str, str|int|bool|list] = {
+        query_params: dict[str, str | int | bool | list] = {
             'apiKey': API_KEY,
             'number': param.number,
             'offset': param.offset
@@ -232,9 +233,9 @@ class GetDataSpoonacular(GetData):
         for recipe in recipes:
             recipe_facade = RecipeFacade()
             recipe_facade.set_by_spoonacular(
-                name = recipe["title"],
-                id = recipe["id"],
-                image = recipe["image"]
+                name=recipe["title"],
+                id=recipe["id"],
+                image=recipe["image"]
             )
             _list.append(recipe_facade)
             
@@ -248,6 +249,5 @@ class GetDataSpoonacular(GetData):
             "diet": 'diets__name__icontains',
             'maxReadyTime': 'estimated_time__lte',
             'titleMatch': 'name__contains'
-            }
+        }
         return _keys[param_name]
-        

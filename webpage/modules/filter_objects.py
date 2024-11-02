@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import List
 from enum import Enum
 
+
 class FilterOptions(Enum):
     includeIngredients = 'ingredientlist__ingredient__name__icontains'
     equipment = 'equipmentlist__equipment__name__icontains'
@@ -57,13 +58,28 @@ class FilterParam:
 
     @property
     def diet_str(self) -> str:
+        """
+        Get the string representation of diet for Spoonacular.
+        
+        :return: The string format according to Spoonacular.
+        """
         return self.__get_string(self.diet)
 
     @property
     def cuisine_str(self) -> str:
+        """
+        Get the string representation of cusine for Spoonacular.
+        
+        :return: The string format according to Spoonacular.
+        """
         return self.__get_string(self.cuisine)
 
     def get_param(self) -> dict:
+        """
+        Get the parameter for filtering.
+        
+        :return: The dictionary of parameter that will be used to filter.
+        """
         return {
             'includeIngredients': self.ingredient_str,
             'equipment': self.equipment_str,
@@ -73,7 +89,8 @@ class FilterParam:
         }
 
     def __repr__(self) -> str:
+        """Return the representation string of the object"""
         return (f"FilterParam(offset={self.offset}, number={self.number}, "
                 f"includeIngredients={self.includeIngredients}, equipment={self.equipment}, "
                 f"diet={self.diet}, maxReadyTime={self.maxReadyTime}, "
-                f"cuisine={self.cuisine})")
+                f"cuisine={self.cuisine}), titleMatch={self.titleMatch}")

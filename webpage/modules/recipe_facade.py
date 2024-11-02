@@ -2,14 +2,15 @@ from abc import ABC, abstractmethod
 from webpage.modules.builder import SpoonacularRecipeBuilder
 from webpage.models import Recipe
 
-class RecipeFacade(): # Quite a bad code, fix later.
+
+class RecipeFacade(): # Shot gun
     """
     A facade class that will handle the building recipe process.
     """
     
     def __init__(self):
         """Initialize the class"""
-        self.__recipe: Recipe|None = None
+        self.__recipe: Recipe | None = None
     
     def set_recipe(self, recipe: Recipe):
         """
@@ -22,7 +23,7 @@ class RecipeFacade(): # Quite a bad code, fix later.
         self.name = recipe.name
         self.id = recipe.spoonacular_id
     
-    def set_by_spoonacular(self, name: str, id:str, image: str|None):
+    def set_by_spoonacular(self, name: str, id: str, image: str | None):
         """
         Set up the class using newly-fetched recipe.
         
@@ -55,6 +56,5 @@ class RecipeFacade(): # Quite a bad code, fix later.
         return builder.build_recipe()
     
     def __str__(self):
+        """Return the string representation of the object."""
         return f"Recipe name: {self.name}, Recipe ID: {self.id}"
-    
-    
