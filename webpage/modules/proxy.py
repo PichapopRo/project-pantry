@@ -6,11 +6,12 @@ from webpage.models import Recipe
 import requests
 from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
-from webpage.modules.filter_objects import FilterParam, FilterOptions
+from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
 import copy
+import logging
 API_KEY = config('API_KEY')
-
+logger = logging.getLogger("proxy class")
 
 class GetData(ABC):
     """
@@ -112,22 +113,28 @@ class GetDataProxy(GetData):
         """
         queryset = Recipe.objects.all()
         for _filter in param.get_param():
+            if param.get_param()[_filter] == "" or param.get_param()[_filter] is None:
+                continue
             _dict = {
-                FilterOptions[_filter]: param[_filter]
+                self._service.get_django_filter(_filter): param.get_param()[_filter]
             }
-            queryset.filter(_dict)
+            queryset = queryset.filter(**_dict)
         
-        number = 0
+        stop = 0
+        start = 0
         later_part = []
-        if len(queryset) <= param.number + param.offset:
-            number = len(queryset)
-            new_param: FilterParam = copy.copy(param)
-            new_param.number = len(queryset) + 1
-            later_part = self._service.filter_recipe(new_param)
+        if len(queryset) < param.number + param.offset - 1:
+            stop = len(queryset)
+            start = param.offset
+            param.number = param.number - len(queryset)
+            param.offset = 1
+            later_part = self._service.filter_recipe(param)
         else:
-            number = param.number + param.offset
+            stop = param.number + param.offset - 1
+            start = param.offset
         _list = []
-        for recipe in queryset[param.number-1: number]:
+        logger.debug(f"param.number: {start}, number: {stop}")
+        for recipe in queryset[start-1: stop]:
             facade = RecipeFacade()
             facade.set_recipe(recipe)
             _list.append(facade)
@@ -203,8 +210,12 @@ class GetDataSpoonacular(GetData):
         """
         query_params: dict[str, str|int|bool|list] = {
             'apiKey': API_KEY,
+            'number': param.number,
+            'offset': param.offset
         }
         query_params.update(param.get_param())
+        
+        print(query_params)
         
         response = requests.get(self.__complex_url, params=query_params)
 
@@ -228,4 +239,14 @@ class GetDataSpoonacular(GetData):
             _list.append(recipe_facade)
             
         return _list
+    
+    @classmethod
+    def get_django_filter(cls, param_name: str):
+        _keys = {
+            'includeIngredients': 'ingredientlist__ingredient__name__icontains',
+            'equipment': 'equipmentlist__equipment__name__icontains',
+            "diet": 'diets__name__icontains',
+            'maxReadyTime': 'estimated_time__lte'
+            }
+        return _keys[param_name]
         
