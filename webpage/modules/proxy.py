@@ -246,7 +246,8 @@ class GetDataSpoonacular(GetData):
             'includeIngredients': 'ingredientlist__ingredient__name__icontains',
             'equipment': 'equipmentlist__equipment__name__icontains',
             "diet": 'diets__name__icontains',
-            'maxReadyTime': 'estimated_time__lte'
+            'maxReadyTime': 'estimated_time__lte',
+            'titleMatch': 'name__contains'
             }
         return _keys[param_name]
         
