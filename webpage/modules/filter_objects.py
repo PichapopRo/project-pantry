@@ -37,6 +37,15 @@ class FilterParam:
         return ','.join(_list)
 
     @property
+    def ingredient_str(self) -> str:
+        """"
+        Get the string representation of ingredient for Spoonacular.
+        
+        :return: The string format according to Spoonacular.
+        """
+        return self.__get_string(self.includeIngredients)
+        
+    @property
     def equipment_str(self) -> str:
         """
         Get the string representation of equipment for Spoonacular.
@@ -55,7 +64,7 @@ class FilterParam:
 
     def get_param(self) -> dict:
         return {
-            'includeIngredients': self.includeIngredients,
+            'includeIngredients': self.ingredient_str,
             'equipment': self.equipment_str,
             'diet': self.diet_str,
             'maxReadyTime': self.maxReadyTime
