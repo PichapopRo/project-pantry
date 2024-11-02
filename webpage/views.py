@@ -224,7 +224,7 @@ class UserPageView(generic.ListView):
     context_object_name = "favourites"  # Name for use in the template
 
     def get_queryset(self):
-        """Return user favorite recipe"""
+        """Return user favorite recipe."""
         return Favourite.objects.filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
