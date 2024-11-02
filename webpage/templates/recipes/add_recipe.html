@@ -1,10 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+{% extends 'base.html' %}
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add new recipe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body>
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card border-0">
+                <h2 class="card-title mt-3 mx-auto">About</h2>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" placeholder="Vegetable Lasagna">
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" rows="3" placeholder="Wholesome, hearty winter lasagna recipe."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="time" class="form-label">Estimate Time</label>
+                                <input type="text" class="form-control" inputmode="numeric" id="time" placeholder="15">
+                            </div>
+                            <div class="mb-3">
+                                <label for="tags" class="form-label">Tags</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="tags" value="Appetizers, Baked Goods, Breakfast, Condiments and Sauces, Dessert, Dinner, Drinks, Healthy, Italian, Lunch, Meat, Mexican, Pasta, Salads, Seafood, Side Dishes, Smoothies, Snacks, Soup, Vegetarian">
+                                    <button class="btn btn-secondary" type="button"><i class="bi bi-pencil-square"></i> Manage tags</button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="photos" class="form-label">Photos</label>
+                                <div class="d-flex">
+                            <div>
+                                <button type="button" class="btn btn-success"><i class="bi bi-plus-circle"></i> Add Photo</button>
+                            </div>
+                                </div>
+                                </div>
 
+
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="ingredients" class="form-label">Ingredients</label>
+                                <textarea class="form-control" id="ingredients" rows="8" placeholder="1 cup white flour (extra for smearing)"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="instructions" class="form-label">Steps</label>
+                                <textarea class="form-control" id="instructions" rows="8" placeholder="1. Wash and dice the carrots, tomatoes and mushrooms."></textarea>
+                            </div>
+                        </div>
+
+                        </div>
+                </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
 </body>
 </html>
