@@ -9,7 +9,11 @@
       <a class="nav-link " href="/recipes/">Home</a>
       </li>
         <li class="nav-item">
-      <a class="nav-link" href="#">Add Recipe</a>
+            {% if user.is_authenticated %}
+                <a class="nav-link" href="{% url 'add_recipe' %}">Add Recipe</a>
+                {%  else  %}
+                <a class="nav-link" href="{% url 'login' %}?next={{request.path}}">Add Recipe</a>
+            {% endif %}
         </li>
       <li class="nav-item">
       <a class="nav-link" href="{% url 'random_recipe' %}">Random Recipe!</a>

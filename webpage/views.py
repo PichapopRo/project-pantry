@@ -206,3 +206,13 @@ def toggle_favorite(request, recipe_id):
             return JsonResponse({'favorited': False})
     except Recipe.DoesNotExist:
         return JsonResponse({'error': 'Recipe not found'}, status=404)
+
+
+@login_required
+def add_recipe_view(request):
+    """
+    Login view for user login.
+
+    :param request: Request from the server.
+    """
+    return render(request, 'recipes/add_recipe.html')
