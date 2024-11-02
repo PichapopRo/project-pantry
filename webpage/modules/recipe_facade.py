@@ -54,4 +54,7 @@ class RecipeFacade(): # Quite a bad code, fix later.
         builder.build_nutrition()
         return builder.build_recipe()
     
+    def __str__(self):
+        return f"Recipe name: {self.name}, Recipe ID: {self.id}"
+    
     
