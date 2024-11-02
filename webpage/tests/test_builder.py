@@ -114,7 +114,7 @@ class TestSpoonacularRecipeBuilder(TestCase):
 
     def test_create_spoonacular_user(self):
         """Test the __create_spoonacular_user method on the SpoonacularRecipeBuilder."""
-        user = User.objects.filter(username="Spoonacular").first()
+        user, _ = User.objects.get_or_create(username="Spoonacular")
         created_user = self.builder._SpoonacularRecipeBuilder__create_spoonacular_user()
         self.assertEqual(user, created_user)
 
@@ -251,7 +251,7 @@ class TestSpoonacularRecipeBuilder(TestCase):
     def test_build_details(self, mock_get):
         """Test the build_details method on the SpoonacularRecipeBuilder."""
         mock_response = {
-            "image": "http://example.com/image.jpg",
+            "image": "http://example.com/salad.jpg",
             "readyInMinutes": 45,
             "summary": "This is a salad."
         }
