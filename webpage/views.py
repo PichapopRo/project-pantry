@@ -150,9 +150,16 @@ class RecipeListView(generic.ListView):
 class RecipeView(generic.DetailView):
     """RecipeView view."""
 
-    template_name = 'recipes/description.html'
+    template_name = 'recipes/description_.html'
     model = Recipe
     context_object_name = 'recipe'
+
+    def get_context_data(self, **kwargs):
+        """Add steps directly from RecipeStep model to the context."""
+        context = super().get_context_data(**kwargs)
+        recipe = self.get_object()
+        context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
+        return context
 
 
 class StepView(generic.DetailView):
