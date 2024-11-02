@@ -1,11 +1,10 @@
 """Provide a facade for the SpoonacularRecipeBuilder and Recipe."""
 
-
 from webpage.modules.builder import SpoonacularRecipeBuilder
 from webpage.models import Recipe
 
 
-class RecipeFacade(): # Shot gun
+class RecipeFacade():  # Shot gun
     """A facade class that will handle the building recipe process."""
     
     def __init__(self):
