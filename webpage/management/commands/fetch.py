@@ -16,20 +16,17 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         """
-        Handle the command execution.
+        Fetch recipes from the Spoonacular API and store them using the provided proxy.
 
-        Fetches recipes from the Spoonacular API and stores them using
-        the provided proxy. This method handles API responses and
-        implements rate limiting.
+        Handle API responses and implement rate limiting.
 
-        Args:
-            *args: Positional arguments.
-            **kwargs: Keyword arguments.
+        :param *args: Positional arguments.
+        :param **kwargs: Keyword arguments.
         """
         query_params = {
             'apiKey': API_KEY,
-            'number': 10,
-            'offset': 50,
+            'number': 50,
+            'offset': 100,
         }
 
         url = 'https://api.spoonacular.com/recipes/complexSearch'

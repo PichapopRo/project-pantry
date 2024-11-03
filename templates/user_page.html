@@ -24,8 +24,7 @@
         $.ajaxSetup({
             headers: { 'X-CSRFToken': csrftoken }
         });
-
-        // AJAX function for favorite button
+        
         $('.favorite-btn').click(function(e) {
             e.preventDefault();
             let button = $(this);
@@ -43,6 +42,7 @@
                     } else {
                         button.text('Favorite');
                         favoriteCountElement.text(parseInt(favoriteCountElement.text()) - 1);
+                        $('#recipe-card-' + recipeId).fadeOut();
                     }
                 },
                 error: function(xhr, status, error) {
@@ -52,65 +52,36 @@
             });
         });
     });
-    </script>
+</script>
 </head>
 <html>
 {% extends 'base.html' %}
 <body>
 {% block content %}
-<div class="container">
-<form method="get">
-    <div class="col my-3">
-    <div class="input-group mt-3">
-        <div class="card mx-auto">
-        <div class="input-group-prepend  mx-auto">
-            <div class="btn mt-2">
-        <select class= "btn" name="diet" id="diet">
-            <option value="">All Diets</option>
-            {% for diet in diets %}
-            <option value="{{ diet.name }}" {% if diet.name == selected_diet %}selected{% endif %}>{{ diet.name }}</option>
-            {% endfor %}
-        </select>
-            <input type="number" min="0" class="form-control mt-2" name="estimated_time" id="estimated_time" value="{{ estimated_time }}" placeholder="Estimated time">
-            </div>
-                <div class="btn">
-                <input type="text" class="form-control mt-2" name="ingredient" id="ingredient" value="{{ selected_ingredient }}" placeholder="Ingredient">
-                <input type="text" class="form-control mt-2" name="equipment" id="equipment" value="{{ selected_equipment }}" placeholder="Equipment">
-            </div>
-                <div class="btn">
-            <input type="text" name="query" class="form-control mt-2" placeholder="Enter keyword" value="{{ query }}">
-
-                    <button class="btn-success form-control mt-2" type="submit">Filter</button>
-            </div>
-            </div>
-        </div>
-        </div>
-        </div>
-</form>
-{% if recipe_list %}
+{% if favourites %}
         <div class="col my-3">
-            {% for recipe in recipe_list %}
-            <div class="card mb-3 mx-auto">
+            {% for favourite in favourites %}
+            <div class="card mb-3 mx-auto" id="recipe-card-{{ favourite.recipe.id }}">
                 <div class="card-body">
                     <div class="row" style="max width = 400px">
                         <div class="col-md-4">
-                            <img src="{{ recipe.image }}" class="img-fluid rounded-start" alt="{{ recipe.name }}">
+                            <img src="{{ favourite.recipe.image }}" class="img-fluid rounded-start" alt="{{ favourite.recipe.name }}">
                         </div>
                         <div class="col">
                             <div class="col p-0 m-0">
-                                {% if recipe.get_difficulty == "Easy" %}
+                                {% if favourite.recipe.get_difficulty == "Easy" %}
                                 <h4><a href="?difficulty=Easy" class="badge badge-pill badge-success">Easy</a></h4>
-                                {% elif recipe.get_difficulty == "Medium" %}
+                                {% elif favourite.recipe.get_difficulty == "Medium" %}
                                 <h4><a href="?difficulty=Medium" class="badge badge-pill badge-warning">Medium</a></h4>
-                                {% elif recipe.get_difficulty == "Hard" %}
+                                {% elif favourite.recipe.get_difficulty == "Hard" %}
                                 <h4><a href="?difficulty=Hard" class="badge badge-pill badge-danger">Hard</a></h4>
                                 {% endif %}
-                                <small>Favorites: <span class="favorite-count" id="favorite-count-{{ recipe.id }}">{{ recipe.favourite_set.count }}</span></small>
+                                <small>Favorites: <span class="favorite-count" id="favorite-count-{{ favourite.recipe.id }}">{{ favourite.recipe.favourite_set.count }}</span></small>
                                 {% if user.is_authenticated %}
                                     <form method="post">
                                     {% csrf_token %}
-                                <button class="btn btn-outline-primary favorite-btn" data-recipe-id="{{ recipe.id }}">
-                                    {% if recipe.id in user_favorites %}
+                                <button class="btn btn-outline-primary favorite-btn" data-recipe-id="{{ favourite.recipe.id }}">
+                                    {% if favourite.recipe.id in favourite_ids %}
                                         Unfavorite
                                     {% else %}
                                         Favorite
@@ -122,10 +93,10 @@
                             {% endif %}
                             </div>
                             <div class="col p-0 m-0">
-                                <h3 class="card-title">{{ recipe.name }}</h3>
-                                <small class="card-text">By: {{ recipe.poster_id.username }}</small>
-                                <p class="card-text my-2">{{ recipe.description|truncatechars:350 }}</p>
-                                <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
+                                <h3 class="card-title">{{ favourite.recipe.name }}</h3>
+                                <small class="card-text">By: {{ favourite.recipe.poster_id.username }}</small>
+                                <p class="card-text my-2">{{ favourite.recipe.description|truncatechars:350 }}</p>
+                                <a href="{% url 'recipe' favourite.recipe.id %}" class="stretched-link"></a>
                             </div>
                         </div>
                     </div>
@@ -133,20 +104,5 @@
             </div>
             {% endfor %}
         </div>
-    </div>
-{% elif total_recipes == 0 %}
-    <p>No recipes available.</p>
-{% endif %}
-<div class="d-flex justify-content-center mt-4">
-    <form method="post" action=".">
-        {% csrf_token %}
-        {% if view_count == 0 and total_recipes > 0 %}
-            <button type="submit" name="increment" value="5" class="btn btn-success" id="load-more" {% if button_clicked %}autofocus{% endif %}>View Recipes</button>
-        {% elif total_recipes > 0 %}
-            <button type="submit" name="increment" value="5" class="btn btn-success" id="load-more" {% if button_clicked %}autofocus{% endif %}>Load More Recipes</button>
-        {% endif %}
-    </form>
-</div>
+    {% endif %}
 {% endblock %}
-</body>
-</html>
