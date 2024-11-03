@@ -149,7 +149,7 @@ class RecipeListView(generic.ListView):
         context['button_clicked'] = self.request.session.pop('button_clicked',
                                                              False)
         if self.request.user.is_authenticated:
-            context['user_favorites'] = Favourite.objects.filter(
+            context['user_favourites'] = Favourite.objects.filter(
                 user=self.request.user).values_list('recipe_id', flat=True)
         else:
             context['user_favorites'] = []
@@ -196,9 +196,9 @@ def random_recipe_view(request):
 
 
 @login_required
-def toggle_favorite(request, recipe_id):
+def toggle_favourite(request, recipe_id):
     """
-    Toggle favorite of a recipe.
+    Toggle favourite of a recipe.
 
     :param request: Request from the server.
     :param recipe_id: Recipe ID.
@@ -206,12 +206,12 @@ def toggle_favorite(request, recipe_id):
     try:
         recipe = Recipe.objects.get(id=recipe_id)
         user = request.user
-        favorite, created = Favourite.objects.get_or_create(recipe=recipe, user=user)
+        favourite, created = Favourite.objects.get_or_create(recipe=recipe, user=user)
         if created:
-            return JsonResponse({'favorited': True})
+            return JsonResponse({'favourited': True})
         else:
-            favorite.delete()
-            return JsonResponse({'favorited': False})
+            favourite.delete()
+            return JsonResponse({'favourited': False})
     except Recipe.DoesNotExist:
         return JsonResponse({'error': 'Recipe not found'}, status=404)
 

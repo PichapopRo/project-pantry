@@ -24,25 +24,23 @@
         $.ajaxSetup({
             headers: { 'X-CSRFToken': csrftoken }
         });
-
-        // AJAX function for favorite button
-        $('.favorite-btn').click(function(e) {
+        $('.favourite-btn').click(function(e) {
             e.preventDefault();
             let button = $(this);
             let recipeId = button.data('recipe-id');
-            let favoriteCountElement = $('#favorite-count-' + recipeId);
+            let favouriteCountElement = $('#favourite-count-' + recipeId);
 
             $.ajax({
-                url: `/recipes/${recipeId}/toggle_favorite/`,
+                url: `/recipes/${recipeId}/toggle_favourite/`,
                 method: 'POST',
                 data: { csrfmiddlewaretoken: csrftoken },
                 success: function(response) {
-                    if (response.favorited) {
-                        button.text('Unfavorite');
-                        favoriteCountElement.text(parseInt(favoriteCountElement.text()) + 1);
+                    if (response.favourited) {
+                        button.text('Unfavourite');
+                        favouriteCountElement.text(parseInt(favouriteCountElement.text()) + 1);
                     } else {
-                        button.text('Favorite');
-                        favoriteCountElement.text(parseInt(favoriteCountElement.text()) - 1);
+                        button.text('Favourite');
+                        favouriteCountElement.text(parseInt(favouriteCountElement.text()) - 1);
                     }
                 },
                 error: function(xhr, status, error) {
@@ -105,20 +103,20 @@
                                 {% elif recipe.get_difficulty == "Hard" %}
                                 <h4><a href="?difficulty=Hard" class="badge badge-pill badge-danger">Hard</a></h4>
                                 {% endif %}
-                                <small>Favorites: <span class="favorite-count" id="favorite-count-{{ recipe.id }}">{{ recipe.favourite_set.count }}</span></small>
+                                <small>Favourites: <span class="favourite-count" id="favourite-count-{{ recipe.id }}">{{ recipe.favourite_set.count }}</span></small>
                                 {% if user.is_authenticated %}
                                     <form method="post">
                                     {% csrf_token %}
-                                <button class="btn btn-outline-primary favorite-btn" data-recipe-id="{{ recipe.id }}">
-                                    {% if recipe.id in user_favorites %}
-                                        Unfavorite
+                                <button class="btn btn-outline-primary favourite-btn" data-recipe-id="{{ recipe.id }}">
+                                    {% if recipe.id in user_favourites %}
+                                        Unfavourite
                                     {% else %}
-                                        Favorite
+                                        Favourite
                                     {% endif %}
                                 </button>
                                     </form>
                             {% else %}
-                                <p><a href="{% url 'login' %}">Log in to favorite this recipe</a></p>
+                                <p><a href="{% url 'login' %}">Log in to favourite this recipe</a></p>
                             {% endif %}
                             </div>
                             <div class="col p-0 m-0">
