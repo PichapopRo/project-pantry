@@ -96,6 +96,7 @@ class NutritionList(models.Model):
 class Recipe(models.Model):
     """The recipe class containing information about the recipe and methods."""
 
+    STATUS_CHOICES = [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')]
     name = models.CharField(max_length=200, default='Unnamed Recipe')
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
     estimated_time = models.FloatField(default=0)
@@ -104,6 +105,7 @@ class Recipe(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     description = models.CharField(max_length=300, null=True, blank=True)
     diets = models.ManyToManyField(Diet, related_name="recipes")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
 
     def __str__(self) -> str:
         """Return the name of the recipe."""
