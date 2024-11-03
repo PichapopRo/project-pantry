@@ -61,19 +61,52 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="ingredients" class="form-label">Ingredients</label>
-                                <textarea class="form-control" id="ingredients" rows="1" placeholder="1 cup white flour (extra for smearing)"></textarea>
+                                <div class="input-group">
+                                <input class="form-control" id="ingredients" placeholder="1 cup white flour (extra for smearing)">
+                                <button type="button" class="btn btn-outline-success" onclick="newIngredient()">
+                                        <i class="bi bi-plus"></i> Add ingredient
+                                      </button>
+                                </div>
+                                        <ul id="ingredientUL"></ul>
+                                    <script>
+                                          function newIngredient() {
+                                              const li = document.createElement("li");
+                                              const inputValue = document.getElementById("ingredients").value;
+                                              const t = document.createTextNode(inputValue);
+                                              li.appendChild(t);
+
+                                              if (inputValue === '') {
+                                              alert("Add your ingredient first!");
+                                              } else {
+                                              document.getElementById("ingredientUL").appendChild(li);
+                                              }
+
+                                              const span = document.createElement("SPAN");
+                                              const txt = document.createTextNode("\u00D7");
+                                              span.className = "close";
+                                              span.appendChild(txt);
+                                              li.appendChild(span);
+
+                                              span.onclick = function() {
+                                                  const div = this.parentElement;
+                                                  div.style.display = "none";
+                                              }
+                                          }
+                                        </script>
                             </div>
-                            <div class="mb-3">
-                                <label for="ingredients" class="form-label">Steps</label>
+                            <div class="mb-3 mt-3">
+                                <label for="steps" class="form-label">Steps</label>
+                                <div class="input-group">
                                       <input class="form-control" id="steps" placeholder="Wash and dice the carrots, tomatoes and mushrooms.">
-                                      <button type="button" class="btn btn-outline-success" onclick="newElement()">
+                                      <button type="button" class="btn btn-outline-success" onclick="newStep()">
                                         <i class="bi bi-plus"></i> Add step
                                       </button>
                                     </div>
-                                    <ol id="myOL"></ol>
-
+                                <div>
+                                <ol id="stepOL"></ol>
+                                    </div>
                                     <script>
-                                      function newElement() {
+                                      function newStep() {
                                           const li = document.createElement("li");
                                           const inputValue = document.getElementById("steps").value;
                                           const t = document.createTextNode(inputValue);
@@ -82,7 +115,7 @@
                                           if (inputValue === '') {
                                           alert("Add your step first!");
                                           } else {
-                                          document.getElementById("myOL").appendChild(li);
+                                          document.getElementById("stepOL").appendChild(li);
                                           }
 
                                           const span = document.createElement("SPAN");
