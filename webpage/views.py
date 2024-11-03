@@ -152,7 +152,7 @@ class RecipeListView(generic.ListView):
             context['user_favourites'] = Favourite.objects.filter(
                 user=self.request.user).values_list('recipe_id', flat=True)
         else:
-            context['user_favorites'] = []
+            context['user_favourites'] = []
 
         return context
 
@@ -224,11 +224,11 @@ class UserPageView(generic.ListView):
     context_object_name = "favourites"  # Name for use in the template
 
     def get_queryset(self):
-        """Return user favorite recipe."""
+        """Return user favourite recipe."""
         return Favourite.objects.filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
-        """Extend the context data to include the IDs of the user's favorite recipes."""
+        """Extend the context data to include the IDs of the user's favourite recipes."""
         context = super().get_context_data(**kwargs)
         favourite_ids = [f.recipe.id for f in context["favourites"]]
         context["favourite_ids"] = favourite_ids
