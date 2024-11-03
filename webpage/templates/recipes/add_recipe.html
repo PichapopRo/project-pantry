@@ -34,18 +34,28 @@
                                 <label for="tags" class="form-label">Tags</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="tags" value="Appetizers, Baked Goods, Breakfast, Condiments and Sauces, Dessert, Dinner, Drinks, Healthy, Italian, Lunch, Meat, Mexican, Pasta, Salads, Seafood, Side Dishes, Smoothies, Snacks, Soup, Vegetarian">
-                                    <button class="btn btn-secondary" type="button"><i class="bi bi-pencil-square"></i> Manage tags</button>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="photos" class="form-label">Photos</label>
-                                <div class="d-flex">
-                            <div>
-                                <button type="button" class="btn btn-success"><i class="bi bi-plus-circle"></i> Add Photo</button>
-                            </div>
+                                <div class="image-preview-container">
+                                    <div class="preview">
+                                        <img id="preview-selected-image" alt="Can't preview">
+                                    </div>
+                                    <label for="file-upload">Upload Image</label>
+                                    <input type="file" id="file-upload" accept="image/*" onchange="previewImage(event);" />
                                 </div>
+                                <script>const previewImage = (event) => {
+                                        const imageFiles = event.target.files;
+                                        const imageFilesLength = imageFiles.length;
+                                        if (imageFilesLength > 0) {
+                                            const imageSrc = URL.createObjectURL(imageFiles[0]);
+                                            const imagePreviewElement = document.querySelector("#preview-selected-image");
+                                            imagePreviewElement.src = imageSrc;
+                                            imagePreviewElement.style.display = "block";
+                                        }
+                                    };</script>
                                 </div>
-
 
                         </div>
                         <div class="col-md-6">
