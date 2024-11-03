@@ -119,10 +119,11 @@ class TestSpoonacularRecipeBuilder(TestCase):
         self.assertEqual(self.user, created_user)
 
     def test_create_spoonacular_user_none(self):
-        """Test the __create_spoonacular_user method on the SpoonacularRecipeBuilder when the user is none."""
-        not cls.user, _ = User.objects.get_or_create(username="Spoonacular") #gone only for this test
-        created_user = self.builder._SpoonacularRecipeBuilder__create_spoonacular_user()
+        """Test the __create_spoonacular_user method when the user does not exist."""
+        User.objects.filter(username="Spoonacular").delete()
+        self.builder._SpoonacularRecipeBuilder__create_spoonacular_user()
         self.assertEqual(self.user.username, "Spoonacular")
+        self.user, _ = User.objects.get_or_create(username="Spoonacular")
 
     @patch('requests.get')
     def test_call_api_success(self, mock_get):
