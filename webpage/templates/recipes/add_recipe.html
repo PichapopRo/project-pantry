@@ -33,7 +33,7 @@
                             <div class="mb-3">
                                 <label for="tags" class="form-label">Tags</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="tags" value="Appetizers, Baked Goods, Breakfast, Condiments and Sauces, Dessert, Dinner, Drinks, Healthy, Italian, Lunch, Meat, Mexican, Pasta, Salads, Seafood, Side Dishes, Smoothies, Snacks, Soup, Vegetarian">
+                                    <input type="text" class="form-control" id="tags" placeholder="Diets" disabled>
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -89,7 +89,7 @@
 
                                               span.onclick = function() {
                                                   const div = this.parentElement;
-                                                  div.style.display = "none";
+                                                  div.remove();
                                               }
                                           }
                                         </script>
@@ -126,7 +126,7 @@
 
                                           span.onclick = function() {
                                               const div = this.parentElement;
-                                              div.style.display = "none";
+                                              div.remove();
                                           }
                                       }
                                     </script>

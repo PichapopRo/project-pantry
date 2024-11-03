@@ -211,7 +211,7 @@ def toggle_favorite(request, recipe_id):
 @login_required
 def add_recipe_view(request):
     """
-    Login view for user login.
+    View to add new recipe for login users.
 
     :param request: Request from the server.
     """
