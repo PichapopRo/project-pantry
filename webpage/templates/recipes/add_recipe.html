@@ -61,12 +61,44 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="ingredients" class="form-label">Ingredients</label>
-                                <textarea class="form-control" id="ingredients" rows="8" placeholder="1 cup white flour (extra for smearing)"></textarea>
+                                <textarea class="form-control" id="ingredients" rows="1" placeholder="1 cup white flour (extra for smearing)"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label for="instructions" class="form-label">Steps</label>
-                                <textarea class="form-control" id="instructions" rows="8" placeholder="1. Wash and dice the carrots, tomatoes and mushrooms."></textarea>
+                                <label for="ingredients" class="form-label">Steps</label>
+                                      <input class="form-control" id="steps" placeholder="Wash and dice the carrots, tomatoes and mushrooms.">
+                                      <button type="button" class="btn btn-outline-success" onclick="newElement()">
+                                        <i class="bi bi-plus"></i> Add step
+                                      </button>
+                                    </div>
+                                    <ol id="myOL"></ol>
+
+                                    <script>
+                                      function newElement() {
+                                          const li = document.createElement("li");
+                                          const inputValue = document.getElementById("steps").value;
+                                          const t = document.createTextNode(inputValue);
+                                          li.appendChild(t);
+
+                                          if (inputValue === '') {
+                                          alert("Add your step first!");
+                                          } else {
+                                          document.getElementById("myOL").appendChild(li);
+                                          }
+
+                                          const span = document.createElement("SPAN");
+                                          const txt = document.createTextNode("\u00D7");
+                                          span.className = "close";
+                                          span.appendChild(txt);
+                                          li.appendChild(span);
+
+                                          span.onclick = function() {
+                                              const div = this.parentElement;
+                                              div.style.display = "none";
+                                          }
+                                      }
+                                    </script>
                             </div>
+                                </div>
                         </div>
 
                         </div>
