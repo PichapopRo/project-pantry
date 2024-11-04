@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from django.db.models import QuerySet
 from webpage.models import Recipe
 import requests
-from webpage.modules.builder import SpoonacularRecipeBuilder
 from decouple import config
 from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
