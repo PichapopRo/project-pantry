@@ -1,14 +1,20 @@
 """The view handles the requests and handling data to the webpage."""
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.urls import reverse_lazy
 from django.views import generic
-from webpage.models import Recipe, Diet, RecipeStep, Favourite
+
+from pantry import settings
+from webpage.models import Recipe, Diet, RecipeStep, Favourite, Ingredient, Equipment
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
-from webpage.forms import CustomRegisterForm
+from webpage.forms import CustomRegisterForm, RecipeForm
+from webpage.modules.builder import NormalRecipeBuilder
+from webpage.modules.image_to_url import upload_image_to_imgur
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 import random
+import json
 
 
 def register_view(request):
@@ -208,11 +214,50 @@ def toggle_favorite(request, recipe_id):
         return JsonResponse({'error': 'Recipe not found'}, status=404)
 
 
-@login_required
-def add_recipe_view(request):
-    """
-    View to add new recipe for login users.
+class AddRecipeView(generic.FormView):
+    template_name = 'recipes/add_recipe.html'
+    form_class = RecipeForm
+    success_url = '/recipes/'  # Redirect after successful submission
 
-    :param request: Request from the server.
-    """
-    return render(request, 'recipes/add_recipe.html')
+    def form_valid(self, form):
+        # Save the recipe instance
+        recipe = form.save(commit=False)
+        recipe.poster = self.request.user  # Associate it with the logged-in user
+
+        # Handle image upload
+        if 'photo' in self.request.FILES:
+            image_file = self.request.FILES['photo']
+            client_id = settings.IMGUR_CLIENT_ID
+            image_url = upload_image_to_imgur(image_file.temporary_file_path(), client_id)
+            if image_url:
+                recipe.image = image_url  # Assuming 'image' is the field for storing the URL
+        else:
+            form.add_error('photo', 'Image is required.')  # Optional: Add an error if no image is uploaded
+
+        recipe.save()  # Now save it
+
+        # Save ingredients, equipment, and steps
+        ingredients_data = self.request.POST.get('ingredients_data')
+        equipment_data = self.request.POST.get('equipment_data')
+        steps_data = self.request.POST.get('steps_data')
+
+        if ingredients_data:
+            ingredients = json.loads(ingredients_data)
+            for ingredient in ingredients:
+                Ingredient.objects.create(recipe=recipe, name=ingredient)
+
+        if equipment_data:
+            equipment = json.loads(equipment_data)
+            for equip in equipment:
+                Equipment.objects.create(recipe=recipe, name=equip)
+
+        if steps_data:
+            steps = json.loads(steps_data)
+            for step in steps:
+                RecipeStep.objects.create(recipe=recipe, description=step)
+
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # Optional: Add a message to inform the user about the errors
+        return super().form_invalid(form)

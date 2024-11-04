@@ -10,139 +10,163 @@
 </head>
 <body>
 {% block content %}
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-<div class="container-fluid mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card border-0">
-                <h2 class="card-title mt-3 mx-auto">About</h2>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="name" placeholder="Vegetable Lasagna">
-                            </div>
-                            <div class="mb-3">
-                                <label for="description" class="form-label">Description</label>
-                                <textarea class="form-control" id="description" rows="3" placeholder="Wholesome, hearty winter lasagna recipe."></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="time" class="form-label">Estimate Time</label>
-                                <input type="text" class="form-control" inputmode="numeric" id="time" placeholder="15">
-                            </div>
-                            <div class="mb-3">
-                                <label for="tags" class="form-label">Tags</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="tags" placeholder="Diets" disabled>
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card border-0">
+                    <h2 class="card-title mt-3 mx-auto">About</h2>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Vegetable Lasagna" required>
                                 </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="photos" class="form-label">Photos</label>
-                                <div class="image-preview-container">
-                                    <div class="preview">
-                                        <img id="preview-selected-image" alt="Can't preview">
-                                    </div>
-                                    <label for="file-upload">Upload Image</label>
-                                    <input type="file" id="file-upload" accept="image/*" onchange="previewImage(event);" />
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Wholesome, hearty winter lasagna recipe." required></textarea>
                                 </div>
-                                <script>const previewImage = (event) => {
-                                        const imageFiles = event.target.files;
-                                        const imageFilesLength = imageFiles.length;
-                                        if (imageFilesLength > 0) {
-                                            const imageSrc = URL.createObjectURL(imageFiles[0]);
-                                            const imagePreviewElement = document.querySelector("#preview-selected-image");
-                                            imagePreviewElement.src = imageSrc;
-                                            imagePreviewElement.style.display = "block";
-                                        }
-                                    };</script>
+                                <div class="mb-3">
+                                    <label for="time" class="form-label">Estimated Time (in minutes)</label>
+                                    <input type="number" class="form-control" id="time" name="time" placeholder="15" required>
                                 </div>
-
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="ingredients" class="form-label">Ingredients</label>
-                                <div class="input-group">
-                                <input class="form-control" id="ingredients" placeholder="1 cup white flour (extra for smearing)">
-                                <button type="button" class="btn btn-outline-success" onclick="newIngredient()">
-                                        <i class="bi bi-plus"></i> Add ingredient
-                                      </button>
+                                <div class="mb-3">
+                                    <label for="tags" class="form-label">Tags</label>
+                                    <input type="text" class="form-control" id="tags" name="tags" placeholder="Diets" disabled>
                                 </div>
-                                        <ul id="ingredientUL"></ul>
-                                    <script>
-                                          function newIngredient() {
-                                              const li = document.createElement("li");
-                                              const inputValue = document.getElementById("ingredients").value;
-                                              const t = document.createTextNode(inputValue);
-                                              li.appendChild(t);
-
-                                              if (inputValue === '') {
-                                              alert("Add your ingredient first!");
-                                              } else {
-                                              document.getElementById("ingredientUL").appendChild(li);
-                                              }
-
-                                              const span = document.createElement("SPAN");
-                                              const txt = document.createTextNode("\u00D7");
-                                              span.className = "close";
-                                              span.appendChild(txt);
-                                              li.appendChild(span);
-
-                                              span.onclick = function() {
-                                                  const div = this.parentElement;
-                                                  div.remove();
-                                              }
-                                          }
-                                        </script>
-                            </div>
-                            <div class="mb-3 mt-3">
-                                <label for="steps" class="form-label">Steps</label>
-                                <div class="input-group">
-                                      <input class="form-control" id="steps" placeholder="Wash and dice the carrots, tomatoes and mushrooms.">
-                                      <button type="button" class="btn btn-outline-success" onclick="newStep()">
-                                        <i class="bi bi-plus"></i> Add step
-                                      </button>
-                                    </div>
-                                <div>
-                                <ol id="stepOL"></ol>
+                                <div class="mb-3">
+                                    <label for="photos" class="form-label">Photos</label>
+                                    <input type="file" id="file-upload" name="photo" accept="image/*" onchange="previewImage(event);" />
+                                    <div class="image-preview-container">
+                                        <img id="preview-selected-image" alt="Can't preview" style="display:none;">
                                     </div>
                                     <script>
-                                      function newStep() {
-                                          const li = document.createElement("li");
-                                          const inputValue = document.getElementById("steps").value;
-                                          const t = document.createTextNode(inputValue);
-                                          li.appendChild(t);
-
-                                          if (inputValue === '') {
-                                          alert("Add your step first!");
-                                          } else {
-                                          document.getElementById("stepOL").appendChild(li);
-                                          }
-
-                                          const span = document.createElement("SPAN");
-                                          const txt = document.createTextNode("\u00D7");
-                                          span.className = "close";
-                                          span.appendChild(txt);
-                                          li.appendChild(span);
-
-                                          span.onclick = function() {
-                                              const div = this.parentElement;
-                                              div.remove();
-                                          }
-                                      }
+                                        const previewImage = (event) => {
+                                            const imageFiles = event.target.files;
+                                            if (imageFiles.length > 0) {
+                                                document.querySelector("#preview-selected-image").src = URL.createObjectURL(imageFiles[0]);
+                                                document.querySelector("#preview-selected-image").style.display = "block";
+                                            }
+                                        };
                                     </script>
-                            </div>
                                 </div>
-                        </div>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Ingredients Section -->
+                                <div class="mb-3">
+                                    <label for="ingredients" class="form-label">Ingredients</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="ingredients" placeholder="1 cup white flour" required>
+                                        <button type="button" class="btn btn-outline-success" onclick="newIngredient()">
+                                            <i class="bi bi-plus"></i> Add ingredient
+                                        </button>
+                                    </div>
+                                    <ul id="ingredientUL"></ul>
+                                </div>
 
+                                <!-- Equipment Section -->
+                                <div class="mb-3">
+                                    <label for="equipment" class="form-label">Equipment</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="equipment" placeholder="Oven" required>
+                                        <button type="button" class="btn btn-outline-success" onclick="newEquipment()">
+                                            <i class="bi bi-plus"></i> Add equipment
+                                        </button>
+                                    </div>
+                                    <ul id="equipmentUL"></ul>
+                                </div>
+
+                                <!-- Steps Section -->
+                                <div class="mb-3">
+                                    <label for="steps" class="form-label">Steps</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="steps" placeholder="Wash and dice the carrots" required>
+                                        <button type="button" class="btn btn-outline-success" onclick="newStep()">
+                                            <i class="bi bi-plus"></i> Add step
+                                        </button>
+                                    </div>
+                                    <ol id="stepOL"></ol>
+                                </div>
+                            </div>
                         </div>
-                </div>
                     </div>
+                </div>
             </div>
         </div>
     </div>
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Submit Recipe</button>
+    </div>
+
+    <!-- Hidden Inputs to Store Data -->
+    <input type="hidden" name="ingredients_data" id="ingredients_data">
+    <input type="hidden" name="equipment_data" id="equipment_data">
+    <input type="hidden" name="steps_data" id="steps_data">
+
+    <!-- JavaScript for Adding and Removing Items -->
+    <script>
+        const ingredients = [];
+        const equipment = [];
+        const steps = [];
+
+        function newIngredient() {
+            const inputValue = document.getElementById("ingredients").value;
+            if (inputValue) {
+                ingredients.push(inputValue);
+                document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
+                document.getElementById("ingredientUL").innerHTML += `<li>${inputValue} <span onclick="removeIngredient('${inputValue}')">×</span></li>`;
+                document.getElementById("ingredients").value = '';
+            } else {
+                alert("Add your ingredient first!");
+            }
+        }
+
+        function newEquipment() {
+            const inputValue = document.getElementById("equipment").value;
+            if (inputValue) {
+                equipment.push(inputValue);
+                document.getElementById("equipment_data").value = JSON.stringify(equipment);
+                document.getElementById("equipmentUL").innerHTML += `<li>${inputValue} <span onclick="removeEquipment('${inputValue}')">×</span></li>`;
+                document.getElementById("equipment").value = '';
+            } else {
+                alert("Add your equipment first!");
+            }
+        }
+
+        function newStep() {
+            const inputValue = document.getElementById("steps").value;
+            if (inputValue) {
+                steps.push(inputValue);
+                document.getElementById("steps_data").value = JSON.stringify(steps);
+                document.getElementById("stepOL").innerHTML += `<li>${inputValue} <span onclick="removeStep('${inputValue}')">×</span></li>`;
+                document.getElementById("steps").value = '';
+            } else {
+                alert("Add your step first!");
+            }
+        }
+
+        function removeIngredient(value) {
+            ingredients.splice(ingredients.indexOf(value), 1);
+            document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
+            document.getElementById("ingredientUL").innerHTML = ingredients.map(ing => `<li>${ing} <span onclick="removeIngredient('${ing}')">×</span></li>`).join('');
+        }
+
+        function removeEquipment(value) {
+            equipment.splice(equipment.indexOf(value), 1);
+            document.getElementById("equipment_data").value = JSON.stringify(equipment);
+            document.getElementById("equipmentUL").innerHTML = equipment.map(eq => `<li>${eq} <span onclick="removeEquipment('${eq}')">×</span></li>`).join('');
+        }
+
+        function removeStep(value) {
+            steps.splice(steps.indexOf(value), 1);
+            document.getElementById("steps_data").value = JSON.stringify(steps);
+            document.getElementById("stepOL").innerHTML = steps.map(stp => `<li>${stp} <span onclick="removeStep('${stp}')">×</span></li>`).join('');
+        }
+    </script>
 </form>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
 </body>

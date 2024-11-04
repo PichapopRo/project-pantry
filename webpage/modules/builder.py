@@ -140,7 +140,7 @@ class NormalRecipeBuilder(Builder):
         """
         return self.__recipe
 
-    def build_ingredient(self, ingredient: Ingredient, amount: int, unit: str):
+    def build_ingredient(self, ingredient: Ingredient, amount: float | int, unit: str):
         """
         Build and return the ingredients for the standard recipe.
 
