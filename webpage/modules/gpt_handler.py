@@ -1,3 +1,4 @@
+"""The handler for the GPT model."""
 from openai import OpenAI
 from typing import Any
 from decouple import config
@@ -14,6 +15,12 @@ class GPTHandler:
     """
 
     def __init__(self, context: str, model: str) -> None:
+        """
+        Initialize the class.
+        
+        :param context: The context of the model.
+        :param model: The GPT's model name.
+        """
         self.context = context
         self.model = model
         
