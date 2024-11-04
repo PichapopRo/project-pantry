@@ -3,10 +3,11 @@ import requests
 import time
 from django.core.management.base import BaseCommand
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
+from webpage.models import QuerySet
 from decouple import config
 
 API_KEY = config('API_KEY', default='fake-secret-key')
-proxy = GetDataProxy(GetDataSpoonacular())
+proxy = GetDataProxy(GetDataSpoonacular(), QuerySet())
 
 
 class Command(BaseCommand):
