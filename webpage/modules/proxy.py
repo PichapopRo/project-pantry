@@ -22,15 +22,6 @@ class GetData(ABC):
     """
 
     @abstractmethod
-    def find_by_spoonacular_id(self, id: int) -> Recipe:
-        """
-        Find the recipe using the recipe's spooacular_id.
-
-        :param id: The recipe id.
-        """
-        pass
-
-    @abstractmethod
     def find_by_name(self, name: str) -> list[RecipeFacade]:
         """
         Find the recipe using the recipe's name.
@@ -68,29 +59,13 @@ class GetDataProxy(GetData):
         """
         self._service = service
 
-    def find_by_spoonacular_id(self, id: int) -> Recipe | None:
-        """
-        Find the recipe using the recipe's spoonacular_id.
-
-        This method includes additional logic to save the data (including equipment)
-        into the database if the recipe does not exist.
-
-        :param id: The recipe spoonacular_id.
-        :return: The Recipe object with the specified ID, return None if not found.
-        """
-        recipe_queryset: QuerySet = Recipe.objects.filter(spoonacular_id=id)
-        if not recipe_queryset.exists():
-            # Retrieve the recipe data from the API
-            spoonacular_recipe_queryset = self._service.find_by_spoonacular_id(id)
-            return spoonacular_recipe_queryset
-        return recipe_queryset.first()
-
     def find_by_name(self, name: str) -> list[RecipeFacade]:
         """
         Find the recipe from the API using the recipe's name.
 
         :param name: The recipe name.
-        :return: A list containing the RecipeFacade object.
+        :return: A list containing the RecipeFacade object. Returns an empty list if
+                    the it cannot find the result.
         """
         _list = []
         recipe_queryset = Recipe.objects.filter(name__contains=name)
@@ -166,32 +141,12 @@ class GetDataSpoonacular(GetData):
         self.base_url = 'https://api.spoonacular.com/recipes'
         self.__complex_url = 'https://api.spoonacular.com/recipes/complexSearch'
 
-    def find_by_spoonacular_id(self, id: int) -> Recipe:
-        """
-        Find the recipe from Spoonacular's API using the recipe's spoonacular_id.
-
-        :param id: The Spooacular recipe id.
-        :return: QuerySet containing the Recipe object corresponding to the provided ID.
-                 Raise an Exeption if the recipe cannot found.
-        """
-        builder = SpoonacularRecipeBuilder(name="", spoonacular_id=id)
-        builder.build_name()
-        builder.build_ingredient()
-        builder.build_equipment()
-        builder.build_nutrition()
-        builder.build_step()
-        builder.build_details()
-        builder.build_diet()
-        builder.build_spoonacular_id()
-        builder.build_recipe().save()
-        return builder.build_recipe()
-
     def find_by_name(self, name: str) -> list[RecipeFacade]:
         """
         Find the recipe from Spoonacular's API using the recipe's name.
 
         :param name: The recipe name.
-        :return: QuerySet containing the Recipe object corresponding to the provided name.
+        :return: A list containing the RecipeFacade object corresponding to the provided name.
                  Returns an empty list if cannot find any recipe.
         """
         response = requests.get(f'{self.base_url}/search?query={name}&apiKey={self.api_key}')
@@ -219,6 +174,7 @@ class GetDataSpoonacular(GetData):
         
         :param param: The filter parameter object.
         :return: List with RecipeFacade representing the recipe.
+                    Returns an empty list if it cannot find the recipe.
         """
         query_params: dict[str, str | int | bool | list] = {
             'apiKey': API_KEY,

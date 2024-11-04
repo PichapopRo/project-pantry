@@ -63,7 +63,7 @@ class FilterParam:
     @property
     def cuisine_str(self) -> str:
         """
-        Get the string representation of cusine for Spoonacular.
+        Get the string representation of cuisine for Spoonacular.
         
         :return: The string format according to Spoonacular.
         """
