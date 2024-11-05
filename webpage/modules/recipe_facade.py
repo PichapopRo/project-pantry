@@ -1,7 +1,7 @@
 """Provide a facade for the SpoonacularRecipeBuilder and Recipe."""
 
-from webpage.modules.builder import SpoonacularRecipeBuilder
 from webpage.models import Recipe
+import importlib
 
 
 class RecipeFacade():  # Shot gun
@@ -35,24 +35,20 @@ class RecipeFacade():  # Shot gun
         self.name = name
         self.id = _id
         
-    def get_recipe(self) -> Recipe:
+    def get_recipe(self) -> Recipe|None:
         """
         Get the recipe class.
         
         :return: The recipe that you are dealing with.
+                    Returns None if it cannot find the recipe with that id.
         """
         if self.__recipe is not None:
             return self.__recipe
         if self.id is None:
             raise Exception("Please set something")
-        builder = SpoonacularRecipeBuilder(name=self.name, spoonacular_id=self.id)
-        builder.build_diet()
-        builder.build_ingredient()
-        builder.build_details()
-        builder.build_equipment()
-        builder.build_step()
-        builder.build_nutrition()
-        return builder.build_recipe()
+        from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
+        proxy = GetDataProxy(GetDataSpoonacular())
+        return proxy.find_by_spoonacular_id(self.id)
     
     def __str__(self):
         """Return the string representation of the object."""
