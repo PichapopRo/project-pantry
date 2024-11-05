@@ -11,6 +11,9 @@ from abc import ABC, abstractmethod
 import requests
 from decouple import config
 from bs4 import BeautifulSoup
+import logging
+
+logger = logging.getLogger("Builder")
 
 API_KEY = config('API_KEY', default='fake-secret-key')
 spoonacular_password = config('SPOONACULAR_PASSWORD')
@@ -285,6 +288,7 @@ class SpoonacularRecipeBuilder(Builder):
                 self.__data = response.json()
                 self.__api_is_called = True
             else:
+                print(f"Error code: {response.status_code}")
                 raise Exception("Cannot load the recipe")
 
     def __fetch_equipment(self):

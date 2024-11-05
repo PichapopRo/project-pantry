@@ -1,6 +1,5 @@
 """Provide a facade for the SpoonacularRecipeBuilder and Recipe."""
 
-from webpage.modules.builder import SpoonacularRecipeBuilder
 from webpage.models import Recipe
 
 
@@ -22,37 +21,33 @@ class RecipeFacade():  # Shot gun
         self.name = recipe.name
         self.id = recipe.spoonacular_id
     
-    def set_by_spoonacular(self, name: str, id: str, image: str | None):
+    def set_by_spoonacular(self, name: str, _id: str, image: str | None):
         """
         Set up the class using newly-fetched recipe.
         
         :param name: The recipe name.
-        :param id: The recipe's id.
+        :param _id: The recipe's id.
         :param image: The url of the recipe's image.
         """
         self.__recipe = None
         self.image = image
         self.name = name
-        self.id = id
+        self.id = _id
         
-    def get_recipe(self) -> Recipe:
+    def get_recipe(self) -> Recipe | None:
         """
         Get the recipe class.
         
         :return: The recipe that you are dealing with.
+                    Returns None if it cannot find the recipe with that id.
         """
         if self.__recipe is not None:
             return self.__recipe
-        if self.id is not None:
+        if self.id is None:
             raise Exception("Please set something")
-        builder = SpoonacularRecipeBuilder(name=self.name, spoonacular_id=id)
-        builder.build_diet()
-        builder.build_ingredient()
-        builder.build_details()
-        builder.build_equipment()
-        builder.build_step()
-        builder.build_nutrition()
-        return builder.build_recipe()
+        from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
+        proxy = GetDataProxy(GetDataSpoonacular())
+        return proxy.find_by_spoonacular_id(self.id)
     
     def __str__(self):
         """Return the string representation of the object."""
