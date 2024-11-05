@@ -125,13 +125,13 @@ class GetDataProxy(GetData):
         start = 0
         later_part = []
         print(f"the len of the queryset is {len(queryset)}")
-        if len(queryset) < param.number + param.offset -1:
+        if len(queryset) < param.number + param.offset - 1:
             print("The queryset is less than the number")
             stop = len(queryset)
             start = param.offset
             print(f"number before: {param.number}")
             if stop > start:
-                param.number = param.number - stop + start                
+                param.number = param.number - stop + start
             print(f"number after: {param.number}")
             param.offset = param.offset - len(queryset)
             if param.offset < 0:

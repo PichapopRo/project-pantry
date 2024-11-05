@@ -24,8 +24,8 @@ class Command(BaseCommand):
         :param **kwargs: Keyword arguments.
         """
         param = FilterParam(
-            offset = 66,
-            number = 3
+            offset=66,
+            number=3
         )
         _list = proxy.filter_recipe(param)
         for recipe in _list:

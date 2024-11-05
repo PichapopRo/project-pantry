@@ -1,7 +1,6 @@
 """Provide a facade for the SpoonacularRecipeBuilder and Recipe."""
 
 from webpage.models import Recipe
-import importlib
 
 
 class RecipeFacade():  # Shot gun
@@ -35,7 +34,7 @@ class RecipeFacade():  # Shot gun
         self.name = name
         self.id = _id
         
-    def get_recipe(self) -> Recipe|None:
+    def get_recipe(self) -> Recipe | None:
         """
         Get the recipe class.
         
