@@ -231,23 +231,37 @@ class AddRecipeView(generic.CreateView):
         recipe.poster_id = self.request.user
         recipe.save()
 
+        # Use the builder to handle the recipe details
         builder = NormalRecipeBuilder(name=recipe.name, user=self.request.user)
         builder.build_details(description=form.cleaned_data['description'],
                               estimated_time=form.cleaned_data['estimated_time'])
 
+        # Parse and add ingredients
         ingredients_data = self.request.POST.get('ingredients_data')
         if ingredients_data:
             ingredients = json.loads(ingredients_data)
             for ingredient_entry in ingredients:
-                # Example input: "1 teaspoon milk powder"
                 amount, unit, name = self.parse_ingredient_input(ingredient_entry)
-
-                # Retrieve or create Ingredient instance
                 ingredient, _ = Ingredient.objects.get_or_create(name=name)
-                print(amount, ingredient, unit)
                 builder.build_ingredient(ingredient=ingredient, amount=amount, unit=unit)
 
-        # Similarly, handle equipment and steps as per your requirements
+        # Parse and add equipment
+        equipments_data = self.request.POST.get('equipments_data')
+        if equipments_data:
+            equipments = json.loads(equipments_data)
+            for equipment_entry in equipments:
+                amount, name = self.parse_equipment_input(equipment_entry)
+                equipment, _ = Equipment.objects.get_or_create(name=name)
+                builder.build_equipment(equipment=equipment, amount=amount)
+
+        # Parse and add steps
+        steps_data = self.request.POST.get('steps_data')
+        if steps_data:
+            steps = json.loads(steps_data)
+            for step_entry in steps:
+                builder.build_step(step_entry)
+
+        # Return JSON response for AJAX request
         return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
 
     def parse_ingredient_input(self, ingredient_entry):
@@ -256,10 +270,21 @@ class AddRecipeView(generic.CreateView):
         """
         match = re.match(r'(\d+(?:\.\d+)?)\s+([a-zA-Z]+)\s+(.+)', ingredient_entry)
         if match:
-            amount = Decimal(match.group(1))  # Convert amount to Decimal for precision
+            amount = Decimal(match.group(1))
             unit = match.group(2)
             name = match.group(3)
             return amount, unit, name
         else:
-            # Default values if parsing fails
             return Decimal(1), "", ingredient_entry
+
+    def parse_equipment_input(self, equipment_entry):
+        """
+        Parse the equipment input string and return amount and name.
+        """
+        match = re.match(r'(\d+(?:\.\d+)?)\s+(.+)', equipment_entry)
+        if match:
+            amount = int(match.group(1))
+            name = match.group(2)
+            return amount, name
+        else:
+            return 1, equipment_entry  # Default amount 1 if parsing fails

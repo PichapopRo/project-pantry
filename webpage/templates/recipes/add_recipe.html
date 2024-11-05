@@ -169,25 +169,16 @@
         $(document).ready(function () {
     $('#recipe-form').on('submit', function (event) {
         event.preventDefault(); // Prevent the default form submission
-
-        // Create FormData object to handle file uploads
         let formData = new FormData(this);
-
-        // Add the ingredients, equipment, and steps data from hidden fields
-        formData.append('ingredients_data', $('#ingredients_data').val());
-        formData.append('equipment_data', $('#equipment_data').val());
-        formData.append('steps_data', $('#steps_data').val());
-
-        // Perform AJAX POST request
         $.ajax({
             type: 'POST',
             url: $(this).attr('action'),
             data: formData,
-            processData: false,  // Prevent jQuery from processing the data
-            contentType: false,  // Prevent jQuery from setting the content type
+            processData: false,
+            contentType: false,
             success: function (response) {
                 alert("Recipe submitted successfully!");
-                window.location.href = '/recipes/';  // Redirect to success page
+                window.location.href = '/recipes/';
             },
             error: function (xhr) {
                 let errorMessage = xhr.responseJSON ? xhr.responseJSON.errors : "An error occurred. Please try again.";

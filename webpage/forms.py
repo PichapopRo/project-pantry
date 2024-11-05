@@ -1,3 +1,5 @@
+import json
+from django.core.exceptions import ValidationError
 from django import forms
 from django.contrib.auth.forms import User
 
@@ -41,26 +43,46 @@ class RecipeForm(forms.ModelForm):
     steps_data = forms.CharField(widget=forms.HiddenInput())
 
     def clean_ingredients_data(self):
-        """Validate and parse ingredients data."""
+        """Validate and parse ingredients data as JSON."""
         ingredients = self.cleaned_data.get('ingredients_data')
-        # Validate or parse ingredients JSON if needed
+        try:
+            ingredients = json.loads(ingredients)  # Parse JSON
+            if not isinstance(ingredients, list):
+                raise ValidationError("Invalid format for ingredients data.")
+        except (json.JSONDecodeError, ValidationError):
+            raise ValidationError("Ingredients data must be a valid JSON list.")
         return ingredients
 
     def clean_equipment_data(self):
-        """Validate and parse equipment data."""
+        """Validate and parse equipment data as JSON."""
         equipment = self.cleaned_data.get('equipment_data')
-        # Validate or parse equipment JSON if needed
+        try:
+            equipment = json.loads(equipment)  # Parse JSON
+            if not isinstance(equipment, list):
+                raise ValidationError("Invalid format for equipment data.")
+        except (json.JSONDecodeError, ValidationError):
+            raise ValidationError("Equipment data must be a valid JSON list.")
         return equipment
 
     def clean_steps_data(self):
-        """Validate and parse steps data."""
+        """Validate and parse steps data as JSON."""
         steps = self.cleaned_data.get('steps_data')
-        # Validate or parse steps JSON if needed
+        try:
+            steps = json.loads(steps)  # Parse JSON
+            if not isinstance(steps, list):
+                raise ValidationError("Invalid format for steps data.")
+        except (json.JSONDecodeError, ValidationError):
+            raise ValidationError("Steps data must be a valid JSON list.")
         return steps
 
     def save(self, commit=True):
         recipe = super().save(commit=False)
-        # Handle parsed JSON data here, if additional processing is needed
+
+        # Store parsed data for use in the view if necessary
+        self.instance.ingredients_data = self.cleaned_data['ingredients_data']
+        self.instance.equipment_data = self.cleaned_data['equipment_data']
+        self.instance.steps_data = self.cleaned_data['steps_data']
+
         if commit:
             recipe.save()
         return recipe
