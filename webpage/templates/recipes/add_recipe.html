@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <html lang="en">
 {% extends 'base.html' %}
 <head>
@@ -10,7 +11,7 @@
 </head>
 <body>
 {% block content %}
-<form method="POST" enctype="multipart/form-data">
+<form id="recipe-form" method="POST" action="{% url 'add_recipe' %}">
     {% csrf_token %}
     <div class="container-fluid mt-4">
         <div class="row">
@@ -29,8 +30,8 @@
                                     <textarea class="form-control" id="description" name="description" rows="3" placeholder="Wholesome, hearty winter lasagna recipe." required></textarea>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="time" class="form-label">Estimated Time (in minutes)</label>
-                                    <input type="number" class="form-control" id="time" name="time" placeholder="15" required>
+                                    <label for="estimated_time" class="form-label">Estimated Time (in minutes)</label>
+                                    <input type="number" class="form-control" id="estimated_time" name="estimated_time" placeholder="15" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="tags" class="form-label">Tags</label>
@@ -58,7 +59,7 @@
                                 <div class="mb-3">
                                     <label for="ingredients" class="form-label">Ingredients</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="ingredients" placeholder="1 cup white flour" required>
+                                        <input type="text" class="form-control" id="ingredients" placeholder="1 cup white flour">
                                         <button type="button" class="btn btn-outline-success" onclick="newIngredient()">
                                             <i class="bi bi-plus"></i> Add ingredient
                                         </button>
@@ -70,7 +71,7 @@
                                 <div class="mb-3">
                                     <label for="equipment" class="form-label">Equipment</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="equipment" placeholder="Oven" required>
+                                        <input type="text" class="form-control" id="equipment" placeholder="Oven">
                                         <button type="button" class="btn btn-outline-success" onclick="newEquipment()">
                                             <i class="bi bi-plus"></i> Add equipment
                                         </button>
@@ -82,7 +83,7 @@
                                 <div class="mb-3">
                                     <label for="steps" class="form-label">Steps</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="steps" placeholder="Wash and dice the carrots" required>
+                                        <input type="text" class="form-control" id="steps" placeholder="Wash and dice the carrots">
                                         <button type="button" class="btn btn-outline-success" onclick="newStep()">
                                             <i class="bi bi-plus"></i> Add step
                                         </button>
@@ -164,8 +165,42 @@
             document.getElementById("steps_data").value = JSON.stringify(steps);
             document.getElementById("stepOL").innerHTML = steps.map(stp => `<li>${stp} <span onclick="removeStep('${stp}')">×</span></li>`).join('');
         }
+
+        $(document).ready(function () {
+    $('#recipe-form').on('submit', function (event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Create FormData object to handle file uploads
+        let formData = new FormData(this);
+
+        // Add the ingredients, equipment, and steps data from hidden fields
+        formData.append('ingredients_data', $('#ingredients_data').val());
+        formData.append('equipment_data', $('#equipment_data').val());
+        formData.append('steps_data', $('#steps_data').val());
+
+        // Perform AJAX POST request
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: formData,
+            processData: false,  // Prevent jQuery from processing the data
+            contentType: false,  // Prevent jQuery from setting the content type
+            success: function (response) {
+                alert("Recipe submitted successfully!");
+                window.location.href = '/recipes/';  // Redirect to success page
+            },
+            error: function (xhr) {
+                let errorMessage = xhr.responseJSON ? xhr.responseJSON.errors : "An error occurred. Please try again.";
+                alert("Error: " + JSON.stringify(errorMessage));
+            }
+        });
+    });
+});
+
     </script>
 </form>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

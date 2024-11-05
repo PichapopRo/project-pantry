@@ -1,4 +1,7 @@
 """The view handles the requests and handling data to the webpage."""
+from decimal import Decimal
+import re
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.urls import reverse_lazy
@@ -214,50 +217,49 @@ def toggle_favorite(request, recipe_id):
         return JsonResponse({'error': 'Recipe not found'}, status=404)
 
 
-class AddRecipeView(generic.FormView):
+class AddRecipeView(generic.CreateView):
+    model = Recipe
+    fields = ['name', 'description', 'estimated_time', 'image']
     template_name = 'recipes/add_recipe.html'
-    form_class = RecipeForm
-    success_url = '/recipes/'  # Redirect after successful submission
+    success_url = '/recipes/'
 
     def form_valid(self, form):
-        # Save the recipe instance
+        # Print for debugging
+        print("Incoming form data:", self.request.POST)
+
         recipe = form.save(commit=False)
-        recipe.poster = self.request.user  # Associate it with the logged-in user
+        recipe.poster_id = self.request.user
+        recipe.save()
 
-        # Handle image upload
-        if 'photo' in self.request.FILES:
-            image_file = self.request.FILES['photo']
-            client_id = settings.IMGUR_CLIENT_ID
-            image_url = upload_image_to_imgur(image_file.temporary_file_path(), client_id)
-            if image_url:
-                recipe.image = image_url  # Assuming 'image' is the field for storing the URL
-        else:
-            form.add_error('photo', 'Image is required.')  # Optional: Add an error if no image is uploaded
+        builder = NormalRecipeBuilder(name=recipe.name, user=self.request.user)
+        builder.build_details(description=form.cleaned_data['description'],
+                              estimated_time=form.cleaned_data['estimated_time'])
 
-        recipe.save()  # Now save it
-
-        # Save ingredients, equipment, and steps
         ingredients_data = self.request.POST.get('ingredients_data')
-        equipment_data = self.request.POST.get('equipment_data')
-        steps_data = self.request.POST.get('steps_data')
-
         if ingredients_data:
             ingredients = json.loads(ingredients_data)
-            for ingredient in ingredients:
-                Ingredient.objects.create(recipe=recipe, name=ingredient)
+            for ingredient_entry in ingredients:
+                # Example input: "1 teaspoon milk powder"
+                amount, unit, name = self.parse_ingredient_input(ingredient_entry)
 
-        if equipment_data:
-            equipment = json.loads(equipment_data)
-            for equip in equipment:
-                Equipment.objects.create(recipe=recipe, name=equip)
+                # Retrieve or create Ingredient instance
+                ingredient, _ = Ingredient.objects.get_or_create(name=name)
+                print(amount, ingredient, unit)
+                builder.build_ingredient(ingredient=ingredient, amount=amount, unit=unit)
 
-        if steps_data:
-            steps = json.loads(steps_data)
-            for step in steps:
-                RecipeStep.objects.create(recipe=recipe, description=step)
+        # Similarly, handle equipment and steps as per your requirements
+        return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
 
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        # Optional: Add a message to inform the user about the errors
-        return super().form_invalid(form)
+    def parse_ingredient_input(self, ingredient_entry):
+        """
+        Parse the ingredient input string and return amount, unit, and name.
+        """
+        match = re.match(r'(\d+(?:\.\d+)?)\s+([a-zA-Z]+)\s+(.+)', ingredient_entry)
+        if match:
+            amount = Decimal(match.group(1))  # Convert amount to Decimal for precision
+            unit = match.group(2)
+            name = match.group(3)
+            return amount, unit, name
+        else:
+            # Default values if parsing fails
+            return Decimal(1), "", ingredient_entry
