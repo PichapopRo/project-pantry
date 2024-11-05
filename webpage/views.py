@@ -1,7 +1,8 @@
 """The view handles the requests and handling data to the webpage."""
-
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.views import generic
-from webpage.models import Recipe, Diet, RecipeStep
+from webpage.models import Recipe, Diet, RecipeStep, Favourite
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
@@ -122,11 +123,16 @@ class RecipeListView(generic.ListView):
         return filtered_queryset[:view_count]
 
     def post(self, request, *args, **kwargs):
-        """Handle POST request to increment view_count."""
+        """
+        Handle POST request to increment view_count.
+
+        :param request: HttpRequest from the server.
+        """
         if 'increment' in request.POST:
             increment = int(request.POST.get('increment', 0))
             request.session['view_count'] = request.session.get('view_count', 0) + increment
-        return self.get(request, *args, **kwargs)
+            request.session['button_clicked'] = True
+        return redirect(request.path)
 
     def get_context_data(self, **kwargs):
         """Add the current view_count and diet filter to the context."""
@@ -140,6 +146,14 @@ class RecipeListView(generic.ListView):
         context['selected_equipment'] = self.request.GET.get('equipment', '')
         context['selected_difficulty'] = self.request.GET.get('difficulty', '')
         context['query'] = self.request.GET.get('query', '')
+        context['button_clicked'] = self.request.session.pop('button_clicked',
+                                                             False)
+        if self.request.user.is_authenticated:
+            context['user_favourites'] = Favourite.objects.filter(
+                user=self.request.user).values_list('recipe_id', flat=True)
+        else:
+            context['user_favourites'] = []
+
         return context
 
 
@@ -166,7 +180,11 @@ class StepView(generic.DetailView):
 
 
 def random_recipe_view(request):
-    """Redirects the user to a random recipe detail page."""
+    """
+    Redirects the user to a random recipe detail page.
+
+    :param request: Request from the server.
+    """
     recipe_count = Recipe.objects.count()
     if recipe_count > 0:
         random_index = random.randint(0, recipe_count - 1)
@@ -175,3 +193,43 @@ def random_recipe_view(request):
     else:
         messages.error(request, "No recipes available.")
         return redirect('recipe_list')
+
+
+@login_required
+def toggle_favourite(request, recipe_id):
+    """
+    Toggle favourite of a recipe.
+
+    :param request: Request from the server.
+    :param recipe_id: Recipe ID.
+    """
+    try:
+        recipe = Recipe.objects.get(id=recipe_id)
+        user = request.user
+        favourite, created = Favourite.objects.get_or_create(recipe=recipe, user=user)
+        if created:
+            return JsonResponse({'favourited': True})
+        else:
+            favourite.delete()
+            return JsonResponse({'favourited': False})
+    except Recipe.DoesNotExist:
+        return JsonResponse({'error': 'Recipe not found'}, status=404)
+
+
+class UserPageView(generic.ListView):
+    """UserPageView view."""
+
+    model = Favourite
+    template_name = "user_page.html"
+    context_object_name = "favourites"  # Name for use in the template
+
+    def get_queryset(self):
+        """Return user favourite recipe."""
+        return Favourite.objects.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        """Extend the context data to include the IDs of the user's favourite recipes."""
+        context = super().get_context_data(**kwargs)
+        favourite_ids = [f.recipe.id for f in context["favourites"]]
+        context["favourite_ids"] = favourite_ids
+        return context

@@ -11,6 +11,9 @@ from abc import ABC, abstractmethod
 import requests
 from decouple import config
 from bs4 import BeautifulSoup
+import logging
+
+logger = logging.getLogger("Builder")
 
 API_KEY = config('API_KEY', default='fake-secret-key')
 spoonacular_password = config('SPOONACULAR_PASSWORD')
@@ -86,6 +89,15 @@ class Builder(ABC):
         Build the user which is the author of the recipe.
 
         :param user: The user that is the author of the recipe.
+        """
+        pass
+    
+    @abstractmethod
+    def build_diet(self, diet: Diet):
+        """
+        Add one Diet class into the recipe.
+        
+        :param diet: A diet class to be added into the Recipe's diet.
         """
         pass
 
@@ -215,6 +227,15 @@ class NormalRecipeBuilder(Builder):
         """
         self.__recipe.poster_id = user
         self.__recipe.save()
+        
+    def build_diet(self, diet: Diet):
+        """
+        Add one Diet class into the recipe.
+        
+        :param diet: A diet class to be added into the Recipe's diet.
+        """
+        self.__diet_list.append(diet)
+        self.__recipe.diets.set(self.__diet_list)
 
     def build_diet(self, diet: Diet):
         """
@@ -285,6 +306,7 @@ class SpoonacularRecipeBuilder(Builder):
                 self.__data = response.json()
                 self.__api_is_called = True
             else:
+                print(f"Error code: {response.status_code}")
                 raise Exception("Cannot load the recipe")
 
     def __fetch_equipment(self):
