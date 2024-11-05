@@ -97,33 +97,31 @@ class GetDataProxy(GetData):
         stop = 0
         start = 0
         later_part = []
-        if len(queryset) < param.number + param.offset - 1:
+        print(f"the len of the queryset is {len(queryset)}")
+        if len(queryset) < param.number + param.offset -1:
+            print("The queryset is less than the number")
             stop = len(queryset)
             start = param.offset
-            param.number = param.number - len(queryset)
-            param.offset = 1
+            print(f"number before: {param.number}")
+            if stop > start:
+                param.number = param.number - stop + start                
+            print(f"number after: {param.number}")
+            param.offset = param.offset - len(queryset)
+            if param.offset < 0:
+                param.offset = 1
             later_part = self._service.filter_recipe(param)
         else:
             stop = param.number + param.offset - 1
             start = param.offset
         _list = []
         logger.debug(f"param.number: {start}, number: {stop}")
+        if start > stop:
+            return later_part
         for recipe in queryset[start - 1: stop]:
             facade = RecipeFacade()
             facade.set_recipe(recipe)
             _list.append(facade)
         return _list + later_part
-
-    def filter_by_difficulty(self, difficulty: str) -> QuerySet:
-        """
-        Filter recipes by difficulty using the `get_difficulty` method.
-
-        :param difficulty: The difficulty to filter by.
-        :return: A filtered queryset of recipes.
-        """
-        recipes = self._queryset.all()
-        filtered_recipes = [recipe for recipe in recipes if recipe.get_difficulty() == difficulty]
-        return Recipe.objects.filter(id__in=[recipe.id for recipe in filtered_recipes])
 
 
 class GetDataSpoonacular(GetData):
@@ -191,6 +189,8 @@ class GetDataSpoonacular(GetData):
         
         data = response.json()
         recipes = data.get('results', [])
+        print(f"number: {param.number}, offset:{param.offset}")
+        print(recipes)
 
         if not recipes:
             raise Exception("Cannot find the recipe")
@@ -200,7 +200,7 @@ class GetDataSpoonacular(GetData):
             recipe_facade = RecipeFacade()
             recipe_facade.set_by_spoonacular(
                 name=recipe["title"],
-                id=recipe["id"],
+                _id=recipe["id"],
                 image=recipe["image"]
             )
             _list.append(recipe_facade)

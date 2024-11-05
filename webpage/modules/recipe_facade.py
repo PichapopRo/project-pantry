@@ -22,18 +22,18 @@ class RecipeFacade():  # Shot gun
         self.name = recipe.name
         self.id = recipe.spoonacular_id
     
-    def set_by_spoonacular(self, name: str, id: str, image: str | None):
+    def set_by_spoonacular(self, name: str, _id: str, image: str | None):
         """
         Set up the class using newly-fetched recipe.
         
         :param name: The recipe name.
-        :param id: The recipe's id.
+        :param _id: The recipe's id.
         :param image: The url of the recipe's image.
         """
         self.__recipe = None
         self.image = image
         self.name = name
-        self.id = id
+        self.id = _id
         
     def get_recipe(self) -> Recipe:
         """
@@ -43,9 +43,9 @@ class RecipeFacade():  # Shot gun
         """
         if self.__recipe is not None:
             return self.__recipe
-        if self.id is not None:
+        if self.id is None:
             raise Exception("Please set something")
-        builder = SpoonacularRecipeBuilder(name=self.name, spoonacular_id=id)
+        builder = SpoonacularRecipeBuilder(name=self.name, spoonacular_id=self.id)
         builder.build_diet()
         builder.build_ingredient()
         builder.build_details()
