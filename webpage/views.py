@@ -96,7 +96,7 @@ class RecipeListView(generic.ListView):
         query = self.request.GET.get('query', '')
         difficulty = self.request.GET.get('difficulty')
         filtered_queryset = Recipe.objects.all()
-        recipe_filter = GetDataProxy(GetDataSpoonacular(), filtered_queryset)
+        recipe_filter = GetDataProxy(GetDataSpoonacular())
         selected_diet = self.request.GET.get('diet')
         ingredient = self.request.GET.get('ingredient')
         estimated_time = self.request.GET.get('estimated_time')
@@ -104,22 +104,22 @@ class RecipeListView(generic.ListView):
         if query:
             filtered_queryset = recipe_filter.find_by_name(query)
         if selected_diet:
-            filtered_queryset = recipe_filter.filter_by_diet(selected_diet)
+            filtered_queryset = recipe_filter
         if ingredient:
             filtered_queryset = filtered_queryset.intersection(
-                recipe_filter.filter_by_ingredient(ingredient))
+                recipe_filter)
         if equipment:
             filtered_queryset = filtered_queryset.intersection(
-                recipe_filter.filter_by_equipment(equipment))
+                recipe_filter)
         if estimated_time:
             try:
                 estimated_time = int(estimated_time)  # Convert to int
                 filtered_queryset = filtered_queryset.intersection(
-                    recipe_filter.filter_by_max_cooking_time(estimated_time))
+                    recipe_filter)
             except ValueError:
                 pass
         if difficulty:
-            filtered_queryset = recipe_filter.filter_by_difficulty(difficulty)
+            filtered_queryset = recipe_filter
         return filtered_queryset[:view_count]
 
     def post(self, request, *args, **kwargs):
