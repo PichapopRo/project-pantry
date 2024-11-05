@@ -1,0 +1,46 @@
+body {
+    background-color: #a7c49a;
+}
+.btn-success {
+    background-color: #74ad59;
+    border-color: transparent;
+}
+.btn-success:hover{
+    background-color: #74ad59;
+    border-color: transparent;
+}
+h4{
+    color: #59704e
+}
+h3{
+    color: #59704e
+}
+h1{
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    color: #59704e
+}
+.badge-warning{
+    color: #ffffff;
+    background-color: #f1a60b;
+}
+.badge-success{
+    color: #ffffff;
+    background-color: #61c53a;
+}
+.badge-danger{
+    color: #ffffff;
+    background-color: #f0504e;
+}
+.alternate {
+background-color: #f5f5f5;
+}
+ul {
+list-style-type: none;
+}
+.fill-parent {
+width: 100%;
+}
+.checked {
+text-decoration: none;
+cursor: pointer;
+}
