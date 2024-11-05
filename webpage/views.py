@@ -224,50 +224,45 @@ class AddRecipeView(generic.CreateView):
     success_url = '/recipes/'
 
     def form_valid(self, form):
-        # Print for debugging
         print("Incoming form data:", self.request.POST)
-
-        recipe = form.save(commit=False)
-        recipe.poster_id = self.request.user
-        recipe.save()
-
-        # Use the builder to handle the recipe details
-        builder = NormalRecipeBuilder(name=recipe.name, user=self.request.user)
-        builder.build_details(description=form.cleaned_data['description'],
-                              estimated_time=form.cleaned_data['estimated_time'])
-
-        # Parse and add ingredients
+        builder = NormalRecipeBuilder(name=form.cleaned_data['name'], user=self.request.user)
+        print(form.cleaned_data['estimated_time'])
+        builder.build_details(
+            description=form.cleaned_data['description'],
+            estimated_time=form.cleaned_data['estimated_time']
+        )
         ingredients_data = self.request.POST.get('ingredients_data')
         if ingredients_data:
             ingredients = json.loads(ingredients_data)
             for ingredient_entry in ingredients:
-                amount, unit, name = self.parse_ingredient_input(ingredient_entry)
-                ingredient, _ = Ingredient.objects.get_or_create(name=name)
-                builder.build_ingredient(ingredient=ingredient, amount=amount, unit=unit)
-
-        # Parse and add equipment
+                try:
+                    amount, unit, name = self.parse_ingredient_input(ingredient_entry)
+                    ingredient, _ = Ingredient.objects.get_or_create(name=name)
+                    builder.build_ingredient(ingredient=ingredient, amount=amount, unit=unit)
+                except Exception as e:
+                    print(f"Error parsing ingredient '{ingredient_entry}': {e}")
         equipments_data = self.request.POST.get('equipments_data')
         if equipments_data:
             equipments = json.loads(equipments_data)
             for equipment_entry in equipments:
-                amount, name = self.parse_equipment_input(equipment_entry)
-                equipment, _ = Equipment.objects.get_or_create(name=name)
-                builder.build_equipment(equipment=equipment, amount=amount)
-
-        # Parse and add steps
+                try:
+                    amount, name = self.parse_equipment_input(equipment_entry)
+                    equipment, _ = Equipment.objects.get_or_create(name=name)
+                    builder.build_equipment(equipment=equipment)
+                except Exception as e:
+                    print(f"Error parsing equipment '{equipment_entry}': {e}")
         steps_data = self.request.POST.get('steps_data')
         if steps_data:
             steps = json.loads(steps_data)
             for step_entry in steps:
-                builder.build_step(step_entry)
-
-        # Return JSON response for AJAX request
+                try:
+                    builder.build_step(step_entry)
+                except Exception as e:
+                    print(f"Error adding step '{step_entry}': {e}")
         return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
 
     def parse_ingredient_input(self, ingredient_entry):
-        """
-        Parse the ingredient input string and return amount, unit, and name.
-        """
+        """Parse the ingredient input string and return amount, unit, and name."""
         match = re.match(r'(\d+(?:\.\d+)?)\s+([a-zA-Z]+)\s+(.+)', ingredient_entry)
         if match:
             amount = Decimal(match.group(1))
@@ -278,9 +273,7 @@ class AddRecipeView(generic.CreateView):
             return Decimal(1), "", ingredient_entry
 
     def parse_equipment_input(self, equipment_entry):
-        """
-        Parse the equipment input string and return amount and name.
-        """
+        """Parse the equipment input string and return amount and name."""
         match = re.match(r'(\d+(?:\.\d+)?)\s+(.+)', equipment_entry)
         if match:
             amount = int(match.group(1))
