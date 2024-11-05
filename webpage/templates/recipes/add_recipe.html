@@ -100,13 +100,9 @@
     <div class="mb-3">
         <button type="submit" class="btn btn-primary">Submit Recipe</button>
     </div>
-
-    <!-- Hidden Inputs to Store Data -->
     <input type="hidden" name="ingredients_data" id="ingredients_data">
     <input type="hidden" name="equipment_data" id="equipment_data">
     <input type="hidden" name="steps_data" id="steps_data">
-
-    <!-- JavaScript for Adding and Removing Items -->
     <script>
         const ingredients = [];
         const equipment = [];
@@ -168,7 +164,7 @@
 
         $(document).ready(function () {
     $('#recipe-form').on('submit', function (event) {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         let formData = new FormData(this);
         $.ajax({
             type: 'POST',
