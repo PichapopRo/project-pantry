@@ -96,6 +96,7 @@ class NutritionList(models.Model):
 class Recipe(models.Model):
     """The recipe class containing information about the recipe and methods."""
 
+    STATUS_CHOICES = [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')]
     name = models.CharField(max_length=200, default='Unnamed Recipe')
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
     estimated_time = models.FloatField(default=0)
@@ -104,6 +105,7 @@ class Recipe(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     description = models.CharField(max_length=300, null=True, blank=True)
     diets = models.ManyToManyField(Diet, related_name="recipes")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
 
     def __str__(self) -> str:
         """Return the name of the recipe."""
@@ -117,6 +119,11 @@ class Recipe(models.Model):
             return 'Medium'
         else:
             return 'Hard'
+
+    @property
+    def favourites(self):
+        """Return the favourites of the recipe."""
+        return self.favourite_set.count()
 
     def get_ingredients(self) -> QuerySet[IngredientList]:
         """Return a queryset of IngredientList which contains the ingredients of the recipe."""
@@ -133,3 +140,24 @@ class Recipe(models.Model):
     def get_nutrition(self) -> QuerySet[NutritionList]:
         """Return a queryset of NutritionList which contains the nutrition information for the recipe."""
         return NutritionList.objects.filter(recipe=self)
+
+
+class Favourite(models.Model):
+    """Favourites are used to store favourite recipes."""
+
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    @classmethod
+    def get_favourites(cls, recipe: Recipe, user: User):
+        """Return a queryset of Favourite recipes."""
+        if not user or not user.is_authenticated:
+            return None
+        try:
+            return cls.objects.filter(user=user).select_related('recipe')
+        except Favourite.DoesNotExist:
+            return None
+
+    def __str__(self):
+        """Return the name of the favourite."""
+        return f'Favourite {self.recipe} by {self.user}'
