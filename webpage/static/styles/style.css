@@ -4,10 +4,13 @@
 .navbar-brand {
     font-family: "Sofia", sans-serif;
     font-size: 30px;
-
 }
 body {
     background-color: #f7f9f9;
+    overflow: auto;
+}
+body::-webkit-scrollbar {
+  display: none;
 }
 .btn-success {
     background-color: #74ad59;
