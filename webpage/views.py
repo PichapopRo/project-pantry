@@ -102,7 +102,6 @@ class RecipeListView(generic.ListView):
         ingredient = self.request.GET.get('ingredient')
         estimated_time = self.request.GET.get('estimated_time')
         equipment = self.request.GET.get('equipment')
-        user_badge = User.objects.all()
         if query:
             filtered_queryset = recipe_filter.find_by_name(query)
         if selected_diet:

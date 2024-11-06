@@ -165,6 +165,7 @@ class Favourite(models.Model):
 
 class Profile(models.Model):
     """Profile is used to create badges for user."""
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     chef_badge = models.BooleanField(default=False)
 
