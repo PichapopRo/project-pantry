@@ -1,6 +1,5 @@
 """The view handles the requests and handling data to the webpage."""
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views import generic
 from webpage.models import Recipe, Diet, RecipeStep, Favourite
