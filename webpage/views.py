@@ -97,14 +97,12 @@ class RecipeListView(generic.ListView):
         """Return recipes filtered by diet, ingredient, max cooking time, and limited by view_count."""
         view_count = self.request.session.get('view_count', 0)
         query = self.request.GET.get('query', '')
-        difficulty = self.request.GET.get('difficulty')
-        filtered_queryset = Recipe.objects.all()
         selected_diet = self.request.GET.get('diet')
         ingredient = self.request.GET.get('ingredient')
         estimated_time = self.request.GET.get('estimated_time', 9999)
         equipment = self.request.GET.get('equipment')
         filter_params = FilterParam(
-            offset=101,
+            offset=1,
             number=view_count,
             includeIngredients=[ingredient] if ingredient else [],
             equipment=[equipment] if equipment else [],
@@ -115,10 +113,7 @@ class RecipeListView(generic.ListView):
         recipe_filter = GetDataProxy(GetDataSpoonacular())
         filtered_recipes = recipe_filter.filter_recipe(filter_params)
         recipe_list = [facade.get_recipe() for facade in filtered_recipes]
-        print(recipe_list)
-        if not (query and difficulty and selected_diet and ingredient and estimated_time and equipment):
-            return filtered_queryset[:view_count]
-        return Recipe.objects.filter(id__in=[recipe.id for recipe in recipe_list])[:view_count]
+        return recipe_list[:view_count]
 
     def post(self, request, *args, **kwargs):
         """

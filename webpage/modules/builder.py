@@ -288,7 +288,7 @@ class SpoonacularRecipeBuilder(Builder):
                 self.__data = response.json()
                 self.__api_is_called = True
             else:
-                print(f"Error code: {response.status_code}")
+                logger.debug(f"Error code: {response.status_code}")
                 raise Exception("Cannot load the recipe")
 
     def __fetch_equipment(self):
