@@ -4,7 +4,14 @@ from webpage.models import Recipe
 
 
 class RecipeFacade():  # Shot gun
-    """A facade class that will handle the building recipe process."""
+    """
+    A facade class that will handle the building recipe process.
+    
+    :param image: The image URL
+    :param name: The name of the recipe
+    :param id: The Spoonacular ID of the recipe, None if there's none.
+    :param favorite: The number of people who put the recipe in their favorite.
+    """
     
     def __init__(self):
         """Initialize the class."""
@@ -20,6 +27,7 @@ class RecipeFacade():  # Shot gun
         self.image = recipe.image
         self.name = recipe.name
         self.id = recipe.spoonacular_id
+        self.favorite = recipe.favourites
     
     def set_by_spoonacular(self, name: str, _id: str, image: str | None):
         """
@@ -33,6 +41,7 @@ class RecipeFacade():  # Shot gun
         self.image = image
         self.name = name
         self.id = _id
+        self.favorite = 0
         
     def get_recipe(self) -> Recipe | None:
         """
