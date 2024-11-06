@@ -153,10 +153,7 @@ class Favourite(models.Model):
         """Return a queryset of Favourite recipes."""
         if not user or not user.is_authenticated:
             return None
-        try:
-            return cls.objects.filter(user=user).select_related('recipe')
-        except Favourite.DoesNotExist:
-            return None
+        return cls.objects.filter(user=user).select_related('recipe')
 
     def __str__(self):
         """Return the name of the favourite."""

@@ -10,31 +10,26 @@ class IngredientListModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Create test data before each test."""
-        cls.time = timezone.now()
-        cls.description = ("Pasta is a type of food typically made from "
-                           "an unleavened dough of wheat flour mixed with "
-                           "water or eggs, and formed into sheets or other "
-                           "shapes, then cooked by boiling or baking.")
-        cls.user = User.objects.create_user(
+        cls.user, _ = User.objects.get_or_create(
             username='testuser',
             email='test@example.com',
             password='testpassword'
         )
-        cls.recipe = Recipe.objects.create(
+        cls.recipe, _ = Recipe.objects.get_or_create(
             name="Pasta",
             spoonacular_id=123,
             estimated_time=45,
             image="http://example.com/pasta.jpg",
             poster_id=cls.user,
-            created_at=cls.time,
-            description=cls.description
+            created_at=timezone.now(),
+            description="This is a pasta."
         )
-        cls.ingredient = Ingredient.objects.create(
+        cls.ingredient, _ = Ingredient.objects.get_or_create(
             name="Noodle",
             spoonacular_id=111,
             picture="http://example.com/noodle.jpg"
         )
-        cls.ingredient_list = IngredientList.objects.create(
+        cls.ingredient_list, _ = IngredientList.objects.get_or_create(
             ingredient=cls.ingredient,
             recipe=cls.recipe,
             amount=200,
@@ -44,7 +39,8 @@ class IngredientListModelTest(TestCase):
     def test_ingredient_list_create(self):
         """Test if the IngredientList object is created correctly."""
         self.assertIsInstance(self.ingredient_list, IngredientList)
-        self.assertEqual(self.ingredient_list, IngredientList.objects.get(id=self.ingredient_list.id))
+        self.assertEqual(self.ingredient_list, IngredientList.objects.get(
+            id=self.ingredient_list.id))
         self.assertEqual(self.ingredient_list.ingredient, self.ingredient)
         self.assertEqual(self.ingredient_list.recipe, self.recipe)
         self.assertEqual(self.ingredient_list.amount, 200)
@@ -54,8 +50,3 @@ class IngredientListModelTest(TestCase):
             recipe=self.recipe,
             amount=200,
             unit="grams").exists())
-
-    def test_ingredient_list_relationship(self):
-        """Test the relationships between IngredientList, Recipe, and Ingredient."""
-        self.assertEqual(self.ingredient_list.ingredient.name, "Noodle")
-        self.assertEqual(self.ingredient_list.recipe.name, "Pasta")

@@ -10,19 +10,24 @@ class DietModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Create a test diet before each test."""
-        cls.diet = Diet.objects.create(name="Vegan")
+        cls.diet, _ = Diet.objects.get_or_create(
+            name="Mediterranean")
 
     def test_diet_create(self):
         """Test if the diet object is created correctly."""
         self.assertIsInstance(self.diet, Diet)
-        self.assertEqual(self.diet.name, "Vegan")
-        self.assertTrue(Diet.objects.filter(name="Vegan").exists())
+        self.assertEqual(self.diet, Diet.objects.get(
+            id=self.diet.id))
+        self.assertEqual(self.diet.name, "Mediterranean")
+        self.assertTrue(Diet.objects.filter(
+            name="Mediterranean").exists())
 
     def test_diet_str(self):
         """Test the string representation of the diet."""
-        self.assertEqual(str(self.diet), "Vegan")
+        self.assertEqual(str(self.diet), "Mediterranean")
 
     def test_unique_diet_name(self):
         """Test if the diet name is unique."""
         with self.assertRaises(IntegrityError):
-            Diet.objects.create(name="Vegan")
+            Diet.objects.create(
+                name="Mediterranean")

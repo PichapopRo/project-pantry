@@ -11,31 +11,26 @@ class EquipmentListModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Create test data before each test."""
-        cls.time = timezone.now()
-        cls.description = ("Pasta is a type of food typically made from "
-                           "an unleavened dough of wheat flour mixed with "
-                           "water or eggs, and formed into sheets or other "
-                           "shapes, then cooked by boiling or baking.")
-        cls.user = User.objects.create_user(
+        cls.user, _ = User.objects.get_or_create(
             username='testuser',
             email='test@example.com',
             password='testpassword'
         )
-        cls.recipe = Recipe.objects.create(
+        cls.recipe, _ = Recipe.objects.get_or_create(
             name="Pasta",
             spoonacular_id=123,
             estimated_time=45,
             image="http://example.com/pasta.jpg",
             poster_id=cls.user,
-            created_at=cls.time,
-            description=cls.description
+            created_at=timezone.now(),
+            description="This is a pasta."
         )
-        cls.equipment = Equipment.objects.create(
+        cls.equipment, _ = Equipment.objects.get_or_create(
             name="Pan",
             spoonacular_id=333,
             picture="http://example.com/pan.jpg"
         )
-        cls.equipment_list = EquipmentList.objects.create(
+        cls.equipment_list, _ = EquipmentList.objects.get_or_create(
             equipment=cls.equipment,
             recipe=cls.recipe,
             amount=1,
@@ -45,7 +40,8 @@ class EquipmentListModelTest(TestCase):
     def test_equipment_list_create(self):
         """Test if the EquipmentList object is created correctly."""
         self.assertIsInstance(self.equipment_list, EquipmentList)
-        self.assertEqual(self.equipment_list, EquipmentList.objects.get(id=self.equipment_list.id))
+        self.assertEqual(self.equipment_list, EquipmentList.objects.get(
+            id=self.equipment_list.id))
         self.assertEqual(self.equipment_list.equipment, self.equipment)
         self.assertEqual(self.equipment_list.recipe, self.recipe)
         self.assertEqual(self.equipment_list.amount, 1)
@@ -55,8 +51,3 @@ class EquipmentListModelTest(TestCase):
             recipe=self.recipe,
             amount=1,
             unit="piece").exists())
-
-    def test_equipment_list_relationship(self):
-        """Test the relationships between EquipmentList, Recipe, and Equipment."""
-        self.assertEqual(self.equipment_list.equipment.name, "Pan")
-        self.assertEqual(self.equipment_list.recipe.name, "Pasta")
