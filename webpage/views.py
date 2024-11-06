@@ -230,6 +230,8 @@ class AddRecipeView(generic.CreateView):
             description=form.cleaned_data['description'],
         )
         builder.build_details(estimated_time=form.cleaned_data['estimated_time'])
+        print(form.cleaned_data['description'])
+        print(form.cleaned_data['estimated_time'])
         ingredients_data = self.request.POST.get('ingredients_data')
         if ingredients_data:
             ingredients = json.loads(ingredients_data)
@@ -258,6 +260,7 @@ class AddRecipeView(generic.CreateView):
                     builder.build_step(step_entry)
                 except Exception as e:
                     print(f"Error adding step '{step_entry}': {e}")
+        builder.build_recipe().save()
         return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
 
     def parse_ingredient_input(self, ingredient_entry):
