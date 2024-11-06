@@ -230,13 +230,13 @@ class GetDataSpoonacular(GetData):
         response = requests.get(self.__complex_url, params=query_params)
 
         if response.status_code != 200:
-            raise Exception("Cannot retrieve the information")
+            pass
         
         data = response.json()
         recipes = data.get('results', [])
 
         if not recipes:
-            raise Exception("Cannot find the recipe")
+            pass
         
         _list: list[RecipeFacade] = []
         for recipe in recipes:
