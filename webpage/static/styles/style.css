@@ -1,8 +1,13 @@
 .navbar {
-    background-color: #a7c49a;
+    background-color: #aeda99;
+}
+.navbar-brand {
+    font-family: "Sofia", sans-serif;
+    font-size: 30px;
+
 }
 body {
-    background-color: #a7c49a;
+    background-color: #f7f9f9;
 }
 .btn-success {
     background-color: #74ad59;
