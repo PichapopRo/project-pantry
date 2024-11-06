@@ -122,6 +122,9 @@
                             <div class="col p-0 m-0">
                                 <h3 class="card-title">{{ recipe.name }}</h3>
                                 <small class="card-text">By: {{ recipe.poster_id.username }}</small>
+                                {% if recipe.poster_id.profile.chef_badge %}
+                                    <h4><a class="badge badge-pill badge-success">Funny haha badge</a></h4>
+                                    {% endif %}
                                 <p class="card-text my-2">{{ recipe.description|truncatechars:350 }}</p>
                                 <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
                             </div>
