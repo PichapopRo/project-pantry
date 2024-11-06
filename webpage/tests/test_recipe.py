@@ -4,7 +4,7 @@ from django.db import IntegrityError
 from django.contrib.auth.models import User
 from webpage.models import (Recipe, IngredientList, EquipmentList,
                             Equipment, Ingredient, RecipeStep,
-                            Diet, Nutrition, NutritionList)
+                            Diet, Nutrition, NutritionList, Favourite)
 
 
 class RecipeModelTest(TestCase):
@@ -23,6 +23,11 @@ class RecipeModelTest(TestCase):
             email='test@example.com',
             password='testpassword'
         )
+        cls.user2 = User.objects.create_user(
+            username='testuser2',
+            email='test@example2.com',
+            password='testpassword2'
+        )
         cls.recipe = Recipe.objects.create(
             name="Pasta",
             spoonacular_id=123,
@@ -30,7 +35,16 @@ class RecipeModelTest(TestCase):
             image="http://example.com/pasta.jpg",
             poster_id=cls.user,
             created_at=cls.time,
-            description=cls.description
+            description=cls.description,
+            status="Pending"
+        )
+        Favourite.objects.create(
+            recipe=cls.recipe,
+            user=cls.user,
+        )
+        Favourite.objects.create(
+            recipe=cls.recipe,
+            user=cls.user2,
         )
 
     def test_recipe_create(self):
@@ -44,6 +58,7 @@ class RecipeModelTest(TestCase):
         self.assertEqual(self.recipe.poster_id, self.user)
         self.assertEqual(self.recipe.created_at, self.time)
         self.assertEqual(self.recipe.description, self.description)
+        self.assertEqual(self.recipe.status, "Pending")
         self.assertTrue(Recipe.objects.filter(
             name="Pasta",
             spoonacular_id=123,
@@ -51,19 +66,20 @@ class RecipeModelTest(TestCase):
             image="http://example.com/pasta.jpg",
             poster_id=self.user,
             created_at=self.time,
-            description=self.description).exists())
+            description=self.description,
+            status="Pending").exists())
 
     def test_recipe_diets_create(self):
         """Test if the recipe diets are created correctly."""
-        diet1 = Diet.objects.create(name="Vegan")
-        diet2 = Diet.objects.create(name="Paleo")
+        diet1 = Diet.objects.create(name="Dairy-Free")
+        diet2 = Diet.objects.create(name="Low-Carb")
         self.recipe.diets.add(diet1, diet2)
         diets = self.recipe.diets.all()
         self.assertEqual(diets.count(), 2)
         self.assertIn(diet1, diets)
         self.assertIn(diet2, diets)
         diet_names = [diet.name for diet in diets]
-        self.assertListEqual(diet_names, ["Vegan", "Paleo"])
+        self.assertListEqual(diet_names, ["Dairy-Free", "Low-Carb"])
 
     def test_recipe_str(self):
         """Test string representation of a Recipe."""
@@ -95,6 +111,10 @@ class RecipeModelTest(TestCase):
                                              estimated_time=75,
                                              poster_id=self.user)
         self.assertEqual(self.recipe3.get_difficulty(), "Hard")
+
+    def test_favourites(self):
+        """Test the favourites"""
+        self.assertEqual(self.recipe.favourites, 2)
 
     def test_get_ingredients(self):
         """Test the get_ingredients method."""
