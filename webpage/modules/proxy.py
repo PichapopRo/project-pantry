@@ -91,7 +91,7 @@ class GetDataProxy(GetData):
 
         :param name: The recipe name.
         :return: A list containing the RecipeFacade object. Returns an empty list if
-                    the it cannot find the result.
+                    it cannot find the result.
         """
         _list = []
         recipe_queryset = Recipe.objects.filter(name__contains=name)
@@ -202,7 +202,7 @@ class GetDataSpoonacular(GetData):
                 facade = RecipeFacade()
                 facade.set_by_spoonacular(
                     name=recipe["name"],
-                    id=recipe['id'],
+                    _id=recipe['id'],
                     image=recipe["image"]
                 )
                 _return_list.append(facade)
@@ -227,8 +227,6 @@ class GetDataSpoonacular(GetData):
         }
         query_params.update(param.get_param())
         
-        print(query_params)
-        
         response = requests.get(self.__complex_url, params=query_params)
 
         if response.status_code != 200:
@@ -236,8 +234,6 @@ class GetDataSpoonacular(GetData):
         
         data = response.json()
         recipes = data.get('results', [])
-        print(f"number: {param.number}, offset:{param.offset}")
-        print(recipes)
 
         if not recipes:
             raise Exception("Cannot find the recipe")
