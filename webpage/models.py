@@ -149,7 +149,7 @@ class Favourite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     @classmethod
-    def get_favourites(cls, recipe: Recipe, user: User):
+    def get_favourites(cls, user: User):
         """Return a queryset of Favourite recipes."""
         if not user or not user.is_authenticated:
             return None

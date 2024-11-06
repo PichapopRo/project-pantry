@@ -57,8 +57,8 @@ class NutritionListModelTest(TestCase):
 
     def test_nutrition_list_relationship(self):
         """Test the relationships between NutritionList, Recipe, and Nutrition."""
-        self.assertEqual(self.nutrition_list.nutrition.name, "Vitamin A")
-        self.assertEqual(self.nutrition_list.recipe.name, "Pasta")
+        self.assertEqual(self.nutrition_list.nutrition.name, self.nutrition.name)
+        self.assertEqual(self.nutrition_list.recipe.name, self.recipe.name)
 
     def test_nutritionList_str(self):
         """Test string representation of a NutritionList."""
