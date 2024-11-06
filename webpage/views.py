@@ -226,11 +226,10 @@ class AddRecipeView(generic.CreateView):
     def form_valid(self, form):
         print("Incoming form data:", self.request.POST)
         builder = NormalRecipeBuilder(name=form.cleaned_data['name'], user=self.request.user)
-        print(form.cleaned_data['estimated_time'])
         builder.build_details(
             description=form.cleaned_data['description'],
-            estimated_time=form.cleaned_data['estimated_time']
         )
+        builder.build_details(estimated_time=form.cleaned_data['estimated_time'])
         ingredients_data = self.request.POST.get('ingredients_data')
         if ingredients_data:
             ingredients = json.loads(ingredients_data)

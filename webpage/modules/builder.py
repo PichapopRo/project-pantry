@@ -156,7 +156,7 @@ class NormalRecipeBuilder(Builder):
         )
         ingredient_list.save()
 
-    def build_equipment(self, equipment: Equipment, amount: int = 1, unit: str = "thing"):
+    def build_equipment(self, equipment: Equipment, amount: int = 1, unit: str = "piece"):
         """
         Build the equipment needed for the standard recipe.
 
