@@ -112,13 +112,12 @@ class RecipeListView(generic.ListView):
             maxReadyTime=int(estimated_time) if estimated_time else 9999,
             titleMatch=query
         )
-        if not (query and difficulty and selected_diet and ingredient and estimated_time and equipment):
-            return filtered_queryset[:view_count]
-
         recipe_filter = GetDataProxy(GetDataSpoonacular())
         filtered_recipes = recipe_filter.filter_recipe(filter_params)
         recipe_list = [facade.get_recipe() for facade in filtered_recipes]
         print(recipe_list)
+        if not (query and difficulty and selected_diet and ingredient and estimated_time and equipment):
+            return filtered_queryset[:view_count]
         return Recipe.objects.filter(id__in=[recipe.id for recipe in recipe_list])[:view_count]
 
     def post(self, request, *args, **kwargs):
