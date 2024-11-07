@@ -96,15 +96,6 @@ class Builder(ABC):
     def build_diet(self, diet: Diet):
         """
         Add one Diet class into the recipe.
-        
-        :param diet: A diet class to be added into the Recipe's diet.
-        """
-        pass
-
-    @abstractmethod
-    def build_diet(self, diet: Diet):
-        """
-        Add one Diet class into the recipe.
 
         :param diet: A diet class to be added into the Recipe's diet.
         """
