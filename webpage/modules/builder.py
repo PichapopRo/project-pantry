@@ -91,7 +91,7 @@ class Builder(ABC):
         :param user: The user that is the author of the recipe.
         """
         pass
-    
+
     @abstractmethod
     def build_diet(self, diet: Diet):
         """
@@ -223,15 +223,6 @@ class NormalRecipeBuilder(Builder):
         """
         Add one Diet class into the recipe.
         
-        :param diet: A diet class to be added into the Recipe's diet.
-        """
-        self.__diet_list.append(diet)
-        self.__recipe.diets.set(self.__diet_list)
-
-    def build_diet(self, diet: Diet):
-        """
-        Add one Diet class into the recipe.
-
         :param diet: A diet class to be added into the Recipe's diet.
         """
         self.__diet_list.append(diet)
