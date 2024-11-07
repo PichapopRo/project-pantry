@@ -56,6 +56,7 @@
 <body>
 {% block content %}
 <div class="container">
+<img src="image/top-view-table-full-food.jpg" alt="Cool food" class="img-fluid">
 <form method="get">
     <div class="col my-3">
     <div class="input-group mt-3">
@@ -74,15 +75,23 @@
                 <input type="text" class="form-control mt-2" name="ingredient" id="ingredient" value="{{ selected_ingredient }}" placeholder="Ingredient">
                 <input type="text" class="form-control mt-2" name="equipment" id="equipment" value="{{ selected_equipment }}" placeholder="Equipment">
             </div>
-                <div class="btn">
-            <input type="text" name="query" class="form-control mt-2" placeholder="Enter keyword" value="{{ query }}">
-
-                    <button class="btn-success form-control mt-2" type="submit">Filter</button>
-            </div>
             </div>
         </div>
         </div>
         </div>
+   <div class="row">
+        <div class="col-md-5 mx-auto">
+<div class="input-group mb-3">
+  <input type="text" name="query" class="form-control border-end-0 border rounded-left" placeholder="Enter keyword" value="{{ query }}" aria-label="Enter Keyword">
+      <button class="btn bg-white border-start-0 border form-control rounded-right" type="submit">
+        <i class="bi bi-search" style="font-size: 24px"></i>
+    </button>
+    <button class="btn-outline-success border rounded mx-3">
+     <i class="bi bi-sliders2-vertical" style="font-size: 24px"></i> Filter
+  </button>
+</div>
+        </div>
+   </div>
 </form>
 {% if recipe_list %}
         <div class="col my-3">

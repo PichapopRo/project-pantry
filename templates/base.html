@@ -26,13 +26,8 @@
       <a class="nav-link" href="{% url 'random_recipe' %}">Random Recipe!</a>
       </li>
   </ul>
-      {% if user.is_authenticated %}
-      <ul class="navbar-nav d-flex flex-row ms-auto me-3">
-          <li class="d-flex">
-          <a class="nav-link">
-          <i class="bi bi-sliders2-vertical" style="font-size: 20px"></i> Filter
-          </a>
-          </li>
+      <ul class="navbar-nav d-flex ms-auto">
+          {% if user.is_authenticated %}
         <li class="dropdown d-flex">
           <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-person-circle" style="font-size: 20px"></i>
