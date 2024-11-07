@@ -2,8 +2,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views import generic
-from sqlparse.utils import offset
-
 from webpage.models import Recipe, Diet, RecipeStep, Favourite
 from django.contrib import messages
 from django.shortcuts import render, redirect
