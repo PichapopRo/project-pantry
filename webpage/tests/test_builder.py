@@ -13,7 +13,7 @@ class NormalRecipeBuilderTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Set up a test user and related objects."""
-        cls.user = User.objects.create(
+        cls.user = User.objects.create_user(
             username="for_test2",
             password="Helloworld2123")
         cls.builder = NormalRecipeBuilder(
