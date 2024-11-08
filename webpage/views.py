@@ -229,6 +229,12 @@ class AddRecipeView(generic.CreateView):
             description=form.cleaned_data['description'],
         )
         builder.build_details(estimated_time=form.cleaned_data['estimated_time'])
+        image = form.files.get('photo')
+        if image:
+            client_id = settings.IMGUR_CLIENT_ID
+            image_url = upload_image_to_imgur(image, client_id)
+            if image_url:
+                builder.build_details(image=image_url)
         ingredients_data = self.request.POST.get('ingredients_data')
         if ingredients_data:
             ingredients = json.loads(ingredients_data)
