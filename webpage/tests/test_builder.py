@@ -13,7 +13,7 @@ class NormalRecipeBuilderTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Set up a test user and related objects."""
-        cls.user, _ = User.objects.get_or_create(
+        cls.user = User.objects.create(
             username="for_test",
             password="Helloworld2123")
         cls.builder = NormalRecipeBuilder(
@@ -38,7 +38,7 @@ class NormalRecipeBuilderTest(TestCase):
 
     def test_build_ingredient(self):
         """Test the build_ingredient method on the NormalRecipeBuilder."""
-        ingredient, _ = Ingredient.objects.get_or_create(
+        ingredient = Ingredient.objects.create(
             name="Banana")
         self.builder.build_ingredient(
             ingredient=ingredient,
@@ -52,7 +52,7 @@ class NormalRecipeBuilderTest(TestCase):
 
     def test_build_one_equipment(self):
         """Test the build_equipment method on the NormalRecipeBuilder."""
-        equipment, _ = Equipment.objects.get_or_create(
+        equipment = Equipment.objects.create(
             name="Spoon")
         self.builder.build_equipment(
             equipment=equipment,
@@ -78,7 +78,7 @@ class NormalRecipeBuilderTest(TestCase):
 
     def test_build_nutrition(self):
         """Test the build_nutrition method on the NormalRecipeBuilder."""
-        nutrition, _ = Nutrition.objects.get_or_create(
+        nutrition = Nutrition.objects.create(
             name="Protein")
         self.builder.build_nutrition(
             nutrition=nutrition,
@@ -92,7 +92,7 @@ class NormalRecipeBuilderTest(TestCase):
 
     def test_build_user(self):
         """Test the build_user method on the NormalRecipeBuilder."""
-        new_user, _ = User.objects.get_or_create(
+        new_user = User.objects.create(
             username="new_user",
             password="password")
         self.builder.build_user(
@@ -102,10 +102,10 @@ class NormalRecipeBuilderTest(TestCase):
 
     def test_build_diet(self):
         """Test the build_diet method on the NormalRecipeBuilder."""
-        diet1, _ = Diet.objects.get_or_create(
+        diet1 = Diet.objects.create(
             name="Keto")
-        diet2, _ = Diet.objects.get_or_create(
-            name="Vegan")
+        diet2 = Diet.objects.create(
+            name="Carnivore")
         self.builder.build_diet(
             diet=diet1)
         self.builder.build_diet(
@@ -129,7 +129,7 @@ class SpoonacularRecipeBuilderTest(TestCase):
             name="Mock Salad",
             spoonacular_id="123456")
         cls.recipe = cls.builder.build_recipe()
-        cls.user, _ = User.objects.get_or_create(
+        cls.user = User.objects.create(
             username="Spoonacular")
 
     def test_create_spoonacular_user_not_none(self):
@@ -143,7 +143,7 @@ class SpoonacularRecipeBuilderTest(TestCase):
             username="Spoonacular").delete()
         self.builder._SpoonacularRecipeBuilder__create_spoonacular_user()
         self.assertEqual(self.user.username, "Spoonacular")
-        self.user, _ = User.objects.get_or_create(
+        self.user = User.objects.get(
             username="Spoonacular")
 
     @patch('requests.get')
