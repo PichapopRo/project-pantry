@@ -129,7 +129,7 @@ class SpoonacularRecipeBuilderTest(TestCase):
             name="Mock Salad",
             spoonacular_id="123456")
         cls.recipe = cls.builder.build_recipe()
-        cls.user = User.objects.create_user(
+        cls.user = User.objects.get(
             username="Spoonacular")
 
     def test_create_spoonacular_user_not_none(self):
