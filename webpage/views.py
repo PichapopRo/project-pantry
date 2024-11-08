@@ -224,14 +224,11 @@ class AddRecipeView(generic.CreateView):
     success_url = '/recipes/'
 
     def form_valid(self, form):
-        print("Incoming form data:", self.request.POST)
         builder = NormalRecipeBuilder(name=form.cleaned_data['name'], user=self.request.user)
         builder.build_details(
             description=form.cleaned_data['description'],
         )
         builder.build_details(estimated_time=form.cleaned_data['estimated_time'])
-        print(form.cleaned_data['description'])
-        print(form.cleaned_data['estimated_time'])
         ingredients_data = self.request.POST.get('ingredients_data')
         if ingredients_data:
             ingredients = json.loads(ingredients_data)
@@ -242,7 +239,7 @@ class AddRecipeView(generic.CreateView):
                     builder.build_ingredient(ingredient=ingredient, amount=amount, unit=unit)
                 except Exception as e:
                     print(f"Error parsing ingredient '{ingredient_entry}': {e}")
-        equipments_data = self.request.POST.get('equipments_data')
+        equipments_data = self.request.POST.get('equipment_data')
         if equipments_data:
             equipments = json.loads(equipments_data)
             for equipment_entry in equipments:
