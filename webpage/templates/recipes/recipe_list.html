@@ -56,53 +56,53 @@
 <body>
 {% block content %}
 <div class="container">
-<form method="get">
-    <div class="col my-3">
-    <div class="input-group mt-3">
-        <div class="card mx-auto">
-        <div class="input-group-prepend mx-auto">
-            <div class="btn mt-2">
-        <select class= "btn" name="diet" id="diet">
+   <div class="row ">
+        <div class="col-md-5 mx-auto">
+        <div class="col my-3">
+<div class="input-group mb-3">
+  <input type="text" name="query" class="form-control border-end-0 border rounded-left" placeholder="Enter keyword" value="{{ query }}" aria-label="Enter Keyword">
+      <button class="btn bg-white border-start-0 border rounded-left" type="submit">
+        <i class="bi bi-search" style="font-size: 24px"></i>
+    </button>
+    <button class="btn-outline-success border rounded mx-3" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight">
+     <i class="bi bi-sliders2-vertical" style="font-size: 24px"></i> Filter
+  </button>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+      <div class="offcanvas-header">
+        <h5 id="offcanvasRightLabel">Offcanvas right</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <form method="get">
+        <select class= "btn form-control" name="diet" id="diet">
             <option value="">All Diets</option>
             {% for diet in diets %}
             <option value="{{ diet.name }}" {% if diet.name == selected_diet %}selected{% endif %}>{{ diet.name }}</option>
             {% endfor %}
         </select>
             <input type="number" min="0" class="form-control mt-2" name="estimated_time" id="estimated_time" value="{{ estimated_time }}" placeholder="Estimated time">
-            </div>
-                <div class="btn">
                 <input type="text" class="form-control mt-2" name="ingredient" id="ingredient" value="{{ selected_ingredient }}" placeholder="Ingredient">
                 <input type="text" class="form-control mt-2" name="equipment" id="equipment" value="{{ selected_equipment }}" placeholder="Equipment">
-            </div>
-            </div>
+      </form>
+      </div>
+    </div>
         </div>
         </div>
-        </div>
-   <div class="row">
-        <div class="col-md-5 mx-auto">
-<div class="input-group mb-3">
-  <input type="text" name="query" class="form-control border-end-0 border rounded-left" placeholder="Enter keyword" value="{{ query }}" aria-label="Enter Keyword">
-      <button class="btn bg-white border-start-0 border rounded-left" type="submit">
-        <i class="bi bi-search" style="font-size: 24px"></i>
-    </button>
-    <button class="btn-outline-success border rounded mx-3">
-     <i class="bi bi-sliders2-vertical" style="font-size: 24px"></i> Filter
-  </button>
-</div>
-        </div>
-   </div>
-</form>
+      </div>
+    </div>
+
 {% if recipe_list %}
     <div class="row">
     {% for recipe in recipe_list %}
-        <div class="col col-md-4 mt-3">
+        <div class="col col-md-4 mb-3">
             <div class="card h-100">
             <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.name }}">
             <div class="card-body">
                 <small>Favourites: <span class="favourite-count" id="favourite-count-{{ recipe.id }}">{{ recipe.favourite_set.count }}</span></small>
             <h3 class="card-title">{{ recipe.name }}</h3>
                 <small class="card-text">By: {{ recipe.poster_id.username }}</small>
-                <a href="{% url 'recipe' recipe.id %}" ></a>
+                <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
                 {% if user.is_authenticated %}
                     <form method="post">
                     {% csrf_token %}

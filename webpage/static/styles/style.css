@@ -61,3 +61,6 @@ width: 100%;
 text-decoration: none;
 cursor: pointer;
 }
+.favourite-btn {
+z-index: 1;
+}
