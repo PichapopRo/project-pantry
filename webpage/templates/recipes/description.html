@@ -6,8 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ recipe.name }}</title>
-
 </head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles/style.css' %}">
 <body>
 <div class="d-grid d-md-block">
     <a href="{% url 'recipe_list' %}" class="btn btn-success my-3 mx-3" type="button">Go Back</a>
