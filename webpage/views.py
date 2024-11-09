@@ -231,7 +231,6 @@ class AddRecipeView(generic.CreateView):
         return context
 
     def form_valid(self, form):
-        print(self.request.POST)
         builder = NormalRecipeBuilder(name=form.cleaned_data['name'], user=self.request.user)
         builder.build_details(
             description=form.cleaned_data['description'],
