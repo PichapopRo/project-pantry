@@ -96,7 +96,7 @@ class RecipeListView(generic.ListView):
         query = self.request.GET.get('query', '')
         difficulty = self.request.GET.get('difficulty')
         filtered_queryset = Recipe.objects.all()
-        recipe_filter = GetDataProxy(GetDataSpoonacular(), filtered_queryset)
+        recipe_filter = GetDataProxy(GetDataSpoonacular())
         selected_diet = self.request.GET.get('diet')
         ingredient = self.request.GET.get('ingredient')
         estimated_time = self.request.GET.get('estimated_time')

@@ -57,7 +57,7 @@
 {% block content %}
 <div class="container">
    <div class="row ">
-        <div class="col-md-5 mx-auto">
+        <div class="col-sm-12 mx-auto">
         <div class="col my-3">
 <div class="input-group mb-3">
   <input type="text" name="query" class="form-control border-end-0 border rounded-left" placeholder="Enter keyword" value="{{ query }}" aria-label="Enter Keyword">
@@ -95,7 +95,7 @@
 {% if recipe_list %}
     <div class="row">
     {% for recipe in recipe_list %}
-        <div class="col col-md-4 mb-3">
+        <div class="col col-sm-4 mb-3">
             <div class="card h-100">
             <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.name }}">
             <div class="card-body">
