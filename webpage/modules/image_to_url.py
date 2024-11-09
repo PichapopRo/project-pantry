@@ -2,7 +2,13 @@ import requests
 
 
 def upload_image_to_imgur(image_file, client_id):
-    """Upload an image to Imgur and return the image URL."""
+    """
+    Upload an image to Imgur and return the image URL.
+
+    :param image_file: Image file that return from a form.
+    :param client_id: Imgur client_id
+
+    """
     headers = {
         'Authorization': f'Client-ID {client_id}',
     }
