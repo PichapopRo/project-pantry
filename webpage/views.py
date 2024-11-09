@@ -5,15 +5,13 @@ import re
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import JsonResponse
-from django.urls import reverse_lazy
 from django.views import generic
-
 from pantry import settings
 from webpage.models import Recipe, Diet, RecipeStep, Favourite, Ingredient, Equipment
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
-from webpage.forms import CustomRegisterForm, RecipeForm
+from webpage.forms import CustomRegisterForm
 from webpage.modules.builder import NormalRecipeBuilder
 from webpage.modules.image_to_url import upload_image_to_imgur
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
@@ -67,7 +65,7 @@ def login_view(request):
     :param request: Request from the server.
     """
     if request.user.is_authenticated:
-        return redirect('recipe_list')  # Redirect if already logged in
+        return redirect('recipe_list')
 
     if request.method == "POST":
         username = request.POST.get('username')
@@ -219,18 +217,33 @@ def toggle_favorite(request, recipe_id):
 
 
 class AddRecipeView(generic.CreateView):
+    """View for adding recipe page."""
+
     model = Recipe
     fields = ['name', 'description', 'estimated_time', 'image']
     template_name = 'recipes/add_recipe.html'
     success_url = '/recipes/'
 
     def get_context_data(self, **kwargs):
+        """
+        Get diet context from the existing diet.
+
+        :return context: Return existing diet model context to use in html.
+        """
         context = super().get_context_data(**kwargs)
         context['diets'] = Diet.objects.all()
 
         return context
 
     def form_valid(self, form):
+        """
+        Process the submitted recipe form, including details, image upload, ingredients, diets, equipment, and steps.
+
+        :param form: The RecipeForm instance containing validated data for
+        creating a new recipe.
+        :return JsonResponse: A JSON response indicating the success
+        of the recipe creation.
+        """
         builder = NormalRecipeBuilder(name=form.cleaned_data['name'], user=self.request.user)
         builder.build_details(
             description=form.cleaned_data['description'],
@@ -314,4 +327,4 @@ class AddRecipeView(generic.CreateView):
             name = match.group(2)
             return amount, name
         else:
-            return 1, equipment_entry  # Default amount 1 if parsing fails
+            return 1, equipment_entry
