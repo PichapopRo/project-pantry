@@ -3,6 +3,7 @@ from decimal import Decimal
 import re
 
 from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django.views import generic
@@ -223,7 +224,14 @@ class AddRecipeView(generic.CreateView):
     template_name = 'recipes/add_recipe.html'
     success_url = '/recipes/'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['diets'] = Diet.objects.all()
+
+        return context
+
     def form_valid(self, form):
+        print(self.request.POST)
         builder = NormalRecipeBuilder(name=form.cleaned_data['name'], user=self.request.user)
         builder.build_details(
             description=form.cleaned_data['description'],
@@ -245,6 +253,28 @@ class AddRecipeView(generic.CreateView):
                     builder.build_ingredient(ingredient=ingredient, amount=amount, unit=unit)
                 except Exception as e:
                     print(f"Error parsing ingredient '{ingredient_entry}': {e}")
+        diets_data = self.request.POST.get('diets_data')
+        if diets_data:
+            try:
+                diet_names = json.loads(diets_data)
+                for diet_name in diet_names:
+                    diet, created = Diet.objects.get_or_create(name=diet_name)
+                    builder.build_diet(diet)
+            except Exception as e:
+                print(f"Error parsing diets '{diets_data}': {e}")
+        custom_diet_name = self.request.POST.get('custom_diet')
+        if custom_diet_name:
+            try:
+                custom_diet, created = Diet.objects.get_or_create(
+                    name=custom_diet_name)
+                builder.build_diet(custom_diet)
+                if created:
+                    print(f"Created and added custom diet: {custom_diet.name}")
+                else:
+                    print(f"Added existing diet: {custom_diet.name}")
+            except IntegrityError:
+                print(
+                    f"Failed to add custom diet: {custom_diet_name} due to IntegrityError")
         equipments_data = self.request.POST.get('equipment_data')
         if equipments_data:
             equipments = json.loads(equipments_data)
