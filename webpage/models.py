@@ -149,15 +149,23 @@ class Favourite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     @classmethod
-    def get_favourites(cls, recipe: Recipe, user: User):
+    def get_favourites(cls, user: User):
         """Return a queryset of Favourite recipes."""
         if not user or not user.is_authenticated:
             return None
-        try:
-            return cls.objects.filter(user=user).select_related('recipe')
-        except Favourite.DoesNotExist:
-            return None
+        return cls.objects.filter(user=user).select_related('recipe')
 
     def __str__(self):
         """Return the name of the favourite."""
         return f'Favourite {self.recipe} by {self.user}'
+
+
+class Profile(models.Model):
+    """Profile is used to create badges for user."""
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    chef_badge = models.BooleanField(default=False)
+
+    def __str__(self):
+        """Return the user's profile."""
+        return f"{self.user.username}'s Profile"

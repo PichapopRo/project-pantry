@@ -7,6 +7,7 @@ import requests
 from decouple import config
 from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
+from webpage.modules.builder import SpoonacularRecipeBuilder
 import logging
 API_KEY = config('API_KEY')
 logger = logging.getLogger("proxy class")
@@ -19,6 +20,15 @@ class GetData(ABC):
     This class serves as a blueprint for concrete implementations that will provide
     methods to find recipes by their ID or name.
     """
+    
+    @abstractmethod
+    def find_by_spoonacular_id(self, id: int) -> Recipe:
+        """
+        Find the recipe using the recipe's spooacular_id.
+
+        :param id: The recipe id.
+        """
+        pass
 
     @abstractmethod
     def find_by_name(self, name: str) -> list[RecipeFacade]:
@@ -57,6 +67,23 @@ class GetDataProxy(GetData):
         :param service: An instance of a class that implements the GetData interface.
         """
         self._service = service
+    
+    def find_by_spoonacular_id(self, id: int) -> Recipe | None:
+        """
+        Find the recipe using the recipe's spoonacular_id.
+
+        This method includes additional logic to save the data (including equipment)
+        into the database if the recipe does not exist.
+
+        :param id: The recipe spoonacular_id.
+        :return: The Recipe object with the specified ID, return None if not found.
+        """
+        recipe_queryset: QuerySet = Recipe.objects.filter(spoonacular_id=id)
+        if not recipe_queryset.exists():
+            # Retrieve the recipe data from the API
+            spoonacular_recipe_queryset = self._service.find_by_spoonacular_id(id)
+            return spoonacular_recipe_queryset
+        return recipe_queryset.first()
 
     def find_by_name(self, name: str) -> list[RecipeFacade]:
         """
@@ -64,7 +91,7 @@ class GetDataProxy(GetData):
 
         :param name: The recipe name.
         :return: A list containing the RecipeFacade object. Returns an empty list if
-                    the it cannot find the result.
+                    it cannot find the result.
         """
         _list = []
         recipe_queryset = Recipe.objects.filter(name__contains=name)
@@ -93,37 +120,37 @@ class GetDataProxy(GetData):
                 self._service.get_django_filter(_filter): param.get_param()[_filter]
             }
             queryset = queryset.filter(**_dict)
-        
+        logger.debug(queryset)
         stop = 0
         start = 0
         later_part = []
+        logger.debug(f"the len of the queryset is {len(queryset)}")
         if len(queryset) < param.number + param.offset - 1:
+            logger.debug("The queryset is less than the number")
             stop = len(queryset)
             start = param.offset
-            param.number = param.number - len(queryset)
-            param.offset = 1
+            logger.debug(f"number before: {param.number}")
+            if stop > start:
+                param.number = param.number - stop + start - 1
+            logger.debug(f"number after: {param.number}")
+            param.offset = param.offset - len(queryset)
+            if param.offset < 0:
+                param.offset = 1
+            logger.debug("param sent to the service: ", param)
             later_part = self._service.filter_recipe(param)
+            logger.debug(later_part)
         else:
             stop = param.number + param.offset - 1
             start = param.offset
         _list = []
         logger.debug(f"param.number: {start}, number: {stop}")
+        if start > stop:
+            return later_part
         for recipe in queryset[start - 1: stop]:
             facade = RecipeFacade()
             facade.set_recipe(recipe)
             _list.append(facade)
         return _list + later_part
-
-    def filter_by_difficulty(self, difficulty: str) -> QuerySet:
-        """
-        Filter recipes by difficulty using the `get_difficulty` method.
-
-        :param difficulty: The difficulty to filter by.
-        :return: A filtered queryset of recipes.
-        """
-        recipes = self._queryset.all()
-        filtered_recipes = [recipe for recipe in recipes if recipe.get_difficulty() == difficulty]
-        return Recipe.objects.filter(id__in=[recipe.id for recipe in filtered_recipes])
 
 
 class GetDataSpoonacular(GetData):
@@ -139,6 +166,26 @@ class GetDataSpoonacular(GetData):
         self.api_key = API_KEY  # Replace with your actual API key
         self.base_url = 'https://api.spoonacular.com/recipes'
         self.__complex_url = 'https://api.spoonacular.com/recipes/complexSearch'
+        
+    def find_by_spoonacular_id(self, id: int) -> Recipe:
+        """
+        Find the recipe from Spoonacular's API using the recipe's spoonacular_id.
+
+        :param id: The Spooacular recipe id.
+        :return: QuerySet containing the Recipe object corresponding to the provided ID.
+                 Raise an Exeption if the recipe cannot found.
+        """
+        builder = SpoonacularRecipeBuilder(name="", spoonacular_id=id)
+        builder.build_name()
+        builder.build_ingredient()
+        builder.build_equipment()
+        builder.build_nutrition()
+        builder.build_step()
+        builder.build_details()
+        builder.build_diet()
+        builder.build_spoonacular_id()
+        builder.build_recipe().save()
+        return builder.build_recipe()
 
     def find_by_name(self, name: str) -> list[RecipeFacade]:
         """
@@ -157,7 +204,7 @@ class GetDataSpoonacular(GetData):
                 facade = RecipeFacade()
                 facade.set_by_spoonacular(
                     name=recipe["name"],
-                    id=recipe['id'],
+                    _id=recipe['id'],
                     image=recipe["image"]
                 )
                 _return_list.append(facade)
@@ -182,25 +229,26 @@ class GetDataSpoonacular(GetData):
         }
         query_params.update(param.get_param())
         
-        print(query_params)
-        
         response = requests.get(self.__complex_url, params=query_params)
 
         if response.status_code != 200:
-            raise Exception("Cannot retrieve the information")
+            logger.debug("Response code: ", response.status_code)
+            if response.status_code != 402:
+                raise Exception("Error code: ", response.status_code)
+            logger.warning("You ran out of quota.")
         
         data = response.json()
         recipes = data.get('results', [])
 
         if not recipes:
-            raise Exception("Cannot find the recipe")
+            pass
         
         _list: list[RecipeFacade] = []
         for recipe in recipes:
             recipe_facade = RecipeFacade()
             recipe_facade.set_by_spoonacular(
                 name=recipe["title"],
-                id=recipe["id"],
+                _id=recipe["id"],
                 image=recipe["image"]
             )
             _list.append(recipe_facade)
