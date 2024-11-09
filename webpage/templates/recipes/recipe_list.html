@@ -34,10 +34,10 @@
                 data: { csrfmiddlewaretoken: csrftoken },
                 success: function(response) {
                     if (response.favourited) {
-                        button.find('i').removeClass('bi bi-heart red text-danger').addClass('bi bi-heart-fill text-danger');
+                        button.find('i').removeClass('bi bi-heart').addClass('bi bi-heart-fill text-danger');
                         favouriteCountElement.text(parseInt(favouriteCountElement.text()) + 1);
                     } else {
-                        button.find('i').removeClass('bi bi-heart-fill text-danger').addClass('bi bi-heart red text-danger');
+                        button.find('i').removeClass('bi bi-heart-fill text-danger').addClass('bi bi-heart');
                         favouriteCountElement.text(parseInt(favouriteCountElement.text()) - 1);
                     }
                 },
@@ -84,6 +84,8 @@
             <input type="number" min="0" class="form-control mt-2" name="estimated_time" id="estimated_time" value="{{ estimated_time }}" placeholder="Estimated time">
                 <input type="text" class="form-control mt-2" name="ingredient" id="ingredient" value="{{ selected_ingredient }}" placeholder="Ingredient">
                 <input type="text" class="form-control mt-2" name="equipment" id="equipment" value="{{ selected_equipment }}" placeholder="Equipment">
+        <button class="btn btn-success border-start-0 border rounded-left form-control mt-2" type="submit"> Search
+    </button>
       </form>
       </div>
     </div>
@@ -103,20 +105,23 @@
             <h3 class="card-title">{{ recipe.name }}</h3>
                 <small class="card-text">By: {{ recipe.poster_id.username }}</small>
                 <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
-                {% if user.is_authenticated %}
                     <form method="post">
                     {% csrf_token %}
-                <button class="btn border-0 favourite-btn position-absolute bottom-0 end-0" data-recipe-id="{{ recipe.id }}">
+                    {% if user.is_authenticated %}
+                    <button class="btn border-0 favourite-btn position-absolute bottom-0 end-0" data-recipe-id="{{ recipe.id }}">
                     {% if recipe.id in user_favourites %}
                         <i class="bi bi-heart-fill text-danger"></i>
                     {% else %}
                         <i class="bi bi-heart"></i>
                     {% endif %}
                 </button>
-                    </form>
+
             {% else %}
-                <p><a href="{% url 'login' %}">Log in to favourite this recipe</a></p>
+               <a class="btn border-0 position-absolute bottom-0 end-0" style="z-index: 1;" href="{% url 'login' %}">
+                   <i class="bi bi-heart"></i>
+               </a>
             {% endif %}
+                    </form>
             </div>
             </div>
         </div>
