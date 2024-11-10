@@ -32,8 +32,8 @@ class AIConsultTest(TestCase):
     @patch('webpage.modules.gpt_handler.GPTHandler.generate')
     def test_get_alternative_recipes_success(self, mock_generate):
         # Arrange
-        mock_generate.return_value = '{"name": "Alternative Cake 1", "description": "A healthier version of cake."},' + \
-                                                '{"name": "Alternative Cake 2", "description": "A chocolate version of cake."},'        
+        mock_generate.return_value = '[{"name": "Alternative Cake 1", "description": "A healthier version of cake."},' + \
+                                                '{"name": "Alternative Cake 2", "description": "A chocolate version of cake."}]'        
 
         ai_consult = AIConsult(self.recipe)
 
