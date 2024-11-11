@@ -10,7 +10,7 @@ class DietModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Create a test diet before each test."""
-        cls.diet, _ = Diet.objects.get_or_create(
+        cls.diet = Diet.objects.create(
             name="Mediterranean")
 
     def test_diet_create(self):
