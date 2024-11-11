@@ -1,4 +1,6 @@
-from webpage.models import Recipe, Ingredient, IngredientList
+"""Generate response from the AI about the recipe."""
+
+from webpage.models import Recipe, Ingredient
 from webpage.modules.gpt_handler import GPTHandler
 from decouple import config
 import json
@@ -7,8 +9,19 @@ import logging
 logger = logging.getLogger("AI_Recipe")
 
 
-class AIConsult:
+class AIRecipeAdvisor:
+    """
+    Generates a response from GPT about the recipe.
+    
+    :param _recipe: The recipe that the AI will take as an input.
+    :param _gpt: The GPT model handler.
+    """
     def __init__(self, recipe: Recipe):
+        """
+        Initialize the class and fill out the information to put into the AI.
+        
+        :param recipe: The recipe that you want to generate response from.
+        """
         self._recipe = recipe
         self._gpt = GPTHandler(config("ALTER_PROMT"), "gpt-4o-mini")
         name = "The recipe name:" + self._recipe.name
@@ -45,7 +58,15 @@ class AIConsult:
 
         return True
 
-    def get_alternative_recipes(self, ingredients: list[Ingredient], special_ins: str = "") -> list[dict[str, str | int]]:
+    def get_alternative_ingredients(self, ingredients: list[Ingredient], special_ins: str = "") -> list[dict[str, str | int]]:
+        """
+        Generate an alternative ingredients to the ingredients specified. Raises an Exeption when there's an error
+        with the GPT model.
+        
+        :param ingredients: A list of ingrdients to be suggests an alternative ingredient.
+        :param special_ins: Special instructions, eg. I don't like chocolate.
+        :return: Returns a list of dictionary with ```name``` and ```description``` keys.
+        """
         LIMIT = 5
         count = 0
         data: list[dict[str, str | int]]

@@ -1,7 +1,7 @@
 from django.test import TestCase
 from unittest.mock import patch
 from webpage.models import Recipe, Ingredient, IngredientList
-from webpage.modules.ai_recipe import AIConsult
+from webpage.modules.ai_advisor import AIRecipeAdvisor
 from django.utils import timezone
 from django.contrib.auth.models import User
 
@@ -36,10 +36,10 @@ class AIConsultTest(TestCase):
         mock_generate.return_value = '[{"name": "Alternative Cake 1", "description": "A healthier version of cake."},' + \
                                                 '{"name": "Alternative Cake 2", "description": "A chocolate version of cake."}]'        
 
-        ai_consult = AIConsult(self.recipe)
+        ai_consult = AIRecipeAdvisor(self.recipe)
 
         # Act
-        alternatives = ai_consult.get_alternative_recipes([self.ingredient1, self.ingredient2])
+        alternatives = ai_consult.get_alternative_ingredients([self.ingredient1, self.ingredient2])
 
         # Assert
         self.assertEqual(len(alternatives), 2)
@@ -53,11 +53,11 @@ class AIConsultTest(TestCase):
         mock_generate.return_value = '[{"name": "Alternative Cake 1", "descripti "A healthier version of cake."},' + \
                                                 '{"name": "Alternative Cake 2", "description": "A chocolate version of cake."}]'
 
-        ai_consult = AIConsult(self.recipe)
+        ai_consult = AIRecipeAdvisor(self.recipe)
 
         # Act & Assert
         with self.assertRaises(Exception) as context:
-            ai_consult.get_alternative_recipes([self.ingredient1])
+            ai_consult.get_alternative_ingredients([self.ingredient1])
             
     @patch('webpage.modules.gpt_handler.GPTHandler.generate')
     def test_get_alternative_recipes_returns_invalid_structure(self, mock_generate):
@@ -66,14 +66,14 @@ class AIConsultTest(TestCase):
         mock_generate.return_value = '[{"title": "Alternative Cake 1", "desc": "A healthier version of cake."},' + \
                                                 '{"title": "Alternative Cake 2", "desc": "A chocolate version of cake."}]'
 
-        ai_consult = AIConsult(self.recipe)
+        ai_consult = AIRecipeAdvisor(self.recipe)
 
         # Act & Assert
         with self.assertRaises(Exception) as context:
-            ai_consult.get_alternative_recipes([self.ingredient1])
+            ai_consult.get_alternative_ingredients([self.ingredient1])
             
     def test_check_output_structure_true(self):
-        ai_consult = AIConsult(self.recipe)
+        ai_consult = AIRecipeAdvisor(self.recipe)
         correct_output = [
             {"name": "Alternative Cake 1", "description": "A healthier version of cake."},
             {"name": "Alternative Cake 2", "description": "A chocolate version of cake."}
@@ -82,7 +82,7 @@ class AIConsultTest(TestCase):
         self.assertTrue(ai_consult.check_output_structure(correct_output))
         
     def test_check_output_structure_false(self):
-        ai_consult = AIConsult(self.recipe)
+        ai_consult = AIRecipeAdvisor(self.recipe)
         incorrect_output = [{"title": "Alternative Cake 1", "desc": "A healthier version of cake."},
                             {"title": "Alternative Cake 2", "desc": "A chocolate version of cake."}]
         
