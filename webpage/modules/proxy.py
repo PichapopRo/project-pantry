@@ -91,7 +91,7 @@ class GetDataProxy(GetData):
 
         :param name: The recipe name.
         :return: A list containing the RecipeFacade object. Returns an empty list if
-                    the it cannot find the result.
+                    it cannot find the result.
         """
         _list = []
         recipe_queryset = Recipe.objects.filter(name__contains=name)
@@ -120,23 +120,25 @@ class GetDataProxy(GetData):
                 self._service.get_django_filter(_filter): param.get_param()[_filter]
             }
             queryset = queryset.filter(**_dict)
-        
+        logger.debug(queryset)
         stop = 0
         start = 0
         later_part = []
-        print(f"the len of the queryset is {len(queryset)}")
+        logger.debug(f"the len of the queryset is {len(queryset)}")
         if len(queryset) < param.number + param.offset - 1:
-            print("The queryset is less than the number")
+            logger.debug("The queryset is less than the number")
             stop = len(queryset)
             start = param.offset
-            print(f"number before: {param.number}")
+            logger.debug(f"number before: {param.number}")
             if stop > start:
-                param.number = param.number - stop + start
-            print(f"number after: {param.number}")
+                param.number = param.number - stop + start - 1
+            logger.debug(f"number after: {param.number}")
             param.offset = param.offset - len(queryset)
             if param.offset < 0:
                 param.offset = 1
+            logger.debug("param sent to the service: ", param)
             later_part = self._service.filter_recipe(param)
+            logger.debug(later_part)
         else:
             stop = param.number + param.offset - 1
             start = param.offset
@@ -202,7 +204,7 @@ class GetDataSpoonacular(GetData):
                 facade = RecipeFacade()
                 facade.set_by_spoonacular(
                     name=recipe["name"],
-                    id=recipe['id'],
+                    _id=recipe['id'],
                     image=recipe["image"]
                 )
                 _return_list.append(facade)
@@ -227,20 +229,19 @@ class GetDataSpoonacular(GetData):
         }
         query_params.update(param.get_param())
         
-        print(query_params)
-        
         response = requests.get(self.__complex_url, params=query_params)
 
         if response.status_code != 200:
-            raise Exception("Cannot retrieve the information")
+            logger.debug("Response code: ", response.status_code)
+            if response.status_code != 402:
+                raise Exception("Error code: ", response.status_code)
+            logger.warning("You ran out of quota.")
         
         data = response.json()
         recipes = data.get('results', [])
-        print(f"number: {param.number}, offset:{param.offset}")
-        print(recipes)
 
         if not recipes:
-            raise Exception("Cannot find the recipe")
+            pass
         
         _list: list[RecipeFacade] = []
         for recipe in recipes:

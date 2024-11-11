@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from webpage.forms import CustomRegisterForm
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
+from webpage.modules.filter_objects import FilterParam
 import random
 
 
@@ -94,33 +95,23 @@ class RecipeListView(generic.ListView):
         """Return recipes filtered by diet, ingredient, max cooking time, and limited by view_count."""
         view_count = self.request.session.get('view_count', 0)
         query = self.request.GET.get('query', '')
-        difficulty = self.request.GET.get('difficulty')
-        filtered_queryset = Recipe.objects.all()
-        recipe_filter = GetDataProxy(GetDataSpoonacular(), filtered_queryset)
         selected_diet = self.request.GET.get('diet')
         ingredient = self.request.GET.get('ingredient')
-        estimated_time = self.request.GET.get('estimated_time')
+        estimated_time = self.request.GET.get('estimated_time', 9999)
         equipment = self.request.GET.get('equipment')
-        if query:
-            filtered_queryset = recipe_filter.find_by_name(query)
-        if selected_diet:
-            filtered_queryset = recipe_filter.filter_by_diet(selected_diet)
-        if ingredient:
-            filtered_queryset = filtered_queryset.intersection(
-                recipe_filter.filter_by_ingredient(ingredient))
-        if equipment:
-            filtered_queryset = filtered_queryset.intersection(
-                recipe_filter.filter_by_equipment(equipment))
-        if estimated_time:
-            try:
-                estimated_time = int(estimated_time)  # Convert to int
-                filtered_queryset = filtered_queryset.intersection(
-                    recipe_filter.filter_by_max_cooking_time(estimated_time))
-            except ValueError:
-                pass
-        if difficulty:
-            filtered_queryset = recipe_filter.filter_by_difficulty(difficulty)
-        return filtered_queryset[:view_count]
+        filter_params = FilterParam(
+            offset=1,
+            number=view_count,
+            includeIngredients=[ingredient] if ingredient else [],
+            equipment=[equipment] if equipment else [],
+            diet=[selected_diet] if selected_diet else [],
+            maxReadyTime=int(estimated_time) if estimated_time else 9999,
+            titleMatch=query
+        )
+        recipe_filter = GetDataProxy(GetDataSpoonacular())
+        filtered_recipes = recipe_filter.filter_recipe(filter_params)
+        recipe_list = [facade.get_recipe() for facade in filtered_recipes]
+        return recipe_list[:view_count]
 
     def post(self, request, *args, **kwargs):
         """

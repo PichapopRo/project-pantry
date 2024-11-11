@@ -90,12 +90,12 @@ class Builder(ABC):
         :param user: The user that is the author of the recipe.
         """
         pass
-    
+
     @abstractmethod
     def build_diet(self, diet: Diet):
         """
         Add one Diet class into the recipe.
-        
+
         :param diet: A diet class to be added into the Recipe's diet.
         """
         pass
@@ -286,7 +286,7 @@ class SpoonacularRecipeBuilder(Builder):
                 self.__data = response.json()
                 self.__api_is_called = True
             else:
-                print(f"Error code: {response.status_code}")
+                logger.debug(f"Error code: {response.status_code}")
                 raise Exception("Cannot load the recipe")
 
     def __fetch_equipment(self):

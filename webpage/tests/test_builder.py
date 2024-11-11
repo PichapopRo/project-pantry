@@ -260,7 +260,7 @@ class SpoonacularRecipeBuilderTest(TestCase):
         self.assertEqual(plain_text, expected_text)
 
     def test_link_equipment_image(self):
-        """Test that __link_equipment_image converts text equipment picture to a URL image correctly."""
+        """Test that __link_equipment_image converts text equipment picture to an URL image correctly."""
         plain_text = "This is a plain text."
         expected_url_image = "https://img.spoonacular.com/equipment_500x500/This is a plain text."
         url_image = self.builder._SpoonacularRecipeBuilder__link_equipment_image(
@@ -268,7 +268,7 @@ class SpoonacularRecipeBuilderTest(TestCase):
         self.assertEqual(url_image, expected_url_image)
 
     def test_link_ingredient_image(self):
-        """Test that __link_ingredient_image converts text ingredient picture to a URL image correctly."""
+        """Test that __link_ingredient_image converts text ingredient picture to an URL image correctly."""
         plain_text = "This is a plain text."
         expected_url_image = "https://img.spoonacular.com/ingredients_500x500/This is a plain text."
         url_image = self.builder._SpoonacularRecipeBuilder__link_ingredient_image(
