@@ -38,7 +38,10 @@
                             <button type="submit" class="btn btn-success">Login</button>
                         </div>
                     </form>
-                <a href="{% provider_login_url 'google' %}"> google login</a>
+                    <form action="{% provider_login_url 'google' action='reauthenticate'%}" method="post">
+                       {% csrf_token %}
+                      <button type="submit">Login with Google account</button>
+                    </form>
 				<p class="text-center">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
 			</div>
 		</div>
