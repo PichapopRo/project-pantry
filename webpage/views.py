@@ -92,7 +92,7 @@ class RecipeListView(generic.ListView):
     context_object_name = 'recipe_list'
 
     def get_queryset(self):
-        """Return recipes filtered by diet, ingredient, max cooking time, and limited by view_count."""
+        """Return recipes filtered by diet, ingredient, estimated cooking time, and limited by view_count."""
         view_count = self.request.session.get('view_count', 0)
         query = self.request.GET.get('query', '')
         selected_diet = self.request.GET.get('diet')
