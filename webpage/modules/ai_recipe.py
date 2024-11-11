@@ -24,7 +24,27 @@ class AIConsult:
             ingredients + '\n' + \
             diets
             
+        self.__NAME_TAG = "name"
+        self.__DESCRIPTION_TAG = "description"
     
+    def check_output_structure(self, output: list[dict[str, str | int]]) -> bool:
+        """
+        Check weather the output from ChatGPT has the correct format (correct key names and number of keys).
+        
+        :param output: The list generated from the output from GPT.
+        :return: True, if the output is valid. Else, if it's not.
+        """
+        try:
+            for ingredient in output:
+                if len(list(ingredient.keys())) != 2:
+                    return False
+                if self.__NAME_TAG not in ingredient.keys() or self.__DESCRIPTION_TAG not in ingredient.keys():
+                    return False
+        except AttributeError:
+            return False
+
+        return True
+
     def get_alternative_recipes(self, ingredients: list[Ingredient], special_ins: str = "") -> list[dict[str, str | int]]:
         LIMIT = 5
         count = 0
@@ -42,6 +62,9 @@ class AIConsult:
             try:
                 data = json.loads(self._gpt.generate(query))
                 # If there's an error, the following line will not be executed.
+                if not self.check_output_structure(data):
+                    count += 1
+                    continue
                 break
             except json.decoder.JSONDecodeError:
                 count += 1
