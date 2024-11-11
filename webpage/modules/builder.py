@@ -6,7 +6,6 @@ Both manually (NormalRecipeBuilder) and via Spoonacular API (SpoonacularRecipeBu
 from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, IngredientList, EquipmentList, \
     Nutrition, NutritionList, Diet
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from abc import ABC, abstractmethod
 import requests
 from decouple import config
@@ -182,16 +181,15 @@ class NormalRecipeBuilder(Builder):
         :param step_description: The description of the step you are adding.
         """
         number = 0
-        try:
-            post_last_step = RecipeStep.objects.filter(recipe=self.__recipe).order_by('-number').first()
-            if post_last_step is None:
-                number += 1
-            else:
-                number = post_last_step.number + 1
-        except ObjectDoesNotExist:
+        post_last_step = RecipeStep.objects.filter(recipe=self.__recipe).order_by('-number').first()
+        if post_last_step is None:
             number += 1
-        step = RecipeStep.objects.create(description=step_description, recipe=self.__recipe)
-        step.number = number
+        else:
+            number = post_last_step.number + 1
+        step = RecipeStep.objects.create(
+            description=step_description,
+            recipe=self.__recipe,
+            number=number)
         step.save()
 
     def build_nutrition(self, nutrition: Nutrition, amount: int, unit: str):
@@ -288,7 +286,7 @@ class SpoonacularRecipeBuilder(Builder):
                 self.__data = response.json()
                 self.__api_is_called = True
             else:
-                print(f"Error code: {response.status_code}")
+                logger.debug(f"Error code: {response.status_code}")
                 raise Exception("Cannot load the recipe")
 
     def __fetch_equipment(self):

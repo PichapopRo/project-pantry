@@ -12,17 +12,17 @@ class FavouriteModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Create initial data for all test methods."""
-        cls.user1, _ = User.objects.get_or_create(
+        cls.user1 = User.objects.create_user(
             username='testuser',
             email='test@example.com',
             password='testpassword'
         )
-        cls.user2, _ = User.objects.get_or_create(
+        cls.user2 = User.objects.create_user(
             username='testuser2',
             email='test@example2.com',
             password='testpassword2'
         )
-        cls.recipe1, _ = Recipe.objects.get_or_create(
+        cls.recipe1 = Recipe.objects.create(
             name="Pasta",
             spoonacular_id=123,
             estimated_time=45,
@@ -32,16 +32,16 @@ class FavouriteModelTest(TestCase):
             description="This is a pasta.",
             status="Pending"
         )
-        cls.recipe2, _ = Recipe.objects.get_or_create(
+        cls.recipe2 = Recipe.objects.create(
             name="Soup",
             spoonacular_id=124,
             estimated_time=15,
             poster_id=cls.user2)
-        cls.favourite, _ = Favourite.objects.get_or_create(
+        cls.favourite = Favourite.objects.create(
             recipe=cls.recipe1,
             user=cls.user1,
         )
-        cls.favourite2, _ = Favourite.objects.get_or_create(
+        cls.favourite2 = Favourite.objects.create(
             recipe=cls.recipe2,
             user=cls.user1,
         )

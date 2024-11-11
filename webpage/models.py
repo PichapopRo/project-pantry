@@ -158,3 +158,14 @@ class Favourite(models.Model):
     def __str__(self):
         """Return the name of the favourite."""
         return f'Favourite {self.recipe} by {self.user}'
+
+
+class Profile(models.Model):
+    """Profile is used to create badges for user."""
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    chef_badge = models.BooleanField(default=False)
+
+    def __str__(self):
+        """Return the user's profile."""
+        return f"{self.user.username}'s Profile"

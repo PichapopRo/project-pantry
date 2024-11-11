@@ -10,7 +10,7 @@ class EquipmentModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Create a test diet before each test."""
-        cls.equipment, _ = Equipment.objects.get_or_create(
+        cls.equipment = Equipment.objects.create(
             name="Oven",
             spoonacular_id=456,
             picture="http://example.com/oven.jpg"
