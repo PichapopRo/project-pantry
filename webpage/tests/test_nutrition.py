@@ -10,7 +10,7 @@ class NutritionModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Create initial data for all test methods."""
-        cls.nutrition, _ = Nutrition.objects.get_or_create(
+        cls.nutrition = Nutrition.objects.create(
             name="Protein",
             spoonacular_id=12345)
 

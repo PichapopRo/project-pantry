@@ -15,17 +15,17 @@ class RecipeModelTest(TestCase):
     def setUpTestData(cls):
         """Create initial data for all test methods."""
         cls.time = timezone.now()
-        cls.user, _ = User.objects.get_or_create(
+        cls.user = User.objects.create_user(
             username='testuser',
             email='test@example.com',
             password='testpassword'
         )
-        cls.user2, _ = User.objects.get_or_create(
+        cls.user2 = User.objects.create_user(
             username='testuser2',
             email='test@example2.com',
             password='testpassword2'
         )
-        cls.recipe1, _ = Recipe.objects.get_or_create(
+        cls.recipe1 = Recipe.objects.create(
             name="Pasta",
             spoonacular_id=123,
             estimated_time=45,
@@ -35,11 +35,11 @@ class RecipeModelTest(TestCase):
             description="This is a pasta.",
             status="Pending"
         )
-        Favourite.objects.get_or_create(
+        Favourite.objects.create(
             recipe=cls.recipe1,
             user=cls.user,
         )
-        Favourite.objects.get_or_create(
+        Favourite.objects.create(
             recipe=cls.recipe1,
             user=cls.user2,
         )
@@ -69,9 +69,9 @@ class RecipeModelTest(TestCase):
 
     def test_recipe_diets_create(self):
         """Test if the recipe diets are created correctly."""
-        diet1, _ = Diet.objects.get_or_create(
+        diet1 = Diet.objects.create(
             name="Dairy-Free")
-        diet2, _ = Diet.objects.get_or_create(
+        diet2 = Diet.objects.create(
             name="Low-Carb")
         self.recipe1.diets.add(diet1, diet2)
         diets = self.recipe1.diets.all()
@@ -95,7 +95,7 @@ class RecipeModelTest(TestCase):
 
     def test_difficulty_Easy(self):
         """Test the get_difficulty Easy."""
-        self.recipe2, _ = Recipe.objects.get_or_create(
+        self.recipe2 = Recipe.objects.create(
             name="Soup",
             spoonacular_id=124,
             estimated_time=15,
@@ -108,7 +108,7 @@ class RecipeModelTest(TestCase):
 
     def test_difficulty_Hard(self):
         """Test the get_difficulty Hard."""
-        self.recipe3, _ = Recipe.objects.get_or_create(
+        self.recipe3 = Recipe.objects.create(
             name="Steak",
             spoonacular_id=125,
             estimated_time=75,
@@ -121,23 +121,23 @@ class RecipeModelTest(TestCase):
 
     def test_get_ingredients(self):
         """Test the get_ingredients method."""
-        ingredient1, _ = Ingredient.objects.get_or_create(
+        ingredient1 = Ingredient.objects.create(
             name="Noodle",
             spoonacular_id=111,
             picture="http://example.com/noodle.jpg"
         )
-        ingredient2, _ = Ingredient.objects.get_or_create(
+        ingredient2 = Ingredient.objects.create(
             name="Tomato",
             spoonacular_id=222,
             picture="http://example.com/tomato.jpg"
         )
-        ingredient_list1, _ = IngredientList.objects.get_or_create(
+        ingredient_list1 = IngredientList.objects.create(
             ingredient=ingredient1,
             recipe=self.recipe1,
             amount=200,
             unit="grams"
         )
-        ingredient_list2, _ = IngredientList.objects.get_or_create(
+        ingredient_list2 = IngredientList.objects.create(
             ingredient=ingredient2,
             recipe=self.recipe1,
             amount=3,
@@ -149,23 +149,23 @@ class RecipeModelTest(TestCase):
 
     def test_get_equipments(self):
         """Test the get_equipments method."""
-        equipment1, _ = Equipment.objects.get_or_create(
+        equipment1 = Equipment.objects.create(
             name="Pan",
             spoonacular_id=333,
             picture="http://example.com/pan.jpg"
         )
-        equipment2, _ = Equipment.objects.get_or_create(
+        equipment2 = Equipment.objects.create(
             name="Spoon",
             spoonacular_id=444,
             picture="http://example.com/spoon.jpg"
         )
-        equipment_list1, _ = EquipmentList.objects.get_or_create(
+        equipment_list1 = EquipmentList.objects.create(
             equipment=equipment1,
             recipe=self.recipe1,
             amount=1,
             unit="piece"
         )
-        equipment_list2, _ = EquipmentList.objects.get_or_create(
+        equipment_list2 = EquipmentList.objects.create(
             equipment=equipment2,
             recipe=self.recipe1,
             amount=1,
@@ -177,15 +177,15 @@ class RecipeModelTest(TestCase):
 
     def test_get_steps(self):
         """Test if the steps are returned in the correct order."""
-        step3, _ = RecipeStep.objects.get_or_create(
+        step3 = RecipeStep.objects.create(
             number=3,
             description="Third step",
             recipe=self.recipe1)
-        step1, _ = RecipeStep.objects.get_or_create(
+        step1 = RecipeStep.objects.create(
             number=1,
             description="First step",
             recipe=self.recipe1)
-        step2, _ = RecipeStep.objects.get_or_create(
+        step2 = RecipeStep.objects.create(
             number=2,
             description="Second step",
             recipe=self.recipe1)
@@ -194,21 +194,21 @@ class RecipeModelTest(TestCase):
 
     def test_get_nutrition(self):
         """Test the get_nutrition method."""
-        nutrition1, _ = Nutrition.objects.get_or_create(
+        nutrition1 = Nutrition.objects.create(
             name="Vitamin A",
             spoonacular_id=11,
         )
-        nutrition2, _ = Nutrition.objects.get_or_create(
+        nutrition2 = Nutrition.objects.create(
             name="Vitamin B",
             spoonacular_id=22,
         )
-        nutrition_list1, _ = NutritionList.objects.get_or_create(
+        nutrition_list1 = NutritionList.objects.create(
             nutrition=nutrition1,
             recipe=self.recipe1,
             amount=200,
             unit="kcal"
         )
-        nutrition_list2, _ = NutritionList.objects.get_or_create(
+        nutrition_list2 = NutritionList.objects.create(
             nutrition=nutrition2,
             recipe=self.recipe1,
             amount=300,

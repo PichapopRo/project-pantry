@@ -92,7 +92,7 @@ class NormalRecipeBuilderTest(TestCase):
 
     def test_build_user(self):
         """Test the build_user method on the NormalRecipeBuilder."""
-        new_user = User.objects.create(
+        new_user = User.objects.create_user(
             username="new_user",
             password="password")
         self.builder.build_user(
