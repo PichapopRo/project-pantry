@@ -4,6 +4,7 @@ from webpage.models import Recipe, Ingredient, IngredientList
 from webpage.modules.ai_advisor import AIRecipeAdvisor
 from django.utils import timezone
 from django.contrib.auth.models import User
+from unittest import skip
 
 class AIConsultTest(TestCase):
     @classmethod
@@ -33,8 +34,8 @@ class AIConsultTest(TestCase):
     def test_get_alternative_recipes_success(self, mock_generate):
         """Test the recipe in the case where GPT actually returns a valid data."""
         # Arrange
-        mock_generate.return_value = '[{"name": "Alternative Cake 1", "description": "A healthier version of cake."},' + \
-                                                '{"name": "Alternative Cake 2", "description": "A chocolate version of cake."}]'        
+        mock_generate.return_value = '[{"name": "Alternative Cake 1", "description": "A healthier version of cake.", "amount":1.00,"unit":"thing"},' + \
+                                                '{"name": "Alternative Cake 2", "description": "A chocolate version of cake.","amount":1.00,"unit":"thing"}]'        
 
         ai_consult = AIRecipeAdvisor(self.recipe)
 
@@ -73,18 +74,27 @@ class AIConsultTest(TestCase):
             ai_consult.get_alternative_ingredients([self.ingredient1])
             
     def test_check_output_structure_true(self):
+        """Test the check_output structure with a legit data"""
         ai_consult = AIRecipeAdvisor(self.recipe)
         correct_output = [
-            {"name": "Alternative Cake 1", "description": "A healthier version of cake."},
-            {"name": "Alternative Cake 2", "description": "A chocolate version of cake."}
+            {"name": "Alternative Cake 1", "description": "A healthier version of cake.","amount":1.00,"unit":"thing"},
+            {"name": "Alternative Cake 2", "description": "A chocolate version of cake.","amount":1.00,"unit":"thing"}
                           ]
         
         self.assertTrue(ai_consult.check_output_structure(correct_output))
         
     def test_check_output_structure_false(self):
+        """Test the check_output method using poorly constructed data"""
         ai_consult = AIRecipeAdvisor(self.recipe)
-        incorrect_output = [{"title": "Alternative Cake 1", "desc": "A healthier version of cake."},
+        incorrect_output = [{"title": "Alternative Cake 1", "desc": "A healthier version of cake.","amount":1.00,"unit":"thing"},
                             {"title": "Alternative Cake 2", "desc": "A chocolate version of cake."}]
         
         self.assertFalse(ai_consult.check_output_structure(incorrect_output))
         
+    @skip("This needs the actual API key")
+    def test_get_alternative_ingredients_with_real_data(self):
+        """Test the get_alternative_ingredient using a real data from GPT."""
+        ai_consult = AIRecipeAdvisor(self.recipe)
+        response = ai_consult.get_alternative_ingredients([self.ingredient1])
+        self.assertIsNotNone(response[0]['description'])
+        print(response)

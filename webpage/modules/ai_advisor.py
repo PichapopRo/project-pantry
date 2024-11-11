@@ -39,6 +39,8 @@ class AIRecipeAdvisor:
             
         self.__NAME_TAG = "name"
         self.__DESCRIPTION_TAG = "description"
+        self.__AMOUNT_TAG = "amount"
+        self.__UNIT_TAG = "unit"
     
     def check_output_structure(self, output: list[dict[str, str | int]]) -> bool:
         """
@@ -47,11 +49,15 @@ class AIRecipeAdvisor:
         :param output: The list generated from the output from GPT.
         :return: True, if the output is valid. Else, if it's not.
         """
+        NUMBER_OF_ITEMS_IN_THE_DICTIONARY = 4
         try:
             for ingredient in output:
-                if len(list(ingredient.keys())) != 2:
+                if len(list(ingredient.keys())) != NUMBER_OF_ITEMS_IN_THE_DICTIONARY:
                     return False
-                if self.__NAME_TAG not in ingredient.keys() or self.__DESCRIPTION_TAG not in ingredient.keys():
+                if self.__NAME_TAG not in ingredient.keys() \
+                    or self.__DESCRIPTION_TAG not in ingredient.keys() \
+                    or self.__AMOUNT_TAG not in ingredient.keys() \
+                    or self.__UNIT_TAG not in ingredient.keys():
                     return False
         except AttributeError:
             return False
@@ -81,7 +87,8 @@ class AIRecipeAdvisor:
             if count >= LIMIT:
                 raise Exception("Error with LLM. Please try again.")
             try:
-                data = json.loads(self._gpt.generate(query))
+                generated = self._gpt.generate(query)
+                data = json.loads(generated)
                 # If there's an error, the following line will not be executed.
                 if not self.check_output_structure(data):
                     count += 1
