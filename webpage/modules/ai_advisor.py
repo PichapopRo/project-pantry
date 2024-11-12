@@ -67,7 +67,8 @@ class AIRecipeAdvisor:
 
     def get_alternative_ingredients(self, ingredients: list[Ingredient], special_ins: str = "") -> list[dict[str, str | int]]:
         """
-        Generate an alternative ingredients to the ingredients specified. Raises an Exeption when there's an error with the GPT model.
+        Generate an alternative ingredients to the ingredients specified.
+        Raises an Exeption when there's an error with the GPT model.
         
         :param ingredients: A list of ingrdients to be suggests an alternative ingredient.
         :param special_ins: Special instructions, eg. I don't like chocolate.
