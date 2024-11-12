@@ -16,6 +16,7 @@ class AIRecipeAdvisor:
     :param _recipe: The recipe that the AI will take as an input.
     :param _gpt: The GPT model handler.
     """
+
     def __init__(self, recipe: Recipe):
         """
         Initialize the class and fill out the information to put into the AI.
@@ -55,9 +56,9 @@ class AIRecipeAdvisor:
                 if len(list(ingredient.keys())) != NUMBER_OF_ITEMS_IN_THE_DICTIONARY:
                     return False
                 if self.__NAME_TAG not in ingredient.keys() \
-                    or self.__DESCRIPTION_TAG not in ingredient.keys() \
-                    or self.__AMOUNT_TAG not in ingredient.keys() \
-                    or self.__UNIT_TAG not in ingredient.keys():
+                        or self.__DESCRIPTION_TAG not in ingredient.keys() \
+                        or self.__AMOUNT_TAG not in ingredient.keys() \
+                        or self.__UNIT_TAG not in ingredient.keys():
                     return False
         except AttributeError:
             return False
@@ -66,8 +67,7 @@ class AIRecipeAdvisor:
 
     def get_alternative_ingredients(self, ingredients: list[Ingredient], special_ins: str = "") -> list[dict[str, str | int]]:
         """
-        Generate an alternative ingredients to the ingredients specified. Raises an Exeption when there's an error
-        with the GPT model.
+        Generate an alternative ingredients to the ingredients specified. Raises an Exeption when there's an error with the GPT model.
         
         :param ingredients: A list of ingrdients to be suggests an alternative ingredient.
         :param special_ins: Special instructions, eg. I don't like chocolate.
