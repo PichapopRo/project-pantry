@@ -69,12 +69,12 @@ class AIRecipeAdvisor:
         """
         Generate an alternative ingredients to the ingredients specified.
 
-        Raises an Exeption when there's an error with the GPT model.
-        
-        :param ingredients: A list of ingrdients to be suggests an alternative ingredient.
-        :param special_ins: Special instructions, eg. I don't like chocolate.
-        :return: Returns a list of dictionary with ```name``` and ```description``` keys.
-        """
+        Raises an Exception when there's an error with the GPT model.
+
+        :param ingredients: A list of ingredients to be suggested as alternative ingredients.
+        :param special_ins: Special instructions, e.g., I don't like chocolate.
+        :return: Returns a list of dictionaries with `name` and `description` keys.
+    """
         LIMIT = 5
         count = 0
         data: list[dict[str, str | int]]
