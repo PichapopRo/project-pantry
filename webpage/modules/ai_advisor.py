@@ -74,7 +74,7 @@ class AIRecipeAdvisor:
         :param ingredients: A list of ingredients to be suggested as alternative ingredients.
         :param special_ins: Special instructions, e.g., I don't like chocolate.
         :return: Returns a list of dictionaries with `name` and `description` keys.
-    """
+        """
         LIMIT = 5
         count = 0
         data: list[dict[str, str | int]]
