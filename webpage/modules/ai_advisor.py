@@ -12,6 +12,7 @@ logger = logging.getLogger("AI_Recipe")
 
 class Tags(Enum):
     """The name of tag keys that should be in the output from the GPT."""
+
     NAME_TAG: str = "name"
     DESCRIPTION_TAG: str = "description"
     AMOUNT_TAG: str = "amount"
