@@ -54,10 +54,9 @@ class AIRecipeAdvisor:
         :param output: The list generated from the output from GPT.
         :return: True, if the output is valid. Else, if it's not.
         """
-        NUMBER_OF_ITEMS_IN_THE_DICTIONARY = len(Tags)
         try:
             for ingredient in output:
-                if len(ingredient.keys()) != NUMBER_OF_ITEMS_IN_THE_DICTIONARY:
+                if len(ingredient.keys()) != len(Tags):
                     return False
                 for tag in Tags:
                     if tag.value not in ingredient.keys():
