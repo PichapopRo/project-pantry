@@ -34,7 +34,7 @@ class AIRecipeAdvisor:
         :param recipe: The recipe that you want to generate response from.
         """
         self._recipe = recipe
-        self._gpt = GPTHandler(config("ALTER_PROMT"), "gpt-4o-mini")
+        self._gpt = GPTHandler(config("ALTER_PROMT", default="default"), "gpt-4o-mini")
         name = "The recipe name:" + self._recipe.name
         description = "Description:" + self._recipe.description
         ingredients = ""
