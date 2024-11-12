@@ -1,3 +1,4 @@
+"""Import requests to receive request from the server."""
 import requests
 
 

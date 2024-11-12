@@ -251,16 +251,47 @@ class AddRecipeView(generic.CreateView):
         of the recipe creation.
         """
         builder = NormalRecipeBuilder(name=form.cleaned_data['name'], user=self.request.user)
+        self.process_detail(builder, form)
+        self.process_image(builder, form)
+        self.process_ingredients(builder)
+        self.process_diets(builder)
+        self.process_equipments(builder)
+        self.process_steps(builder)
+        builder.build_recipe().save()
+        return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
+
+    def process_detail(self, builder: NormalRecipeBuilder, form):
+        """
+        Process the detail data of the recipe.
+
+        :param builder: Recipe Builder instance.
+        :param form: The RecipeForm instance containing validated data.
+        """
         builder.build_details(
             description=form.cleaned_data['description'],
         )
         builder.build_details(estimated_time=form.cleaned_data['estimated_time'])
+
+    def process_image(self, builder: NormalRecipeBuilder, form):
+        """
+        Process the image data of the recipe.
+
+        :param builder: Recipe Builder instance.
+        :param form: The RecipeForm instance containing validated data.
+        """
         image = form.files.get('photo')
         if image:
             client_id = settings.IMGUR_CLIENT_ID
             image_url = upload_image_to_imgur(image, client_id)
             if image_url:
                 builder.build_details(image=image_url)
+
+    def process_ingredients(self, builder: NormalRecipeBuilder):
+        """
+        Process the ingredients data page of the recipe.
+
+        :param builder: Recipe Builder instance.
+        """
         ingredients_data = self.request.POST.get('ingredients_data')
         if ingredients_data:
             ingredients = json.loads(ingredients_data)
@@ -271,6 +302,13 @@ class AddRecipeView(generic.CreateView):
                     builder.build_ingredient(ingredient=ingredient, amount=amount, unit=unit)
                 except Exception as e:
                     print(f"Error parsing ingredient '{ingredient_entry}': {e}")
+
+    def process_diets(self, builder: NormalRecipeBuilder):
+        """
+        Process the diets data of the recipe.
+
+        :param builder: Recipe Builder instance.
+        """
         diets_data = self.request.POST.get('diets_data')
         if diets_data:
             try:
@@ -293,6 +331,13 @@ class AddRecipeView(generic.CreateView):
             except IntegrityError:
                 print(
                     f"Failed to add custom diet: {custom_diet_name} due to IntegrityError")
+
+    def process_equipments(self, builder: NormalRecipeBuilder):
+        """
+        Process the equipments of the recipe.
+
+        :param builder: Recipe Builder instance.
+        """
         equipments_data = self.request.POST.get('equipment_data')
         if equipments_data:
             equipments = json.loads(equipments_data)
@@ -303,6 +348,13 @@ class AddRecipeView(generic.CreateView):
                     builder.build_equipment(equipment=equipment)
                 except Exception as e:
                     print(f"Error parsing equipment '{equipment_entry}': {e}")
+
+    def process_steps(self, builder: NormalRecipeBuilder):
+        """
+        Process the steps data of the recipe.
+
+        :param builder: Recipe Builder instance.
+        """
         steps_data = self.request.POST.get('steps_data')
         if steps_data:
             steps = json.loads(steps_data)
@@ -311,8 +363,6 @@ class AddRecipeView(generic.CreateView):
                     builder.build_step(step_entry)
                 except Exception as e:
                     print(f"Error adding step '{step_entry}': {e}")
-        builder.build_recipe().save()
-        return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
 
     def parse_ingredient_input(self, ingredient_entry):
         """Parse the ingredient input string and return amount, unit, and name."""
