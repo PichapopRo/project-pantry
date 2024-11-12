@@ -78,22 +78,19 @@ class AIRecipeAdvisor:
         :return: Returns a list of dictionaries with `name` and `description` keys.
         """
         LIMIT = 5
-        data: list[dict[str, str | int]]
-        no_ingre = "The ingredient I don't have:"
-        for ingredient in ingredients:
-            no_ingre += ingredient.name + ","
+        lacking_ingredients = "The ingredient I don't have:" + ",".join([ingredient.name for ingredient in ingredients])
         query = self._ingredient_information + "\n" + \
-            no_ingre + "\n" + \
+            lacking_ingredients + "\n" + \
             "The special instruction:" + special_ins
 
         for _ in range(LIMIT):
             try:
-                generated = self._gpt.generate(query)
-                data = json.loads(generated)
+                string_alternative_ingredients = self._gpt.generate(query)
+                processed_alternative_ingredients = json.loads(string_alternative_ingredients)
                 # If there's an error, the following line will not be executed.
-                if not self.check_output_structure(data):
+                if not self.check_output_structure(processed_alternative_ingredients):
                     continue
-                return data
+                return processed_alternative_ingredients
             except json.decoder.JSONDecodeError:
                 continue
         raise Exception("Error with LLM. Please try again.")
