@@ -11,12 +11,12 @@ class RecipeStepModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Create test data before each test."""
-        cls.user, _ = User.objects.get_or_create(
+        cls.user = User.objects.create_user(
             username='testuser',
             email='test@example.com',
             password='testpassword'
         )
-        cls.recipe, _ = Recipe.objects.get_or_create(
+        cls.recipe = Recipe.objects.create(
             name="Pasta",
             spoonacular_id=123,
             estimated_time=45,
@@ -25,7 +25,7 @@ class RecipeStepModelTest(TestCase):
             created_at=timezone.now(),
             description="This is a pasta."
         )
-        cls.recipe_step, _ = RecipeStep.objects.get_or_create(
+        cls.recipe_step = RecipeStep.objects.create(
             number=1,
             description="First step",
             recipe=cls.recipe)
