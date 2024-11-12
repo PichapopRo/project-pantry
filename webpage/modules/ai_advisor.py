@@ -5,8 +5,17 @@ from webpage.modules.gpt_handler import GPTHandler
 from decouple import config
 import json
 import logging
+from enum import Enum
 
 logger = logging.getLogger("AI_Recipe")
+
+
+class Tags(Enum):
+    """The name of tag keys that should be in the output from the GPT."""
+    NAME_TAG: str = "name"
+    DESCRIPTION_TAG: str = "description"
+    AMOUNT_TAG: str = "amount"
+    UNIT_TAG: str = "unit"
 
 
 class AIRecipeAdvisor:
@@ -37,11 +46,6 @@ class AIRecipeAdvisor:
             description + '\n' + \
             ingredients + '\n' + \
             diets
-            
-        self.__NAME_TAG = "name"
-        self.__DESCRIPTION_TAG = "description"
-        self.__AMOUNT_TAG = "amount"
-        self.__UNIT_TAG = "unit"
     
     def check_output_structure(self, output: list[dict[str, str | int]]) -> bool:
         """
@@ -50,16 +54,14 @@ class AIRecipeAdvisor:
         :param output: The list generated from the output from GPT.
         :return: True, if the output is valid. Else, if it's not.
         """
-        NUMBER_OF_ITEMS_IN_THE_DICTIONARY = 4
+        NUMBER_OF_ITEMS_IN_THE_DICTIONARY = len(Tags)
         try:
             for ingredient in output:
-                if len(list(ingredient.keys())) != NUMBER_OF_ITEMS_IN_THE_DICTIONARY:
+                if len(ingredient.keys()) != NUMBER_OF_ITEMS_IN_THE_DICTIONARY:
                     return False
-                if self.__NAME_TAG not in ingredient.keys() \
-                        or self.__DESCRIPTION_TAG not in ingredient.keys() \
-                        or self.__AMOUNT_TAG not in ingredient.keys() \
-                        or self.__UNIT_TAG not in ingredient.keys():
-                    return False
+                for tag in Tags:
+                    if tag.value not in ingredient.keys():
+                        return False
         except AttributeError:
             return False
 
@@ -76,7 +78,6 @@ class AIRecipeAdvisor:
         :return: Returns a list of dictionaries with `name` and `description` keys.
         """
         LIMIT = 5
-        count = 0
         data: list[dict[str, str | int]]
         no_ingre = "The ingredient I don't have:"
         for ingredient in ingredients:
@@ -85,17 +86,14 @@ class AIRecipeAdvisor:
             no_ingre + "\n" + \
             "The special instruction:" + special_ins
 
-        while True:
-            if count >= LIMIT:
-                raise Exception("Error with LLM. Please try again.")
+        for _ in range(LIMIT):
             try:
                 generated = self._gpt.generate(query)
                 data = json.loads(generated)
                 # If there's an error, the following line will not be executed.
                 if not self.check_output_structure(data):
-                    count += 1
                     continue
-                break
+                return data
             except json.decoder.JSONDecodeError:
-                count += 1
-        return data
+                continue
+        raise Exception("Error with LLM. Please try again.")
