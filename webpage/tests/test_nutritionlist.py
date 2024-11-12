@@ -10,12 +10,12 @@ class NutritionListModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Create test data before each test."""
-        cls.user, _ = User.objects.get_or_create(
+        cls.user = User.objects.create_user(
             username='testuser',
             email='test@example.com',
             password='testpassword'
         )
-        cls.recipe, _ = Recipe.objects.get_or_create(
+        cls.recipe = Recipe.objects.create(
             name="Pasta",
             spoonacular_id=123,
             estimated_time=45,
@@ -24,11 +24,11 @@ class NutritionListModelTest(TestCase):
             created_at=timezone.now(),
             description="This is a pasta."
         )
-        cls.nutrition, _ = Nutrition.objects.get_or_create(
+        cls.nutrition = Nutrition.objects.create(
             name="Vitamin A",
             spoonacular_id=11,
         )
-        cls.nutrition_list, _ = NutritionList.objects.get_or_create(
+        cls.nutrition_list = NutritionList.objects.create(
             nutrition=cls.nutrition,
             recipe=cls.recipe,
             amount=200,
