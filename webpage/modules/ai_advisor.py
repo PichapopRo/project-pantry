@@ -39,9 +39,7 @@ class AIRecipeAdvisor:
         ingredients = ""
         for ingre in self._recipe.get_ingredients():
             ingredients += ingre.ingredient.name + " " + str(ingre.amount) + " " + ingre.unit + "\n"
-        diets = "Diet restrictions:"
-        for diet in self._recipe.diets.all():
-            diets += diet.name + ","
+        diets = "Diet restrictions:" + ",".join(self._recipe.diets.all())
         self._ingredient_information = name + '\n' +\
             description + '\n' + \
             ingredients + '\n' + \
