@@ -1,135 +1,156 @@
+"""Tests for the model and model."""
 from django.test import TestCase
-from django.utils import timezone
 from unittest.mock import patch, MagicMock
 from django.contrib.auth.models import User
-from webpage.models import Ingredient, IngredientList, Equipment, EquipmentList, Recipe, Diet
-from webpage.modules.proxy import GetDataSpoonacular, GetDataProxy, GetData
+from webpage.models import Recipe
+from webpage.modules.proxy import GetDataProxy, GetData, GetDataSpoonacular
+from webpage.modules.recipe_facade import RecipeFacade
+from webpage.modules.filter_objects import FilterParam
 
 
 class GetDataProxyTest(TestCase):
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.mock_service = MagicMock(spec=GetData)
-        cls.service = GetDataProxy(service=None, queryset=Recipe.objects.all())
-        cls.time = timezone.now()
-        cls.user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com',
-            password='testpassword'
-        )
-        cls.recipe1 = Recipe.objects.create(
-            name="Steak",
-            spoonacular_id=111,
-            estimated_time=55,
-            image="http://example.com/steak.jpg",
-            poster_id=cls.user,
-            created_at=cls.time,
-            description="This is a steak."
-        )
-        cls.recipe2 = Recipe.objects.create(
-            name="Pork Hamburger",
-            spoonacular_id=222,
-            estimated_time=45,
-            image="http://example.com/porkhamburger.jpg",
-            poster_id=cls.user,
-            created_at=cls.time,
-            description="This is a pork hamburger."
-        )
-        cls.recipe3 = Recipe.objects.create(
-            name="Meat Hamburger",
-            spoonacular_id=333,
-            estimated_time=45,
-            image="http://example.com/meathamburger.jpg",
-            poster_id=cls.user,
-            created_at=cls.time,
-            description="This is a meat hamburger."
-        )
-
-    def test_find_by_spoonacular_id_existing(self):
-        self.assertTrue(Recipe.objects.filter(spoonacular_id=222).exists())
-        recipe = self.service.find_by_spoonacular_id(222)
-        self.assertEqual(recipe.spoonacular_id, 222)
-        self.assertEqual(recipe.name, "Pork Hamburger")
-
-    @patch('requests.get')
-    def test_find_by_spoonacular_id_non_existing(self, mock_get):
-        pass
-
-    def test_find_by_name_existing(self):
-        self.assertTrue(Recipe.objects.filter(spoonacular_id=222).exists())
-        self.assertTrue(Recipe.objects.filter(spoonacular_id=333).exists())
-        recipes = self.service.find_by_name("Hamburger")
-        self.assertEqual(recipes.count(), 2)
-        self.assertEqual(recipes[0].name, "Pork Hamburger")
-        self.assertEqual(recipes[0].spoonacular_id, 222)
-        self.assertEqual(recipes[1].name, "Meat Hamburger")
-        self.assertEqual(recipes[1].spoonacular_id, 333)
-
-    @patch('requests.get')
-    def test_find_by_name_non_existing(self, mock_get):
-        pass
-
-    @patch('request.get')
-    def test_filter_recipe(self):
-        pass
-
-
-class GetDataSpoonacularTest(TestCase):
-    """Test the GetDataSpoonacular class."""
+    """Test the GetDataProxy class."""
 
     @classmethod
     def setUpTestData(cls):
         """Set up test data and mocks."""
-        cls.service = GetDataSpoonacular()
-        cls.user, _ = User.objects.get_or_create(username="Spoonacular")
+        cls.service = MagicMock(
+            spec=GetData)
+        cls.proxy = GetDataProxy(
+            service=cls.service)
+        cls.user = User.objects.create_user(
+            username="Spoonacular")
 
-    @patch('requests.get')
-    def test_find_by_spoonacular_id(self, mock_get):
-        """Test the find_by_spoonacular_id method on the GetDataSpoonacular."""
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = {
-            "id": 123456,
-            "title": "Mock Salad",
-            "image": "http://example.com/salad.jpg",
-            "readyInMinutes": 45,
-            "summary": "This is a mock salad.",
-            "extendedIngredients": [
-                {"id": 1, "name": "Mock Apple", "image": "apple.jpg",
-                 "measures": {"metric": {"amount": 2, "unitLong": "slice"}}}
-            ],
-            "equipment": [
-                {"name": "Mock Fork", "image": "fork.jpg"},
-                {"name": "Mock Bowl", "image": "bowl.jpg"}
-            ],
-            "diets": ["vegan", "keto"],
-            "nutrients": [
-                {"name": "Protein", "amount": 30, "unit": "grams"}
-            ],
-            "analyzedInstructions": [
-                {"steps": [{"step": "Mock do it"},
-                           {"step": "Mock do it again"},
-                           {"step": "Mock eat it"}]}
-            ]
-        }
-        recipe = self.service.find_by_spoonacular_id(123456)
-        self.assertEqual(recipe.spoonacular_id, 123456)
-        self.assertEqual(recipe.name, "Mock Salad")
-        self.assertEqual(recipe.image, "http://example.com/salad.jpg")
-        self.assertEqual(recipe.estimated_time, 45)
-        self.assertEqual(recipe.description, "This is a mock salad.")
-        self.assertEqual(recipe.poster_id, self.user)
-        self.assertTrue(Recipe.objects.filter(spoonacular_id=123456).exists())
+    def test_find_by_spoonacular_id_existing(self):
+        """Test finding a recipe by spoonacular_id when it exists in the database."""
+        Recipe.objects.create(
+            spoonacular_id=123456,
+            name='Mock Salad',
+            image='http://example.com/salad.jpg',
+            estimated_time=45,
+            description='This is a mock salad.',
+            poster_id=self.user
+        )
+        self.service.find_by_spoonacular_id.return_value = None
+        found_recipe = self.proxy.find_by_spoonacular_id(123456)
+        self.assertIsNotNone(found_recipe)
+        self.assertEqual(found_recipe.spoonacular_id, 123456)
+        self.assertEqual(found_recipe.name, 'Mock Salad')
 
-    @patch('requests.get')
-    def test_find_by_name(self, mock_get):
-        """Test the find_by_name method on the GetDataSpoonacular."""
-        pass
+    @patch('webpage.modules.proxy.Recipe.objects.filter')
+    def test_find_by_spoonacular_id_non_existing(self, mock_filter):
+        """Test finding a recipe by spoonacular_id when it does not exist in the database."""
+        mock_filter.return_value.exists.return_value = False
+        mock_recipe = Recipe.objects.create(
+            spoonacular_id=123456,
+            name='Mock Salad',
+            image='http://example.com/salad.jpg',
+            estimated_time=45,
+            description='This is a mock salad.',
+            poster_id=self.user
+        )
+        self.service.find_by_spoonacular_id.return_value = mock_recipe
+        found_recipe = self.proxy.find_by_spoonacular_id(123456)
+        self.assertIsNotNone(found_recipe)
+        self.assertEqual(found_recipe.spoonacular_id, 123456)
+        self.assertEqual(found_recipe.name, 'Mock Salad')
 
-    @patch('request.get')
+    @patch('webpage.modules.proxy.Recipe.objects.filter')
+    def test_find_by_name_existing(self, mock_filter):
+        """Test finding recipes by name when they exist in the database."""
+        mock_qs = MagicMock(spec=Recipe.objects.all())
+        mock_recipe1 = Recipe.objects.create(
+            spoonacular_id=11,
+            name='Mock Pork Salad',
+            image='http://example.com/salad.jpg',
+            estimated_time=45,
+            description='This is a mock pork salad.',
+            poster_id=self.user
+        )
+        mock_recipe2 = Recipe.objects.create(
+            spoonacular_id=22,
+            name='Mock Meat Salad',
+            image='http://example.com/salad.jpg',
+            estimated_time=45,
+            description='This is a mock meat salad.',
+            poster_id=self.user
+        )
+        mock_qs.__iter__.return_value = iter([mock_recipe1, mock_recipe2])
+        mock_filter.return_value = mock_qs
+        facades = self.proxy.find_by_name("Salad")
+        self.assertEqual(len(facades), 2)
+        self.assertIsInstance(facades[0], RecipeFacade)
+        self.assertIsInstance(facades[1], RecipeFacade)
+        self.assertEqual(facades[0].get_recipe(), mock_recipe1)
+        self.assertEqual(facades[1].get_recipe(), mock_recipe2)
+
+    @patch('webpage.modules.proxy.Recipe.objects.filter')
+    def test_find_by_name_non_existing(self, mock_filter):
+        """Test finding recipes by name when they do not exist in the database."""
+        mock_filter.return_value.exists.return_value = False
+        recipe1 = Recipe.objects.create(
+            spoonacular_id=11,
+            name='Mock Pork Salad',
+            image='http://example.com/salad.jpg',
+            estimated_time=45,
+            description='This is a mock pork salad.',
+            poster_id=self.user)
+        recipe2 = Recipe.objects.create(
+            spoonacular_id=22,
+            name='Mock Meat Salad',
+            image='http://example.com/salad.jpg',
+            estimated_time=45,
+            description='This is a mock meat salad.',
+            poster_id=self.user
+        )
+        facade1 = RecipeFacade()
+        facade1.set_recipe(recipe1)
+        facade2 = RecipeFacade()
+        facade2.set_recipe(recipe2)
+        mock_facades = [facade1, facade2]
+        self.service.find_by_name.return_value = mock_facades
+        facades = self.proxy.find_by_name("Salad")
+        self.assertEqual(len(facades), 2)
+        self.assertEqual(facades[0].id, 11)
+        self.assertEqual(facades[0].name, 'Mock Pork Salad')
+        self.assertEqual(facades[1].id, 22)
+        self.assertEqual(facades[1].name, 'Mock Meat Salad')
+
     def test_filter_recipe(self):
-        pass
+        """Test filtering recipes."""
+        recipe1 = Recipe.objects.create(
+            spoonacular_id=153,
+            name='Pork Salad',
+            image='http://example.com/salad.jpg',
+            estimated_time=1,
+            description='This is a pork salad.',
+            poster_id=self.user
+        )
+        recipe2 = Recipe.objects.create(
+            spoonacular_id=1,
+            name='Meat Salad',
+            image='http://example.com/salad.jpg',
+            estimated_time=100,
+            description='This is a meat salad.',
+            poster_id=self.user
+        )
+        recipe3 = Recipe.objects.create(
+            spoonacular_id=220,
+            name='Meat Steak',
+            image='http://example.com/steak.jpg',
+            estimated_time=5,
+            description='This is a meat steak.',
+            poster_id=self.user
+        )
+        filter_param = FilterParam(
+            offset=1,
+            number=100,
+            maxReadyTime=0,
+        )
+        data_proxy = GetDataProxy(service=GetDataSpoonacular())
+        facades = data_proxy.filter_recipe(filter_param)
+        self.assertEqual(len(facades), 2)
 
-    @patch('request.get')
-    def test_get_django_filter(self):
-        pass
+
+
+
