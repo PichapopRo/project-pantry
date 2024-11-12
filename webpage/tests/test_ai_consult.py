@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from unittest import skip
 
+
 class AIConsultTest(TestCase):
     @classmethod
     def setUp(cls):
@@ -35,7 +36,7 @@ class AIConsultTest(TestCase):
         """Test the recipe in the case where GPT actually returns a valid data."""
         # Arrange
         mock_generate.return_value = '[{"name": "Alternative Cake 1", "description": "A healthier version of cake.", "amount":1.00,"unit":"thing"},' + \
-                                                '{"name": "Alternative Cake 2", "description": "A chocolate version of cake.","amount":1.00,"unit":"thing"}]'        
+            '{"name": "Alternative Cake 2", "description": "A chocolate version of cake.","amount":1.00,"unit":"thing"}]'
 
         ai_consult = AIRecipeAdvisor(self.recipe)
 
@@ -52,7 +53,7 @@ class AIConsultTest(TestCase):
         """Test for the case that GPT returns an invalid json object"""
         # Arrange
         mock_generate.return_value = '[{"name": "Alternative Cake 1", "descripti "A healthier version of cake."},' + \
-                                                '{"name": "Alternative Cake 2", "description": "A chocolate version of cake."}]'
+            '{"name": "Alternative Cake 2", "description": "A chocolate version of cake."}]'
 
         ai_consult = AIRecipeAdvisor(self.recipe)
 
@@ -65,7 +66,7 @@ class AIConsultTest(TestCase):
         """Test for the case that GPT returns an incorrectly strutured answer."""
         # Arrange
         mock_generate.return_value = '[{"title": "Alternative Cake 1", "desc": "A healthier version of cake."},' + \
-                                                '{"title": "Alternative Cake 2", "desc": "A chocolate version of cake."}]'
+            '{"title": "Alternative Cake 2", "desc": "A chocolate version of cake."}]'
 
         ai_consult = AIRecipeAdvisor(self.recipe)
 
@@ -77,16 +78,16 @@ class AIConsultTest(TestCase):
         """Test the check_output structure with a legit data"""
         ai_consult = AIRecipeAdvisor(self.recipe)
         correct_output = [
-            {"name": "Alternative Cake 1", "description": "A healthier version of cake.","amount":1.00,"unit":"thing"},
-            {"name": "Alternative Cake 2", "description": "A chocolate version of cake.","amount":1.00,"unit":"thing"}
-                          ]
+            {"name": "Alternative Cake 1", "description": "A healthier version of cake.", "amount": 1.00, "unit": "thing"},
+            {"name": "Alternative Cake 2", "description": "A chocolate version of cake.", "amount": 1.00, "unit": "thing"}
+        ]
         
         self.assertTrue(ai_consult.check_output_structure(correct_output))
         
     def test_check_output_structure_false(self):
         """Test the check_output method using poorly constructed data"""
         ai_consult = AIRecipeAdvisor(self.recipe)
-        incorrect_output = [{"title": "Alternative Cake 1", "desc": "A healthier version of cake.","amount":1.00,"unit":"thing"},
+        incorrect_output = [{"title": "Alternative Cake 1", "desc": "A healthier version of cake.", "amount": 1.00, "unit": "thing"},
                             {"title": "Alternative Cake 2", "desc": "A chocolate version of cake."}]
         
         self.assertFalse(ai_consult.check_output_structure(incorrect_output))
