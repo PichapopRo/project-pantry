@@ -1,0 +1,108 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        $.ajaxSetup({
+            headers: { 'X-CSRFToken': csrftoken }
+        });
+        
+        $('.favourite-btn').click(function(e) {
+            e.preventDefault();
+            let button = $(this);
+            let recipeId = button.data('recipe-id');
+            let favouriteCountElement = $('#favourite-count-' + recipeId);
+
+            $.ajax({
+                url: `/recipes/${recipeId}/toggle_favourite/`,
+                method: 'POST',
+                data: { csrfmiddlewaretoken: csrftoken },
+                success: function(response) {
+                    if (response.favourited) {
+                        button.text('Unfavourite');
+                        favouriteCountElement.text(parseInt(favouriteCountElement.text()) + 1);
+                    } else {
+                        button.text('Favourite');
+                        favouriteCountElement.text(parseInt(favouriteCountElement.text()) - 1);
+                        $('#recipe-card-' + recipeId).fadeOut();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(`Error: ${status} - ${error}`);
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+</head>
+<html>
+{% extends 'base.html' %}
+<body>
+{% block content %}
+{% if favourites %}
+        <div class="col my-3">
+            {% for favourite in favourites %}
+            <div class="card mb-3 mx-auto" id="recipe-card-{{ favourite.recipe.id }}">
+                <div class="card-body">
+                    <div class="row" style="max width = 400px">
+                        <div class="col-md-4">
+                            <img src="{{ favourite.recipe.image }}" class="img-fluid rounded-start" alt="{{ favourite.recipe.name }}">
+                        </div>
+                        <div class="col">
+                            <div class="col p-0 m-0">
+                                {% if favourite.recipe.get_difficulty == "Easy" %}
+                                <h4><a href="?difficulty=Easy" class="badge badge-pill badge-success">Easy</a></h4>
+                                {% elif favourite.recipe.get_difficulty == "Medium" %}
+                                <h4><a href="?difficulty=Medium" class="badge badge-pill badge-warning">Medium</a></h4>
+                                {% elif favourite.recipe.get_difficulty == "Hard" %}
+                                <h4><a href="?difficulty=Hard" class="badge badge-pill badge-danger">Hard</a></h4>
+                                {% endif %}
+                                <small>Favourites: <span class="favourite-count" id="favourite-count-{{ favourite.recipe.id }}">{{ favourite.recipe.favourite_set.count }}</span></small>
+                                {% if user.is_authenticated %}
+                                    <form method="post">
+                                    {% csrf_token %}
+                                <button class="btn btn-outline-primary favourite-btn" data-recipe-id="{{ favourite.recipe.id }}">
+                                    {% if favourite.recipe.id in favourite_ids %}
+                                        Unfavourite
+                                    {% else %}
+                                        Favourite
+                                    {% endif %}
+                                </button>
+                                    </form>
+                            {% else %}
+                                <p><a href="{% url 'login' %}">Log in to favourite this recipe</a></p>
+                            {% endif %}
+                            </div>
+                            <div class="col p-0 m-0">
+                                <h3 class="card-title">{{ favourite.recipe.name }}</h3>
+                                <small class="card-text">By: {{ favourite.recipe.poster_id.username }}</small>
+                                <p class="card-text my-2">{{ favourite.recipe.description|truncatechars:350 }}</p>
+                                <a href="{% url 'recipe' favourite.recipe.id %}" class="stretched-link"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

@@ -15,6 +15,7 @@ from webpage.forms import CustomRegisterForm
 from webpage.modules.builder import NormalRecipeBuilder
 from webpage.modules.image_to_url import upload_image_to_imgur
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
+from webpage.modules.filter_objects import FilterParam
 import random
 import json
 
@@ -102,36 +103,30 @@ class RecipeListView(generic.ListView):
         """Return recipes filtered by diet, ingredient, max cooking time, and limited by view_count."""
         view_count = self.request.session.get('view_count', 0)
         query = self.request.GET.get('query', '')
-        difficulty = self.request.GET.get('difficulty')
-        filtered_queryset = Recipe.objects.all()
-        recipe_filter = GetDataProxy(GetDataSpoonacular(), filtered_queryset)
         selected_diet = self.request.GET.get('diet')
         ingredient = self.request.GET.get('ingredient')
-        estimated_time = self.request.GET.get('estimated_time')
+        estimated_time = self.request.GET.get('estimated_time', 9999)
         equipment = self.request.GET.get('equipment')
-        if query:
-            filtered_queryset = recipe_filter.find_by_name(query)
-        if selected_diet:
-            filtered_queryset = recipe_filter.filter_by_diet(selected_diet)
-        if ingredient:
-            filtered_queryset = filtered_queryset.intersection(
-                recipe_filter.filter_by_ingredient(ingredient))
-        if equipment:
-            filtered_queryset = filtered_queryset.intersection(
-                recipe_filter.filter_by_equipment(equipment))
-        if estimated_time:
-            try:
-                estimated_time = int(estimated_time)  # Convert to int
-                filtered_queryset = filtered_queryset.intersection(
-                    recipe_filter.filter_by_max_cooking_time(estimated_time))
-            except ValueError:
-                pass
-        if difficulty:
-            filtered_queryset = recipe_filter.filter_by_difficulty(difficulty)
-        return filtered_queryset[:view_count]
+        filter_params = FilterParam(
+            offset=1,
+            number=view_count,
+            includeIngredients=[ingredient] if ingredient else [],
+            equipment=[equipment] if equipment else [],
+            diet=[selected_diet] if selected_diet else [],
+            maxReadyTime=int(estimated_time) if estimated_time else 9999,
+            titleMatch=query
+        )
+        recipe_filter = GetDataProxy(GetDataSpoonacular())
+        filtered_recipes = recipe_filter.filter_recipe(filter_params)
+        recipe_list = [facade.get_recipe() for facade in filtered_recipes]
+        return recipe_list[:view_count]
 
     def post(self, request, *args, **kwargs):
-        """Handle POST request to increment view_count."""
+        """
+        Handle POST request to increment view_count.
+
+        :param request: HttpRequest from the server.
+        """
         if 'increment' in request.POST:
             increment = int(request.POST.get('increment', 0))
             request.session['view_count'] = request.session.get('view_count', 0) + increment
@@ -153,10 +148,10 @@ class RecipeListView(generic.ListView):
         context['button_clicked'] = self.request.session.pop('button_clicked',
                                                              False)
         if self.request.user.is_authenticated:
-            context['user_favorites'] = Favourite.objects.filter(
+            context['user_favourites'] = Favourite.objects.filter(
                 user=self.request.user).values_list('recipe_id', flat=True)
         else:
-            context['user_favorites'] = []
+            context['user_favourites'] = []
 
         return context
 
@@ -167,6 +162,13 @@ class RecipeView(generic.DetailView):
     template_name = 'recipes/description.html'
     model = Recipe
     context_object_name = 'recipe'
+
+    def get_context_data(self, **kwargs):
+        """Add steps directly from RecipeStep model to the context."""
+        context = super().get_context_data(**kwargs)
+        recipe = self.get_object()
+        context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
+        return context
 
 
 class StepView(generic.DetailView):
@@ -184,7 +186,11 @@ class StepView(generic.DetailView):
 
 
 def random_recipe_view(request):
-    """Redirects the user to a random recipe detail page."""
+    """
+    Redirects the user to a random recipe detail page.
+
+    :param request: Request from the server.
+    """
     recipe_count = Recipe.objects.count()
     if recipe_count > 0:
         random_index = random.randint(0, recipe_count - 1)
@@ -196,9 +202,9 @@ def random_recipe_view(request):
 
 
 @login_required
-def toggle_favorite(request, recipe_id):
+def toggle_favourite(request, recipe_id):
     """
-    Toggle favorite of a recipe.
+    Toggle favourite of a recipe.
 
     :param request: Request from the server.
     :param recipe_id: Recipe ID.
@@ -206,12 +212,12 @@ def toggle_favorite(request, recipe_id):
     try:
         recipe = Recipe.objects.get(id=recipe_id)
         user = request.user
-        favorite, created = Favourite.objects.get_or_create(recipe=recipe, user=user)
+        favourite, created = Favourite.objects.get_or_create(recipe=recipe, user=user)
         if created:
-            return JsonResponse({'favorited': True})
+            return JsonResponse({'favourited': True})
         else:
-            favorite.delete()
-            return JsonResponse({'favorited': False})
+            favourite.delete()
+            return JsonResponse({'favourited': False})
     except Recipe.DoesNotExist:
         return JsonResponse({'error': 'Recipe not found'}, status=404)
 
@@ -378,3 +384,22 @@ class AddRecipeView(generic.CreateView):
             return amount, name
         else:
             return 1, equipment_entry
+
+          
+class UserPageView(generic.ListView):
+    """UserPageView view."""
+
+    model = Favourite
+    template_name = "user_page.html"
+    context_object_name = "favourites"  # Name for use in the template
+
+    def get_queryset(self):
+        """Return user favourite recipe."""
+        return Favourite.objects.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        """Extend the context data to include the IDs of the user's favourite recipes."""
+        context = super().get_context_data(**kwargs)
+        favourite_ids = [f.recipe.id for f in context["favourites"]]
+        context["favourite_ids"] = favourite_ids
+        return context
