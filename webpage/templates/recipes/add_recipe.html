@@ -187,6 +187,11 @@
             document.getElementById("steps_data").value = JSON.stringify(steps);
             document.getElementById("stepOL").innerHTML = steps.map(stp => `<li>${stp} <span onclick="removeStep('${stp}')">×</span></li>`).join('');
         }
+        $('#recipe-form input').on('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    });
 
         $(document).ready(function () {
     $('#recipe-form').on('submit', function (event) {
