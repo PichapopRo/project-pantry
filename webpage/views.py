@@ -18,6 +18,10 @@ from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 from webpage.modules.filter_objects import FilterParam
 import random
 import json
+import logging
+
+
+logger = logging.getLogger("Builder")
 
 
 def register_view(request):
@@ -301,7 +305,7 @@ class AddRecipeView(generic.CreateView):
                     ingredient, _ = Ingredient.objects.get_or_create(name=name)
                     builder.build_ingredient(ingredient=ingredient, amount=amount, unit=unit)
                 except Exception as e:
-                    print(f"Error parsing ingredient '{ingredient_entry}': {e}")
+                    logger.error(f"Error parsing ingredient '{ingredient_entry}': {e}")
 
     def process_diets(self, builder: NormalRecipeBuilder):
         """
@@ -317,7 +321,7 @@ class AddRecipeView(generic.CreateView):
                     diet, created = Diet.objects.get_or_create(name=diet_name)
                     builder.build_diet(diet)
             except Exception as e:
-                print(f"Error parsing diets '{diets_data}': {e}")
+                logger.error(f"Error parsing diets '{diets_data}': {e}")
         custom_diet_name = self.request.POST.get('custom_diet')
         if custom_diet_name:
             try:
@@ -325,11 +329,11 @@ class AddRecipeView(generic.CreateView):
                     name=custom_diet_name)
                 builder.build_diet(custom_diet)
                 if created:
-                    print(f"Created and added custom diet: {custom_diet.name}")
+                    logger.debug(f"Created and added custom diet: {custom_diet.name}")
                 else:
-                    print(f"Added existing diet: {custom_diet.name}")
+                    logger.debug(f"Added existing diet: {custom_diet.name}")
             except IntegrityError:
-                print(
+                logger.error(
                     f"Failed to add custom diet: {custom_diet_name} due to IntegrityError")
 
     def process_equipments(self, builder: NormalRecipeBuilder):
@@ -347,7 +351,7 @@ class AddRecipeView(generic.CreateView):
                     equipment, _ = Equipment.objects.get_or_create(name=name)
                     builder.build_equipment(equipment=equipment)
                 except Exception as e:
-                    print(f"Error parsing equipment '{equipment_entry}': {e}")
+                    logger.error(f"Error parsing equipment '{equipment_entry}': {e}")
 
     def process_steps(self, builder: NormalRecipeBuilder):
         """
@@ -362,7 +366,7 @@ class AddRecipeView(generic.CreateView):
                 try:
                     builder.build_step(step_entry)
                 except Exception as e:
-                    print(f"Error adding step '{step_entry}': {e}")
+                    logger.error(f"Error adding step '{step_entry}': {e}")
 
     def parse_ingredient_input(self, ingredient_entry):
         """Parse the ingredient input string and return amount, unit, and name."""
