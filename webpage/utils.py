@@ -1,6 +1,8 @@
 """This module contains functionality related to awarding badges to users."""
 from webpage.models import Recipe
 from decouple import config
+from django.contrib.auth import login as auth_login
+from django.conf import settings
 
 
 def award_chef_badge(user):
@@ -16,3 +18,11 @@ def award_chef_badge(user):
     if approved_recipe_count >= chef_badge_approved_amount:
         user.profile.chef_badge = True
         user.profile.save()
+
+
+def login_with_backend(request, user, backend=None):
+    if backend is None:
+        # Use the primary backend if not explicitly provided
+        backend = settings.AUTHENTICATION_BACKENDS[0]
+    user.backend = backend
+    auth_login(request, user)

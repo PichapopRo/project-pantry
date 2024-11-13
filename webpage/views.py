@@ -9,6 +9,7 @@ from django.contrib.auth import login, logout, authenticate
 from webpage.forms import CustomRegisterForm
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 from webpage.modules.filter_objects import FilterParam
+from webpage.utils import login_with_backend
 import random
 
 
@@ -38,7 +39,7 @@ def register_view(request):
             user = form.save(commit=False)
             user.set_password(password)
             user.save()
-            login(request, user)
+            login_with_backend(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('recipe_list')
         else:
             # Display validation errors from the form
