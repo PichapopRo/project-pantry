@@ -192,6 +192,9 @@
         $(document).ready(function () {
     $('#recipe-form').on('submit', function (event) {
         event.preventDefault();
+        const submitButton = $(this).find('button[type="submit"]');
+        submitButton.prop('disabled', true).text('Processing...');
+
         let formData = new FormData(this);
         $.ajax({
             type: 'POST',
@@ -206,6 +209,7 @@
             error: function (xhr) {
                 let errorMessage = xhr.responseJSON ? xhr.responseJSON.errors : "An error occurred. Please try again.";
                 alert("Error: " + JSON.stringify(errorMessage));
+                submitButton.prop('enable', false).text('Submit Recipe');
             }
         });
     });
