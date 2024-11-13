@@ -21,8 +21,14 @@ def award_chef_badge(user):
 
 
 def login_with_backend(request, user, backend=None):
+    """
+    Handle when user trying to register with the Google all-auth.
+
+    :param request: The request object.
+    :param user: The user to register.
+    :param backend: The backend to use.
+    """
     if backend is None:
-        # Use the primary backend if not explicitly provided
         backend = settings.AUTHENTICATION_BACKENDS[0]
     user.backend = backend
     auth_login(request, user)
