@@ -21,7 +21,7 @@ import json
 import logging
 
 
-logger = logging.getLogger("Builder")
+logger = logging.getLogger("Views")
 
 
 def register_view(request):
