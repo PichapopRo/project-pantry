@@ -353,10 +353,19 @@ class SpoonacularRecipeBuilder(Builder):
         Raise an Exeption if the recipe cannot be found.
         """
         self.__call_api()
+        image = self.__data["image"]
+        estimated_time = self.__data["readyInMinutes"]
+        summary = self.__data["summary"]
+
+        if not image or not estimated_time or not summary:
+            self.__builder.build_recipe().delete()
+            logger.warning("Incomplete recipe data from Spoonacular API. Recipe removed.")
+            return
         self.__builder.build_details(image=self.__data["image"])
         self.__builder.build_details(estimated_time=self.__data["readyInMinutes"])
         cleaned_description = self.__strip_html(self.__data["summary"])
         self.__builder.build_details(description=cleaned_description)
+        self.__builder.build_details(status='Approved')
 
     def build_name(self):
         """
