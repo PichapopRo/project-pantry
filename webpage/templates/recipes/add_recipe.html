@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<html lang="en">
+{% extends 'base.html' %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add new recipe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+{% block content %}
+<form id="recipe-form" method="POST" action="{% url 'add_recipe' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card border-0">
+                    <h2 class="card-title mt-3 mx-auto">About</h2>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Vegetable Lasagna" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Wholesome, hearty winter lasagna recipe." required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="estimated_time" class="form-label">Estimated Time (in minutes)</label>
+                                    <input type="number" class="form-control" id="estimated_time" name="estimated_time" placeholder="15" required>
+                                </div>
+                                <div class="mb-3">
+                                <label class="form-label">Select Diet Restrictions</label>
+                                <div id="diet-buttons mb">
+                                    {% for diet in diets %}
+                                        <button type="button" class="btn btn-outline-secondary diet-btn mb-2" data-diet="{{ diet.name }}">
+                                            {{ diet.name }}
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="custom_diet" class="form-label">Add Custom Diet Restriction</label>
+                                    <input type="text" id="custom_diet" name="custom_diet" class="form-control" placeholder="Enter custom diet">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="photos" class="form-label">Photos </label> <br>
+                                    <input type="file" id="file-upload" name="photo" accept="image/*" onchange="previewImage(event);" />
+                                    <div class="image-preview-container">
+                                        <img id="preview-selected-image" alt="Can't preview" style="display:none;">
+                                    </div>
+                                    <script>
+                                        const previewImage = (event) => {
+                                            const imageFiles = event.target.files;
+                                            if (imageFiles.length > 0) {
+                                                document.querySelector("#preview-selected-image").src = URL.createObjectURL(imageFiles[0]);
+                                                document.querySelector("#preview-selected-image").style.display = "block";
+                                            }
+                                        };
+                                    </script>
+                                </div>
+                            </div>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Ingredients Section -->
+                                <div class="mb-3">
+                                    <label for="ingredients" class="form-label">Ingredients</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="ingredients" placeholder="1 cup white flour">
+                                        <button type="button" class="btn btn-outline-success" onclick="newIngredient()">
+                                            <i class="bi bi-plus"></i> Add ingredient
+                                        </button>
+                                    </div>
+                                    <ul id="ingredientUL"></ul>
+                                </div>
+                                <!-- Equipment Section -->
+                                <div class="mb-3">
+                                    <label for="equipment" class="form-label">Equipment</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="equipment" placeholder="Oven">
+                                        <button type="button" class="btn btn-outline-success" onclick="newEquipment()">
+                                            <i class="bi bi-plus"></i> Add equipment
+                                        </button>
+                                    </div>
+                                    <ul id="equipmentUL"></ul>
+                                </div>
+
+                                <!-- Steps Section -->
+                                <div class="mb-3">
+                                    <label for="steps" class="form-label">Steps</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="steps" placeholder="Wash and dice the carrots">
+                                        <button type="button" class="btn btn-outline-success" onclick="newStep()">
+                                            <i class="bi bi-plus"></i> Add step
+                                        </button>
+                                    </div>
+                                    <ol id="stepOL"></ol>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary bottom-0 end-0">Submit Recipe</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="ingredients_data" id="ingredients_data">
+    <input type="hidden" name="equipment_data" id="equipment_data">
+    <input type="hidden" name="steps_data" id="steps_data">
+    <input type="hidden" name="diets_data" id="diets_data">
+    <script>
+        const ingredients = [];
+        const equipment = [];
+        const steps = [];
+        const selectedDiets = [];
+        document.querySelectorAll('.diet-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const dietName = this.getAttribute('data-diet');
+                if (selectedDiets.includes(dietName)) {
+                    selectedDiets.splice(selectedDiets.indexOf(dietName), 1);
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-outline-secondary');
+                } else {
+                    selectedDiets.push(dietName);
+                    this.classList.add('btn-success');
+                    this.classList.remove('btn-outline-secondary');
+                }
+                document.getElementById('diets_data').value = JSON.stringify(selectedDiets);
+            });
+        });
+
+        function newIngredient() {
+            const inputValue = document.getElementById("ingredients").value;
+            if (inputValue) {
+                ingredients.push(inputValue);
+                document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
+                document.getElementById("ingredientUL").innerHTML += `<li>${inputValue} <span onclick="removeIngredient('${inputValue}')">×</span></li>`;
+                document.getElementById("ingredients").value = '';
+            } else {
+                alert("Add your ingredient first!");
+            }
+        }
+
+        function newEquipment() {
+            const inputValue = document.getElementById("equipment").value;
+            if (inputValue) {
+                equipment.push(inputValue);
+                document.getElementById("equipment_data").value = JSON.stringify(equipment);
+                document.getElementById("equipmentUL").innerHTML += `<li>${inputValue} <span onclick="removeEquipment('${inputValue}')">×</span></li>`;
+                document.getElementById("equipment").value = '';
+            } else {
+                alert("Add your equipment first!");
+            }
+        }
+
+        function newStep() {
+            const inputValue = document.getElementById("steps").value;
+            if (inputValue) {
+                steps.push(inputValue);
+                document.getElementById("steps_data").value = JSON.stringify(steps);
+                document.getElementById("stepOL").innerHTML += `<li>${inputValue} <span onclick="removeStep('${inputValue}')">×</span></li>`;
+                document.getElementById("steps").value = '';
+            } else {
+                alert("Add your step first!");
+            }
+        }
+
+        function removeIngredient(value) {
+            ingredients.splice(ingredients.indexOf(value), 1);
+            document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
+            document.getElementById("ingredientUL").innerHTML = ingredients.map(ing => `<li>${ing} <span onclick="removeIngredient('${ing}')">×</span></li>`).join('');
+        }
+
+        function removeEquipment(value) {
+            equipment.splice(equipment.indexOf(value), 1);
+            document.getElementById("equipment_data").value = JSON.stringify(equipment);
+            document.getElementById("equipmentUL").innerHTML = equipment.map(eq => `<li>${eq} <span onclick="removeEquipment('${eq}')">×</span></li>`).join('');
+        }
+
+        function removeStep(value) {
+            steps.splice(steps.indexOf(value), 1);
+            document.getElementById("steps_data").value = JSON.stringify(steps);
+            document.getElementById("stepOL").innerHTML = steps.map(stp => `<li>${stp} <span onclick="removeStep('${stp}')">×</span></li>`).join('');
+        }
+        $('#recipe-form input').on('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    });
+
+        $(document).ready(function () {
+    $('#recipe-form').on('submit', function (event) {
+        event.preventDefault();
+        const submitButton = $(this).find('button[type="submit"]');
+        submitButton.prop('disabled', true).text('Processing...');
+
+        let formData = new FormData(this);
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                alert("Recipe submitted successfully!");
+                window.location.href = '/recipes/';
+            },
+            error: function (xhr) {
+                let errorMessage = xhr.responseJSON ? xhr.responseJSON.errors : "An error occurred. Please try again.";
+                alert("Error: " + JSON.stringify(errorMessage));
+                submitButton.prop('enable', false).text('Submit Recipe');
+            }
+        });
+    });
+});
+
+    </script>
+</form>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+</body>
+</html>
