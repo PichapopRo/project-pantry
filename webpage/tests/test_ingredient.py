@@ -10,7 +10,7 @@ class IngredientModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Create a test diet before each test."""
-        cls.ingredient, _ = Ingredient.objects.get_or_create(
+        cls.ingredient = Ingredient.objects.create(
             name="Tomato",
             spoonacular_id=123,
             picture="http://example.com/tomato.jpg"
