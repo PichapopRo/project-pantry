@@ -70,20 +70,43 @@
 
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
       <div class="offcanvas-header">
-        <h5 id="offcanvasRightLabel">Filter</h5>
+        <h5 id="offcanvasRightLabel">Filter Recipes</h5>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
       <div class="offcanvas-body">
         <form method="get">
-        <select class= "btn form-control" name="diet" id="diet">
-            <option value="">All Diets</option>
+        <p class="form-label">Select Diet Restrictions</p>
             {% for diet in diets %}
-            <option value="{{ diet.name }}" {% if diet.name == selected_diet %}selected{% endif %}>{{ diet.name }}</option>
+                <button type="button" class="btn btn-outline-secondary diet-btn mb-2" data-diet="{{ diet.name }}">
+                    {{ diet.name }}
+                </button>
             {% endfor %}
-        </select>
-            <input type="number" min="0" class="form-control mt-2" name="estimated_time" id="estimated_time" value="{{ estimated_time }}" placeholder="Estimated time">
-                <input type="text" class="form-control mt-2" name="ingredient" id="ingredient" value="{{ selected_ingredient }}" placeholder="Ingredient">
-                <input type="text" class="form-control mt-2" name="equipment" id="equipment" value="{{ selected_equipment }}" placeholder="Equipment">
+        <p class="form-label">Estimate time</p>
+            <input type="number" min="0" class="form-control mt-2" name="estimated_time" id="estimated_time" value="{{ estimated_time }}" placeholder="30">
+                <label for="ingredients" class="form-label mt-2">Ingredients</label><br>
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon1"><i class="bi bi-plus-circle"></i></span>
+                            <input type="text" class="form-control" id="ingredients" placeholder="Include ingredients">
+                            <button type="button" class="btn btn-outline-success" onclick="newIngredient()">
+                                 Add ingredient
+                            </button>
+                        </div>
+                        <div class="input-group mt-3">
+                            <span class="input-group-text" id="basic-addon1"><i class="bi bi-x-circle"></i></span>
+                            <input type="text" class="form-control" id="ingredients" placeholder="Exclude ingredients">
+                            <button type="button" class="btn btn-outline-success" onclick="newIngredient()">
+                                 Add ingredient
+                            </button>
+                        </div>
+                        <ul id="ingredientUL"></ul>
+                <label for="equipment" class="form-label">Equipment</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="equipment" placeholder="Oven">
+                            <button type="button" class="btn btn-outline-success" onclick="newEquipment()">
+                                <i class="bi bi-plus"></i> Add equipment
+                            </button>
+                        </div>
+                        <ul id="equipmentUL"></ul>
         <button class="btn btn-success border-start-0 border rounded-left form-control mt-2" type="submit"> Search
     </button>
       </form>
@@ -141,6 +164,29 @@
         {% endif %}
     </form>
 </div>
+<script>
+        const ingredients = [];
+        const equipment = [];
+        function newIngredient() {
+            const inputValue = document.getElementById("ingredients").value;
+            if (inputValue) {
+                ingredients.push(inputValue);
+                document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
+                document.getElementById("ingredientUL").innerHTML += `<li>${inputValue} <span onclick="removeIngredient('${inputValue}')">×</span></li>`;
+                document.getElementById("ingredients").value = '';
+            }
+        }
+
+        function newEquipment() {
+            const inputValue = document.getElementById("equipment").value;
+            if (inputValue) {
+                equipment.push(inputValue);
+                document.getElementById("equipment_data").value = JSON.stringify(equipment);
+                document.getElementById("equipmentUL").innerHTML += `<li>${inputValue} <span onclick="removeEquipment('${inputValue}')">×</span></li>`;
+                document.getElementById("equipment").value = '';
+            }
+        }
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
 </body>
