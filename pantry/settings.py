@@ -39,12 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites'
-    'webpage.apps.WebpageConfig',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+    'webpage.apps.WebpageConfig'
 ]
 
 MIDDLEWARE = [
@@ -133,3 +128,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+IMGUR_CLIENT_ID = config("IMGUR_CLIENT_ID", default='Your imgur client ID',
+                         cast=str)
