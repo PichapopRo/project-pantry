@@ -1,4 +1,4 @@
-"""Tests for the model and model."""
+"""Tests for the GetDataProxy class and GetDataSpoonacular class."""
 from django.test import TestCase
 from unittest.mock import patch, MagicMock
 from django.contrib.auth.models import User

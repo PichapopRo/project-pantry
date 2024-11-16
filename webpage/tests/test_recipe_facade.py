@@ -1,4 +1,4 @@
-"""Tests for the RecipeFacade model."""
+"""Tests for the RecipeFacade class."""
 from django.test import TestCase
 from webpage.models import Recipe, Favourite
 from django.contrib.auth.models import User
