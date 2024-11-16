@@ -1,15 +1,27 @@
 """The view handles the requests and handling data to the webpage."""
+from decimal import Decimal
+import re
+
 from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
 from django.http import JsonResponse
 from django.views import generic
-from webpage.models import Recipe, Diet, RecipeStep, Favourite
+from pantry import settings
+from webpage.models import Recipe, Diet, RecipeStep, Favourite, Ingredient, Equipment
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from webpage.forms import CustomRegisterForm
+from webpage.modules.builder import NormalRecipeBuilder
+from webpage.modules.image_to_url import upload_image_to_imgur
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 from webpage.modules.filter_objects import FilterParam
 import random
+import json
+import logging
+
+
+logger = logging.getLogger("Views")
 
 
 def register_view(request):
@@ -58,7 +70,7 @@ def login_view(request):
     :param request: Request from the server.
     """
     if request.user.is_authenticated:
-        return redirect('recipe_list')  # Redirect if already logged in
+        return redirect('recipe_list')
 
     if request.method == "POST":
         username = request.POST.get('username')
@@ -214,6 +226,170 @@ def toggle_favourite(request, recipe_id):
         return JsonResponse({'error': 'Recipe not found'}, status=404)
 
 
+class AddRecipeView(generic.CreateView):
+    """View for adding recipe page."""
+
+    model = Recipe
+    fields = ['name', 'description', 'estimated_time', 'image']
+    template_name = 'recipes/add_recipe.html'
+    success_url = '/recipes/'
+
+    def get_context_data(self, **kwargs):
+        """
+        Get diet context from the existing diet.
+
+        :return context: Return existing diet model context to use in html.
+        """
+        context = super().get_context_data(**kwargs)
+        context['diets'] = Diet.objects.all()
+
+        return context
+
+    def form_valid(self, form):
+        """
+        Process the submitted recipe form, including details, image upload, ingredients, diets, equipment, and steps.
+
+        :param form: The RecipeForm instance containing validated data for
+        creating a new recipe.
+        :return JsonResponse: A JSON response indicating the success
+        of the recipe creation.
+        """
+        builder = NormalRecipeBuilder(name=form.cleaned_data['name'], user=self.request.user)
+        self.process_detail(builder, form)
+        self.process_image(builder, form)
+        self.process_ingredients(builder)
+        self.process_diets(builder)
+        self.process_equipments(builder)
+        self.process_steps(builder)
+        builder.build_recipe().save()
+        return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
+
+    def process_detail(self, builder: NormalRecipeBuilder, form):
+        """
+        Process the detail data of the recipe.
+
+        :param builder: Recipe Builder instance.
+        :param form: The RecipeForm instance containing validated data.
+        """
+        builder.build_details(
+            description=form.cleaned_data['description'],
+        )
+        builder.build_details(estimated_time=form.cleaned_data['estimated_time'])
+
+    def process_image(self, builder: NormalRecipeBuilder, form):
+        """
+        Process the image data of the recipe.
+
+        :param builder: Recipe Builder instance.
+        :param form: The RecipeForm instance containing validated data.
+        """
+        image = form.files.get('photo')
+        if image:
+            client_id = settings.IMGUR_CLIENT_ID
+            image_url = upload_image_to_imgur(image, client_id)
+            if image_url:
+                builder.build_details(image=image_url)
+
+    def process_ingredients(self, builder: NormalRecipeBuilder):
+        """
+        Process the ingredients data page of the recipe.
+
+        :param builder: Recipe Builder instance.
+        """
+        ingredients_data = self.request.POST.get('ingredients_data')
+        if ingredients_data:
+            ingredients = json.loads(ingredients_data)
+            for ingredient_entry in ingredients:
+                try:
+                    amount, unit, name = self.parse_ingredient_input(ingredient_entry)
+                    ingredient, _ = Ingredient.objects.get_or_create(name=name)
+                    builder.build_ingredient(ingredient=ingredient, amount=amount, unit=unit)
+                except Exception as e:
+                    logger.error(f"Error parsing ingredient '{ingredient_entry}': {e}")
+
+    def process_diets(self, builder: NormalRecipeBuilder):
+        """
+        Process the diets data of the recipe.
+
+        :param builder: Recipe Builder instance.
+        """
+        diets_data = self.request.POST.get('diets_data')
+        if diets_data:
+            try:
+                diet_names = json.loads(diets_data)
+                for diet_name in diet_names:
+                    diet, created = Diet.objects.get_or_create(name=diet_name)
+                    builder.build_diet(diet)
+            except Exception as e:
+                logger.error(f"Error parsing diets '{diets_data}': {e}")
+        custom_diet_name = self.request.POST.get('custom_diet')
+        if custom_diet_name:
+            try:
+                custom_diet, created = Diet.objects.get_or_create(
+                    name=custom_diet_name)
+                builder.build_diet(custom_diet)
+                if created:
+                    logger.debug(f"Created and added custom diet: {custom_diet.name}")
+                else:
+                    logger.debug(f"Added existing diet: {custom_diet.name}")
+            except IntegrityError:
+                logger.error(
+                    f"Failed to add custom diet: {custom_diet_name} due to IntegrityError")
+
+    def process_equipments(self, builder: NormalRecipeBuilder):
+        """
+        Process the equipments of the recipe.
+
+        :param builder: Recipe Builder instance.
+        """
+        equipments_data = self.request.POST.get('equipment_data')
+        if equipments_data:
+            equipments = json.loads(equipments_data)
+            for equipment_entry in equipments:
+                try:
+                    amount, name = self.parse_equipment_input(equipment_entry)
+                    equipment, _ = Equipment.objects.get_or_create(name=name)
+                    builder.build_equipment(equipment=equipment)
+                except Exception as e:
+                    logger.error(f"Error parsing equipment '{equipment_entry}': {e}")
+
+    def process_steps(self, builder: NormalRecipeBuilder):
+        """
+        Process the steps data of the recipe.
+
+        :param builder: Recipe Builder instance.
+        """
+        steps_data = self.request.POST.get('steps_data')
+        if steps_data:
+            steps = json.loads(steps_data)
+            for step_entry in steps:
+                try:
+                    builder.build_step(step_entry)
+                except Exception as e:
+                    logger.error(f"Error adding step '{step_entry}': {e}")
+
+    def parse_ingredient_input(self, ingredient_entry):
+        """Parse the ingredient input string and return amount, unit, and name."""
+        match = re.match(r'(\d+(?:\.\d+)?)\s+([a-zA-Z]+)\s+(.+)', ingredient_entry)
+        if match:
+            amount = Decimal(match.group(1))
+            unit = match.group(2)
+            name = match.group(3)
+            return amount, unit, name
+        else:
+            return Decimal(1), "", ingredient_entry
+
+    def parse_equipment_input(self, equipment_entry):
+        """Parse the equipment input string and return amount and name."""
+        match = re.match(r'(\d+(?:\.\d+)?)\s+(.+)', equipment_entry)
+        if match:
+            amount = int(match.group(1))
+            name = match.group(2)
+            return amount, name
+        else:
+            return 1, equipment_entry
+
+          
 class UserPageView(generic.ListView):
     """UserPageView view."""
 
