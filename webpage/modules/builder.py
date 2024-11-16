@@ -357,7 +357,7 @@ class SpoonacularRecipeBuilder(Builder):
         estimated_time = self.__data["readyInMinutes"]
         summary = self.__data["summary"]
 
-        if not image or not estimated_time or not summary:
+        if not image or not image.strip() or not estimated_time or estimated_time == 0 or not summary or not summary.strip():
             self.__builder.build_recipe().delete()
             logger.warning("Incomplete recipe data from Spoonacular API. Recipe removed.")
             return
@@ -460,14 +460,6 @@ class SpoonacularRecipeBuilder(Builder):
                 amount=nutrition_data['amount'],
                 unit=nutrition_data['unit'],
             )
-
-    def build_user(self, user: User):  # Bad code to be remove
-        """
-        Build the user which is the author of the recipe.
-
-        :param user: The user that is the author of the recipe.
-        """
-        pass
 
     def build_spoonacular_id(self):
         """Build the Spoonacular ID for the Recipe class."""
