@@ -3,7 +3,7 @@ from openai import OpenAI
 from typing import Any
 from decouple import config
 
-client = OpenAI(api_key=config("OPENAI_APIKEY"))
+client = OpenAI(api_key=config("OPENAI_APIKEY", default="Fake-API-key"))
 
 
 class GPTHandler:
