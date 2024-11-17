@@ -2,7 +2,6 @@
 
 from typing import Any
 from abc import ABC, abstractmethod
-import abc
 from django.db.models import QuerySet
 from webpage.models import Recipe
 import requests
@@ -56,8 +55,7 @@ class GetData(ABC):
     @abstractmethod
     def convert_parameter(cls, param: FilterParam) -> Any:
         """
-        Deals with converting the FilterParam class's parameter into the one that
-        that class can use.
+        Deals with converting the FilterParam class's parameter into the one that class can use.
         
         :param param: The FilterParam class that you want to convert.
         :return: The parameter that the class can use.
@@ -298,8 +296,7 @@ class GetDataSpoonacular(GetData):
     @classmethod
     def convert_parameter(cls, param: FilterParam) -> Any:
         """
-        Deals with converting the FilterParam class's parameter into the one that
-        that class can use.
+        Deals with converting the FilterParam class's parameter into the one that class can use.
         
         :param param: The FilterParam class that you want to convert.
         :return: The parameter that the class can use.
