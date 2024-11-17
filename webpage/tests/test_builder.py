@@ -1,4 +1,4 @@
-"""Tests for the NormalRecipeBuilder model and SpoonacularRecipeBuilder model."""
+"""Tests for the NormalRecipeBuilder class and SpoonacularRecipeBuilder class."""
 from unittest.mock import patch, MagicMock
 from django.contrib.auth.models import User
 from django.test import TestCase

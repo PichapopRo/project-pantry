@@ -15,7 +15,11 @@ class RecipeFacade():  # Shot gun
     
     def __init__(self):
         """Initialize the class."""
-        self.__recipe: Recipe | None = None
+        self.__recipe = None
+        self.image = None
+        self.name = None
+        self.id = None
+        self.favorite = None
     
     def set_recipe(self, recipe: Recipe):
         """
@@ -29,7 +33,7 @@ class RecipeFacade():  # Shot gun
         self.id = recipe.spoonacular_id
         self.favorite = recipe.favourites
     
-    def set_by_spoonacular(self, name: str, _id: str, image: str | None):
+    def set_by_spoonacular(self, name: str, _id: int, image: str | None):
         """
         Set up the class using newly-fetched recipe.
         
