@@ -109,9 +109,9 @@ class RecipeListView(generic.ListView):
             titleMatch=query
         )
         recipe_filter = GetDataProxy(GetDataSpoonacular())
-        filtered_recipes = recipe_filter.filter_recipe(filter_params)
-        recipe_list = [facade.get_recipe() for facade in filtered_recipes]
-        return recipe_list[:view_count]
+        recipe_list = recipe_filter.filter_recipe(filter_params)
+        print(recipe_list)
+        return recipe_list
 
     def post(self, request, *args, **kwargs):
         """
