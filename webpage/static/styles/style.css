@@ -64,3 +64,8 @@ cursor: pointer;
 .favourite-btn {
 z-index: 1;
 }
+.image-preview-container
+{
+    width: 180px;
+    height: 285px;
+}
