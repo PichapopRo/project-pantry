@@ -1,6 +1,8 @@
 """This module saves the data fetched from the API into the database if it doesn't exists."""
 
+from typing import Any
 from abc import ABC, abstractmethod
+import abc
 from django.db.models import QuerySet
 from webpage.models import Recipe
 import requests
@@ -11,7 +13,6 @@ from webpage.modules.builder import SpoonacularRecipeBuilder
 import logging
 API_KEY = config('API_KEY')
 logger = logging.getLogger("proxy class")
-from typing import Any
 
 
 class GetData(ABC):
@@ -51,9 +52,9 @@ class GetData(ABC):
         """
         pass
     
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def convert_parameter(cls, param:FilterParam) -> Any:
+    def convert_parameter(cls, param: FilterParam) -> Any:
         """
         Deals with converting the FilterParam class's parameter into the one that
         that class can use.
@@ -127,7 +128,7 @@ class GetDataProxy(GetData):
         """
         queryset = Recipe.objects.all()
         for _filter in self.convert_parameter(param):
-            key: str = _filter.keys()[0]
+            key: str = list(_filter.keys())[0]
             if _filter[key] == "" or _filter[key] is None:
                 continue
             _dict = {
@@ -167,7 +168,7 @@ class GetDataProxy(GetData):
         return _list + later_part
     
     @classmethod
-    def convert_parameter(cls, param: FilterParam) -> list[dict[str,str]]:
+    def convert_parameter(cls, param: FilterParam) -> list[dict[str, str]]:
         """
         Convert the FilterParam class into Django filter.
         
@@ -294,8 +295,8 @@ class GetDataSpoonacular(GetData):
             
         return _list
     
-    @abstractmethod
-    def convert_parameter(cls, param:FilterParam) -> Any:
+    @classmethod
+    def convert_parameter(cls, param: FilterParam) -> Any:
         """
         Deals with converting the FilterParam class's parameter into the one that
         that class can use.
