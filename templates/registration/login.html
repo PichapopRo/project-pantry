@@ -29,21 +29,19 @@
                         <div class="mb-3 mx-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username" required>
-                        </div>
-                        <div class="mb-3 mx-3">
-                            <label for="password" class="form-label">Password</label>
+                            <label for="password" class="form-label mt-3">Password</label>
                             <input type="password" name="password" id="password" class="form-control" placeholder="Enter your password" required>
-                        </div>
-                        <div class="text-center mx-auto">
-                            <button type="submit" class="btn btn-success">Login</button>
+                            <button type="submit" class="btn btn-success form-control mt-4">Login</button>
                         </div>
                     </form>
                     <form action="{% provider_login_url 'google' action='reauthenticate'%}" method="post">
                        {% csrf_token %}
-                      <button type="submit">Login with Google account</button>
-                    </form>
-				<p class="text-center">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
-			</div>
+                        <div class="mb-3 mx-3">
+                      <button type="submit" class="btn btn-outline-success form-control"><i class="bi bi-google"></i>   Continue with Google account</button>
+				<p class="text-center mt-2">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
+                        </div>
+                        </form>
+                </div>
 		</div>
 	</div>
 		</div>
