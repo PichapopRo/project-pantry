@@ -40,7 +40,9 @@
                     </form>
                     <form action="{% provider_login_url 'google' action='reauthenticate'%}" method="post">
                        {% csrf_token %}
-                      <button type="submit">Login with Google account</button>
+                        <div class="text-center mx-auto">
+                      <button type="submit" class="btn btn-success"><i class="bi bi-google"></i>Login with Google account</button>
+                        </div>
                     </form>
 				<p class="text-center">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
 			</div>
