@@ -1,5 +1,6 @@
 """This module saves the data fetched from the API into the database if it doesn't exists."""
 
+from typing import Any
 from abc import ABC, abstractmethod
 from django.db.models import QuerySet
 from webpage.models import Recipe
@@ -47,6 +48,17 @@ class GetData(ABC):
         
         :param param: The filter parameter object.
         :return: List with RecipeFacade representing the recipe.
+        """
+        pass
+    
+    @classmethod
+    @abstractmethod
+    def convert_parameter(cls, param: FilterParam) -> Any:
+        """
+        Deals with converting the FilterParam class's parameter into the one that class can use.
+        
+        :param param: The FilterParam class that you want to convert.
+        :return: The parameter that the class can use.
         """
         pass
 
@@ -113,11 +125,12 @@ class GetDataProxy(GetData):
         :return: List with RecipeFacade representing the recipe.
         """
         queryset = Recipe.objects.all()
-        for _filter in param.get_param():
-            if param.get_param()[_filter] == "" or param.get_param()[_filter] is None:
+        for _filter in self.convert_parameter(param):
+            key: str = list(_filter.keys())[0]
+            if _filter[key] == "" or _filter[key] is None:
                 continue
             _dict = {
-                self._service.get_django_filter(_filter): param.get_param()[_filter]
+                key: _filter[key]
             }
             queryset = queryset.filter(**_dict)
         logger.debug(queryset)
@@ -151,6 +164,31 @@ class GetDataProxy(GetData):
             facade.set_recipe(recipe)
             _list.append(facade)
         return _list + later_part
+    
+    @classmethod
+    def convert_parameter(cls, param: FilterParam) -> list[dict[str, str]]:
+        """
+        Convert the FilterParam class into Django filter.
+        
+        :param param: The FilterParam class that you want to convert.
+        :return: The list of a dictionaries containing one pair of key and value.
+        """
+        parameter_for_django = []
+        _keys = {
+            'includeIngredients': 'ingredientlist__ingredient__name__icontains',
+            'equipment': 'equipmentlist__equipment__name__icontains',
+            "diet": 'diets__name__icontains',
+            'maxReadyTime': 'estimated_time__lte',
+            'titleMatch': 'name__contains'
+        }
+        parameter_from_object = param.get_param()
+        for key in parameter_from_object:
+            if isinstance(parameter_from_object[key], list):
+                for value in parameter_from_object[key]:
+                    parameter_for_django.append({_keys[key]: value})
+            else:
+                parameter_for_django.append({_keys[key]: parameter_from_object[key]})
+        return parameter_for_django
 
 
 class GetDataSpoonacular(GetData):
@@ -227,7 +265,7 @@ class GetDataSpoonacular(GetData):
             'number': param.number,
             'offset': param.offset
         }
-        query_params.update(param.get_param())
+        query_params.update(self.convert_parameter(param))
         
         response = requests.get(self.__complex_url, params=query_params)
 
@@ -256,18 +294,15 @@ class GetDataSpoonacular(GetData):
         return _list
     
     @classmethod
-    def get_django_filter(cls, param_name: str):
+    def convert_parameter(cls, param: FilterParam) -> Any:
         """
-        Get the Django filter parameter key from Spoonacular filter parameter key.
+        Deals with converting the FilterParam class's parameter into the one that class can use.
         
-        :param param_name: The name (or key) of the Spoonacular parameter.
-        :return: The name (or key) of the Django filter parameter.
+        :param param: The FilterParam class that you want to convert.
+        :return: The parameter that the class can use.
         """
-        _keys = {
-            'includeIngredients': 'ingredientlist__ingredient__name__icontains',
-            'equipment': 'equipmentlist__equipment__name__icontains',
-            "diet": 'diets__name__icontains',
-            'maxReadyTime': 'estimated_time__lte',
-            'titleMatch': 'name__contains'
-        }
-        return _keys[param_name]
+        parameter_from_object = param.get_param()
+        for key in parameter_from_object:
+            if isinstance(parameter_from_object[key], list):
+                parameter_from_object[key] = ','.join(parameter_from_object[key])
+        return parameter_from_object
