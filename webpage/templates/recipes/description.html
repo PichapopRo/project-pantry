@@ -1,6 +1,55 @@
 <!DOCTYPE html>
 {% extends 'base.html' %}
 {% block content %}
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        $.ajaxSetup({
+            headers: { 'X-CSRFToken': csrftoken }
+        });
+        $('.favourite-btn').click(function(e) {
+            e.preventDefault();
+            let button = $(this);
+            let recipeId = button.data('recipe-id');
+            let favouriteCountElement = $('#favourite-count-' + recipeId);
+
+            $.ajax({
+                url: `/recipes/${recipeId}/toggle_favourite/`,
+                method: 'POST',
+                data: { csrfmiddlewaretoken: csrftoken },
+                success: function(response) {
+                    if (response.favourited) {
+                        button.find('i').removeClass('bi bi-heart').addClass('bi bi-heart-fill text-danger');
+                        favouriteCountElement.text(parseInt(favouriteCountElement.text()) + 1);
+                    } else {
+                        button.find('i').removeClass('bi bi-heart-fill text-danger').addClass('bi bi-heart');
+                        favouriteCountElement.text(parseInt(favouriteCountElement.text()) - 1);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(`Error: ${status} - ${error}`);
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+    });
+    </script>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -20,8 +69,25 @@
                 <img src="{{ recipe.image }}" alt="{{ recipe.name }}" class="img-fluid">
             </div>
         </div>
+
         <div class="col-md-6">
-            <h1 class="display-4">{{ recipe.name }}</h1>
+            <h1 class="display-4 d-inline">{{ recipe.name }}
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    {% if user.is_authenticated %}
+                    <button class="btn border-0 favourite-btn" data-recipe-id="{{ recipe.id }}">
+                    {% if recipe.id in user_favourites %}
+                        <i class="bi bi-heart-fill text-danger"></i>
+                    {% else %}
+                        <i class="bi bi-heart"></i>
+                    {% endif %}
+                    </button>
+                    {% else %}
+                       <a class="btn border-0" href="{% url 'login' %}">
+                           <i class="bi bi-heart"></i>
+                       </a>
+                    {% endif %}
+                    </form></h1>
             <p class="lead mx-1">By: {{ recipe.poster_id.username }}</p>
         <div style="font-size: 20px ;display: flex; align-items: center;"><i class="bi bi-clock mx-1"></i> {{ recipe.estimated_time }} minutes</div>
             <div class="d-flex align-items-center mt-2">
