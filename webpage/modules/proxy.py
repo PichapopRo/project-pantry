@@ -241,7 +241,7 @@ class GetDataSpoonacular(GetData):
             for recipe in recipes:
                 facade = RecipeFacade()
                 facade.set_by_spoonacular(
-                    name=recipe["name"],
+                    name=recipe["title"],
                     _id=recipe['id'],
                     image=recipe["image"]
                 )
