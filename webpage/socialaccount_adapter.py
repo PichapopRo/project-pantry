@@ -31,10 +31,14 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
         if email:
             try:
                 user = User.objects.get(email=email)
-                if user and not sociallogin.is_existing:
-                    messages.error(request, "An account with this email already exists. "
-                                            "Please log in with your existing account.")
-                    raise ImmediateHttpResponse(HttpResponseRedirect(reverse('login')))
+                if not sociallogin.is_existing:
+                    sociallogin.user = user
+            except User.DoesNotExist:
+                user = User.objects.create(
+                    email=email,
+                    username=email.split('@')[0],
+                )
+                sociallogin.user = user
             except User.MultipleObjectsReturned:
                 messages.error(request, "An account with this email already exists. Please log in with your existing account.")
                 raise ImmediateHttpResponse(HttpResponseRedirect(reverse('login')))
