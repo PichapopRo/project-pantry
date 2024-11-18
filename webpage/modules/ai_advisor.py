@@ -101,12 +101,10 @@ class AIRecipeAdvisor:
         :return: A string representing the difficulty level ("Easy", "Normal", "Hard").
         :raises: Exception if the GPT model fails to generate a valid difficulty response.
         """
-        query = (
-                "Based on the following recipe, determine the difficulty level. "
-                "The difficulty should be one of 'Easy', 'Normal', or 'Hard':\n\n"
-                f"{self._ingredient_information}\n"
+        query = "Based on the following recipe, determine the difficulty level. " + \
+                "The difficulty should be one of 'Easy', 'Normal', or 'Hard':\n\n" + \
+                f"{self._ingredient_information}\n" + \
                 f"Steps:\n" + "\n".join([step.description for step in self._recipe.steps.all()])
-        )
         LIMIT = 5
         for _ in range(LIMIT):
             try:
