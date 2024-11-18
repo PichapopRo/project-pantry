@@ -135,9 +135,9 @@
     <form method="post" action=".">
         {% csrf_token %}
         {% if view_count == 0 and total_recipes > 0 %}
-            <button type="submit" name="increment" value="5" class="btn btn-success" id="load-more" {% if button_clicked %}autofocus{% endif %}>View Recipes</button>
+            <button type="submit" name="increment" value="6" class="btn btn-success" id="load-more" {% if button_clicked %}autofocus{% endif %}>View Recipes</button>
         {% elif total_recipes > 0 %}
-            <button type="submit" name="increment" value="5" class="btn btn-success" id="load-more" {% if button_clicked %}autofocus{% endif %}>Load More Recipes</button>
+            <button type="submit" name="increment" value="6" class="btn btn-success" id="load-more" {% if button_clicked %}autofocus{% endif %}>Load More Recipes</button>
         {% endif %}
     </form>
 </div>
