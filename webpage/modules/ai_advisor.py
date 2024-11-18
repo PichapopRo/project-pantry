@@ -35,6 +35,7 @@ class AIRecipeAdvisor:
         """
         self._recipe = recipe
         self._gpt = GPTHandler(config("ALTER_PROMT", default="default"), "gpt-4o-mini")
+        self._difficulty_gpt = GPTHandler(config("DIFF_PROMPT", default="default"), "gpt-4o-mini")
         name = "The recipe name:" + self._recipe.name
         description = "Description:" + self._recipe.description
         ingredients = ""
@@ -92,3 +93,28 @@ class AIRecipeAdvisor:
             except json.decoder.JSONDecodeError:
                 continue
         raise Exception("Error with LLM. Please try again.")
+
+    def difficulty_calculator(self):
+        """
+        Calculate the difficulty of the recipe using the GPT model.
+
+        :return: A string representing the difficulty level ("Easy", "Normal", "Hard").
+        :raises: Exception if the GPT model fails to generate a valid difficulty response.
+        """
+        query = (
+                "Based on the following recipe, determine the difficulty level. "
+                "The difficulty should be one of 'Easy', 'Normal', or 'Hard':\n\n"
+                f"{self._ingredient_information}\n"
+                f"Steps:\n" + "\n".join([step.description for step in self._recipe.steps.all()])
+        )
+        LIMIT = 5
+        for _ in range(LIMIT):
+            try:
+                response = self._difficulty_gpt.generate(query)
+                difficulty = response.strip()
+                if difficulty in ["Easy", "Normal", "Hard"]:
+                    return difficulty
+            except Exception as e:
+                logger.error(f"Error during difficulty calculation: {e}")
+                continue
+        raise Exception("Error with LLM in difficulty calculation. Please try again.")
