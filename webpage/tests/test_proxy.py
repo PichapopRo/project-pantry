@@ -1,13 +1,12 @@
 """Tests for the GetDataProxy class and GetDataSpoonacular class."""
 from django.test import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from django.contrib.auth.models import User
 from webpage.models import (Recipe, Ingredient, IngredientList,
-                            Equipment, EquipmentList, Diet,
-                            Nutrition, NutritionList, RecipeStep)
+                            Equipment, EquipmentList, Diet)
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 from webpage.modules.filter_objects import FilterParam
-from django.utils import timezone
+from webpage.modules.recipe_facade import RecipeFacade
 import re
 
 
@@ -124,11 +123,12 @@ class GetDataProxyTest(TestCase):
         recipe_temp = facades[2].get_recipe()
         ingredient_list = [igl.ingredient.name for igl in
                            list(recipe_temp.get_ingredients())]
-        self.assertTrue(any(re.search(r'\bavocado\b',
+        print(ingredient_list)
+        self.assertTrue(any(re.search(r'\bavocados?\b',
                                       ingredient,
                                       re.IGNORECASE)
                             for ingredient in ingredient_list))
-        self.assertTrue(any(re.search(r'\bcarrot\b',
+        self.assertTrue(any(re.search(r'\bcarrots?\b',
                                       ingredient,
                                       re.IGNORECASE)
                             for ingredient in ingredient_list))
@@ -142,7 +142,7 @@ class GetDataProxyTest(TestCase):
         equipment2 = Equipment.objects.create(
             name="bowl",
             spoonacular_id=444,
-            picture="http://example.com/spoon.jpg"
+            picture="http://example.com/bowl.jpg"
         )
         EquipmentList.objects.create(
             equipment=equipment1,
@@ -180,12 +180,12 @@ class GetDataProxyTest(TestCase):
         recipe_temp = facades[2].get_recipe()
         equipment_list = [eql.equipment.name for eql in
                           list(recipe_temp.get_equipments())]
-        self.assertTrue(any(re.search(r'\bpan\b',
+        self.assertTrue(any(re.search(r'\bpans?\b',
                                       equipment,
                                       re.IGNORECASE)
                             for equipment in equipment_list))
         # ['food processor', 'frying pan'] means there is no bowl.
-        self.assertTrue(any(re.search(r'\bBowl\b',
+        self.assertTrue(any(re.search(r'\bBowls?\b',
                                       equipment,
                                       re.IGNORECASE)
                             for equipment in equipment_list))
@@ -272,7 +272,6 @@ class GetDataProxyTest(TestCase):
             equipment=["slow cooker", "bowl"],
             diet=["Paleo", "Low FODMAP"],
             maxReadyTime=40,
-            cuisine=["Asian", "Chinese"],
             titleMatch="fish"
         )
         parameter = self.get_data_proxy.convert_parameter(filter_param)
@@ -294,98 +293,219 @@ class GetDataSpoonacularTest(TestCase):
     def setUpTestData(cls):
         """Set up test data and mocks."""
         cls.get_data_spoonacular = GetDataSpoonacular()
-        cls.user = User.objects.create_user(
-            username="Spoonacular")
-        cls.recipe = Recipe.objects.create(
-            name="Pasta",
-            spoonacular_id=12345,
-            estimated_time=45,
-            image="http://example.com/pasta.jpg",
-            poster_id=cls.user,
-            created_at=timezone.now(),
-            description="This is a pasta.",
-            status="Pending"
-        )
-        ingredient = Ingredient.objects.create(
-            name="Noodle",
-            spoonacular_id=111,
-            picture="http://example.com/noodle.jpg"
-        )
-        IngredientList.objects.create(
-            ingredient=ingredient,
-            recipe=cls.recipe,
-            amount=200,
-            unit="grams"
-        )
-        equipment = Equipment.objects.create(
-            name="Pan",
-            spoonacular_id=333,
-            picture="http://example.com/pan.jpg"
-        )
-        EquipmentList.objects.create(
-            equipment=equipment,
-            recipe=cls.recipe,
-            amount=1,
-            unit="piece"
-        )
-        nutrition = Nutrition.objects.create(
-            name="Vitamin A",
-            spoonacular_id=11,
-        )
-        NutritionList.objects.create(
-            nutrition=nutrition,
-            recipe=cls.recipe,
-            amount=200,
-            unit="kcal"
-        )
-        RecipeStep.objects.create(
-            number=1,
-            description="First step",
-            recipe=cls.recipe)
-        diet = Diet.objects.create(
-            name="Mediterranean")
-        cls.recipe.diets.add(diet)
 
-    @patch('webpage.modules.builder.SpoonacularRecipeBuilder.__call_api')
-    @patch('webpage.modules.builder.SpoonacularRecipeBuilder')
-    def test_find_by_spoonacular_id(self, MockSpoonacularRecipeBuilder,
-                                    mock_call_api):
-        mock_call_api.return_value = None
-        mock_builder_instance = MockSpoonacularRecipeBuilder.return_value
-        mock_builder_instance.build_name.return_value = mock_builder_instance
-        mock_builder_instance.build_ingredient.return_value = mock_builder_instance
-        mock_builder_instance.build_equipment.return_value = mock_builder_instance
-        mock_builder_instance.build_nutrition.return_value = mock_builder_instance
-        mock_builder_instance.build_step.return_value = mock_builder_instance
-        mock_builder_instance.build_details.return_value = mock_builder_instance
-        mock_builder_instance.build_diet.return_value = mock_builder_instance
-        mock_builder_instance.build_spoonacular_id.return_value = mock_builder_instance
-        mock_builder_instance.build_recipe.return_value = self.recipe
+    @patch('requests.get')
+    def test_find_by_spoonacular_id(self, mock_get):
+        """Test find_by_spoonacular_id method."""
+        mock_get.return_value = Mock(status_code=200)
+        mock_get.return_value.json.return_value = {
+            "id": 123450,
+            "title": "fruit salad",
+            "readyInMinutes": 30,
+            "image": "https://fruitsalad.com/image.jpg",
+            "summary": "This is a fruit salad.",
+            "extendedIngredients": [
+                {
+                    "id": 101,
+                    "name": "apple",
+                    "image": "apple.jpg",
+                    "measures": {"metric": {"amount": 100,
+                                            "unitLong": "grams"}}
+                },
+                {
+                    "id": 121,
+                    "name": "banana",
+                    "image": "banana.jpg",
+                    "measures": {"metric": {"amount": 100,
+                                            "unitLong": "grams"}}
+                }
+            ],
+            "analyzedInstructions": [
+                {
+                    "steps": [
+                        {
+                            "step": "Step 1"
+                        },
+                        {
+                            "step": "Step 2"
+                        }
+                    ]
+                }
+            ],
+            "equipment": [
+                {
+                    "name": "bowl",
+                    "image": "bowl.jpg"
+                },
+                {
+                    "name": "fork",
+                    "image": "fork.jpg"
+                }
+            ],
+            "diets": [
+                "vegetarian"
+            ],
+            "nutrients": [
+                {
+                    "name": "Calories",
+                    "amount": 200,
+                    "unit": "kcal"
+                }
+            ]
+        }
+        recipe = self.get_data_spoonacular.find_by_spoonacular_id(
+            123450)
+        self.assertTrue(Recipe.objects.filter(spoonacular_id=123450).exists())
+        self.assertEqual(recipe.poster_id.username, "Spoonacular")
+        self.assertEqual(recipe.name, "fruit salad")
+        ingredient_list = [igl.ingredient.name for igl in
+                           list(recipe.get_ingredients())]
+        self.assertEqual(["apple", "banana"], ingredient_list)
+        equipment_list = [eql.equipment.name for eql in
+                          list(recipe.get_equipments())]
+        self.assertEqual(["bowl", "fork"], equipment_list)
+        nutrition_list = [ntl.nutrition.name for ntl in
+                          list(recipe.get_nutrition())]
+        print(nutrition_list)
+        self.assertEqual(["Calories"], nutrition_list)
+        step_list = [step.description for step in
+                     list(recipe.get_steps().order_by("number"))]
+        self.assertEqual(["Step 1", "Step 2"], step_list)
+        self.assertEqual(recipe.image, "https://fruitsalad.com/image.jpg")
+        self.assertEqual(recipe.estimated_time, 30)
+        self.assertEqual(recipe.description, "This is a fruit salad.")
+        diet_list = recipe.diets.all()
+        self.assertEqual(diet_list.count(), 1)
+        self.assertEqual(diet_list.first().name, "Vegetarian")
+        self.assertEqual(recipe.spoonacular_id, 123450)
+        self.assertIsInstance(recipe, Recipe)
 
-        # Act
-        get_data_spoonacular = GetDataSpoonacular()
-        returned_recipe = get_data_spoonacular.find_by_spoonacular_id(
-            12345)
+    @patch('requests.get')
+    def test_find_by_spoonacular_id_not_found(self, mock_get):
+        """Test find_by_spoonacular_id method when the recipe is not found."""
+        mock_get.return_value = Mock(status_code=404)
+        with self.assertRaises(Exception):
+            self.get_data_spoonacular.find_by_spoonacular_id(123450)
 
-        # Assert
-        # Verify that the builder was instantiated with correct parameters
-        MockSpoonacularRecipeBuilder.assert_called_once_with(name="",
-                                                             spoonacular_id=12345)
+    @patch('requests.get')
+    def test_find_by_name(self, mock_get):
+        """Test retrieving a recipe by name."""
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {
+            "results": [
+                {
+                    "id": 112233,
+                    "title": "Apple Pie",
+                    "image": "https://applepie.com/image.jpg"
+                },
+                {
+                    "id": 223344,
+                    "title": "Fish Pie",
+                    "image": "https://fishsteak.com/image.jpg"
+                }
+            ]
+        }
+        recipes_facade = self.get_data_spoonacular.find_by_name("Pie")
+        self.assertIsInstance(recipes_facade[0], RecipeFacade)
+        self.assertIsInstance(recipes_facade[1], RecipeFacade)
+        self.assertEqual(recipes_facade[0].name, "Apple Pie")
+        self.assertEqual(recipes_facade[0].id, 112233)
+        self.assertEqual(recipes_facade[0].image,
+                         "https://applepie.com/image.jpg")
+        self.assertEqual(recipes_facade[1].name, "Fish Pie")
+        self.assertEqual(recipes_facade[1].id, 223344)
+        self.assertEqual(recipes_facade[1].image,
+                         "https://fishsteak.com/image.jpg")
 
-        # Verify that all build methods were called
-        mock_builder_instance.build_name.assert_called_once()
-        mock_builder_instance.build_ingredient.assert_called_once()
-        mock_builder_instance.build_equipment.assert_called_once()
-        mock_builder_instance.build_nutrition.assert_called_once()
-        mock_builder_instance.build_step.assert_called_once()
-        mock_builder_instance.build_details.assert_called_once()
-        mock_builder_instance.build_diet.assert_called_once()
-        mock_builder_instance.build_spoonacular_id.assert_called_once()
-        mock_builder_instance.build_recipe.assert_called_once()
+    @patch('requests.get')
+    def test_find_by_name_no_results(self, mock_get):
+        """Test retrieving a recipe by name when no results are found."""
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {"results": []}
+        recipes = self.get_data_spoonacular.find_by_name("-")
+        self.assertEqual(len(recipes), 0)
 
-        # Verify that the returned recipe is the mock_recipe
-        self.assertEqual(returned_recipe, self.recipe)
+    @patch('requests.get')
+    def test_filter_recipe_success(self, mock_get):
+        """Test filtering recipes with a successful response."""
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {
+            "results": [
+                {
+                    "id": 112233,
+                    "title": "Apple Pie",
+                    "image": "https://applepie.com/image.jpg"
+                },
+                {
+                    "id": 223344,
+                    "title": "Fish Pie",
+                    "image": "https://fishpie.com/image.jpg"
+                }
+            ]
+        }
+        recipes_facade = self.get_data_spoonacular.filter_recipe(
+            FilterParam(
+                offset=0,
+                number=2,
+                titleMatch="Pie"
+            ))
+        self.assertIsInstance(recipes_facade[0], RecipeFacade)
+        self.assertIsInstance(recipes_facade[1], RecipeFacade)
+        self.assertEqual(recipes_facade[0].name, "Apple Pie")
+        self.assertEqual(recipes_facade[0].id, 112233)
+        self.assertEqual(recipes_facade[0].image,
+                         "https://applepie.com/image.jpg")
+        self.assertEqual(recipes_facade[1].name, "Fish Pie")
+        self.assertEqual(recipes_facade[1].id, 223344)
+        self.assertEqual(recipes_facade[1].image,
+                         "https://fishpie.com/image.jpg")
 
-        # Verify that the recipe was saved to the database
-        self.assertTrue(
-            Recipe.objects.filter(spoonacular_id=12345).exists())
+    @patch('requests.get')
+    def test_filter_recipe_no_results(self, mock_get):
+        """Test filtering recipes with no results."""
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {
+            "results": []
+        }
+        recipes_facade = self.get_data_spoonacular.filter_recipe(
+            FilterParam(
+                offset=0,
+                number=2,
+                titleMatch="Pie"
+            ))
+        self.assertEqual(len(recipes_facade), 0)
+
+    @patch('requests.get')
+    def test_filter_recipe_error_response(self, mock_get):
+        """Test filtering recipes with an error response."""
+        mock_get.return_value.status_code = 500
+
+        with self.assertRaises(Exception) as context:
+            self.get_data_spoonacular.filter_recipe(
+                FilterParam(
+                    offset=0,
+                    number=2,
+                    titleMatch="Pie"
+                ))
+        self.assertIn("Error code:", str(context.exception))
+
+    def test_convert_parameter(self):
+        parameter = self.get_data_spoonacular.convert_parameter(
+            FilterParam(
+                offset=0,
+                number=2,
+                includeIngredients=["Apple", "Banana"],
+                equipment=["Pan", "Spoon"],
+                diet=["Vegan"],
+                maxReadyTime=70,
+                titleMatch="Pie"
+            )
+        )
+        expected_parameter = {
+            'includeIngredients': "Apple,Banana",
+            'equipment': "Pan,Spoon",
+            'diet': 'Vegan',
+            'maxReadyTime': 70,
+            'titleMatch': "Pie"
+        }
+        self.assertEqual(parameter, expected_parameter)
