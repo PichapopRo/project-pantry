@@ -36,6 +36,7 @@ class AIRecipeAdvisor:
         self._recipe = recipe
         self._gpt = GPTHandler(config("ALTER_PROMT", default="default"), "gpt-4o-mini")
         self._difficulty_gpt = GPTHandler(config("DIFF_PROMPT", default="default"), "gpt-4o-mini")
+        self._nutrition_gpt = GPTHandler(config("NUTRITION_PROMPT", default="default"), "gpt-4o-mini")
         name = "The recipe name:" + self._recipe.name
         description = "Description:" + self._recipe.description
         ingredients = ""
@@ -116,3 +117,32 @@ class AIRecipeAdvisor:
                 logger.error(f"Error during difficulty calculation: {e}")
                 continue
         raise Exception("Error with LLM in difficulty calculation. Please try again.")
+
+    def nutrition_calculator(self):
+        LIMIT = 5
+        ingredients_query = ""
+        for ingre in self._recipe.get_ingredients():
+            ingredients_query += f"{ingre.ingredient.name}, amount: {ingre.amount} {ingre.unit}\n"
+
+        query = ingredients_query
+
+        for _ in range(LIMIT):
+            try:
+                response = self._nutrition_gpt.generate(query)
+                nutrition_info = json.loads(response)
+                if "nutrients" in nutrition_info and isinstance(
+                        nutrition_info["nutrients"], list):
+                    required_keys = {"name", "amount", "unit","percentOfDailyNeeds"}
+                    for nutrient in nutrition_info["nutrients"]:
+                        if not required_keys.issubset(nutrient.keys()):
+                            raise ValueError("Invalid structure for a nutrient entry.")
+                    return nutrition_info
+            except json.JSONDecodeError:
+                logger.error("Error decoding JSON from GPT response.")
+            except ValueError as e:
+                logger.error(f"Validation error in response structure: {e}")
+            except Exception as e:
+                logger.error(f"Error during nutrition calculation: {e}")
+                continue
+
+        raise Exception("Error with LLM in nutrition calculation. Please try again.")
