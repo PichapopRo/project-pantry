@@ -14,7 +14,6 @@ class FilterParam:
     equipment: List[str] = field(default_factory=list)
     diet: List[str] = field(default_factory=list)
     maxReadyTime: int = 9999
-    cuisine: List[str] = field(default_factory=list)
     titleMatch: str = ""
 
     def add_ingredient(self, ingredient_name: str):
@@ -43,5 +42,5 @@ class FilterParam:
         """Return the representation string of the object."""
         return (f"FilterParam(offset={self.offset}, number={self.number}, "
                 f"includeIngredients={self.includeIngredients}, equipment={self.equipment}, "
-                f"diet={self.diet}, maxReadyTime={self.maxReadyTime}, "
-                f"cuisine={self.cuisine}), titleMatch={self.titleMatch}")
+                f"diet={self.diet}, maxReadyTime={self.maxReadyTime},"
+                f" titleMatch={self.titleMatch}")

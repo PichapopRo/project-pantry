@@ -225,9 +225,6 @@ class GetDataProxyTest(TestCase):
         recipe_temp = facades[2].get_recipe()
         self.assertLessEqual(recipe_temp.estimated_time, 40)
 
-    def test_filter_recipe_cuisine(self):
-        pass
-
     def test_filter_recipe_enough_titleMatch(self):
         """Test filtering recipes."""
         filter_param = FilterParam(
