@@ -452,14 +452,6 @@ class SpoonacularRecipeBuilder(Builder):
                 unit=nutrition_data['unit'],
             )
 
-    def build_user(self, user: User):  # Bad code to be remove
-        """
-        Build the user which is the author of the recipe.
-
-        :param user: The user that is the author of the recipe.
-        """
-        pass
-
     def build_spoonacular_id(self):
         """Build the Spoonacular ID for the Recipe class."""
         self.__call_api()
