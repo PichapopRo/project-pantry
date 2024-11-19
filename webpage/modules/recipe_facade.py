@@ -11,11 +11,14 @@ class RecipeFacade():  # Shot gun
     :param name: The name of the recipe
     :param id: The Spoonacular ID of the recipe, None if there's none.
     :param favorite: The number of people who put the recipe in their favorite.
+    :param pk: The pk of the recipe. It is None if the recipe comes from Spoonacular.
     """
     
     def __init__(self):
         """Initialize the class."""
         self.__recipe: Recipe | None = None
+        self.favorite: int
+        self.pk: int|None = None
     
     def set_recipe(self, recipe: Recipe):
         """
@@ -26,8 +29,9 @@ class RecipeFacade():  # Shot gun
         self.__recipe = recipe
         self.image = recipe.image
         self.name = recipe.name
-        self.id = recipe.spoonacular_id
+        self.spoonacular_id = recipe.spoonacular_id
         self.favorite = recipe.favourites
+        self.pk = recipe.pk
     
     def set_by_spoonacular(self, name: str, _id: str, image: str | None):
         """
@@ -52,7 +56,7 @@ class RecipeFacade():  # Shot gun
         """
         if self.__recipe is not None:
             return self.__recipe
-        if self.id is None:
+        if self.id is None and self.pk is None:
             raise Exception("Please set something")
         from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
         proxy = GetDataProxy(GetDataSpoonacular())
