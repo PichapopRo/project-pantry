@@ -105,7 +105,7 @@ class AIRecipeAdvisor:
         query = "Based on the following recipe, determine the difficulty level. " + \
                 "The difficulty should be one of 'Easy', 'Normal', or 'Hard':\n\n" + \
                 f"{self._ingredient_information}\n" + \
-                f"Steps:\n" + "\n".join([step.description for step in self._recipe.steps.all()])
+                "Steps:\n" + "\n".join([step.description for step in self._recipe.steps.all()])
         LIMIT = 5
         for _ in range(LIMIT):
             try:
@@ -119,6 +119,12 @@ class AIRecipeAdvisor:
         raise Exception("Error with LLM in difficulty calculation. Please try again.")
 
     def nutrition_calculator(self):
+        """
+        Calculate the nutritional information of the recipe based on its ingredients.
+
+        :return: A dictionary containing a list of nutrients, each with name, amount, unit, and percent of daily needs.
+        :raises: Exception if the GPT model fails to generate valid nutritional information.
+        """
         LIMIT = 5
         ingredients_query = ""
         for ingre in self._recipe.get_ingredients():
@@ -132,7 +138,7 @@ class AIRecipeAdvisor:
                 nutrition_info = json.loads(response)
                 if "nutrients" in nutrition_info and isinstance(
                         nutrition_info["nutrients"], list):
-                    required_keys = {"name", "amount", "unit","percentOfDailyNeeds"}
+                    required_keys = {"name", "amount", "unit", "percentOfDailyNeeds"}
                     for nutrient in nutrition_info["nutrients"]:
                         if not required_keys.issubset(nutrient.keys()):
                             raise ValueError("Invalid structure for a nutrient entry.")
