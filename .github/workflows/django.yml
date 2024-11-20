@@ -12,7 +12,7 @@ env:
   TIME_ZONE: 'Asia/Bangkok'
   SECRET_KEY: ${{secrets.SECRET_KEY}}
   SPOONACULAR_PASSWORD: ${{secrets.SPOONACULAR_PASSWORD}}
-  API_KEY: 'fake-key'
+  API_KEY: ${{secrets.API_KEY}}}
 
 jobs:
   build:
