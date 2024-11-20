@@ -13,14 +13,16 @@ class RecipeFacade():  # Shot gun
     :param favorite: The number of people who put the recipe in their favorite.
     :param pk: The pk of the recipe. It is None if the recipe comes from Spoonacular.
     :param username: The username of the poster of this recipe.
+    :param number_id: The unique identifier of each stuffs things.
     """
     
-    def __init__(self):
+    def __init__(self, number_id: int):
         """Initialize the class."""
         self.__recipe: Recipe | None = None
         self.favorite: int
         self.pk: int|None = None
         self.username: str
+        self.number_id: int = number_id
     
     def set_recipe(self, recipe: Recipe):
         """

@@ -11,6 +11,7 @@ from webpage.modules.builder import SpoonacularRecipeBuilder
 import logging
 API_KEY = config('API_KEY')
 logger = logging.getLogger("proxy class")
+import copy
 
 
 class GetData(ABC):
@@ -116,10 +117,13 @@ class GetDataProxy(GetData):
         logger.debug(f"param.number: {start}, number: {stop}")
         if start > stop:
             return later_part
+        
+        count = copy.copy(start)
         for recipe in queryset[start - 1: stop]:
-            facade = RecipeFacade()
+            facade = RecipeFacade(count)
             facade.set_recipe(recipe)
             _list.append(facade)
+            count =+ 1
         return _list + later_part
 
 
@@ -186,15 +190,17 @@ class GetDataSpoonacular(GetData):
         if not recipes:
             pass
         
+        count = copy.copy(param.offset)
         _list: list[RecipeFacade] = []
         for recipe in recipes:
-            recipe_facade = RecipeFacade()
+            recipe_facade = RecipeFacade(count)
             recipe_facade.set_by_spoonacular(
                 name=recipe["title"],
                 _id=recipe["id"],
                 image=recipe["image"]
             )
             _list.append(recipe_facade)
+            count += 1
             
         return _list
     
