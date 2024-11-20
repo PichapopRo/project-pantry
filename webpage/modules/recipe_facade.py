@@ -16,6 +16,10 @@ class RecipeFacade():  # Shot gun
     def __init__(self):
         """Initialize the class."""
         self.__recipe: Recipe | None = None
+        self.image = None
+        self.name = None
+        self.id = None
+        self.favorite = None
     
     def set_recipe(self, recipe: Recipe):
         """

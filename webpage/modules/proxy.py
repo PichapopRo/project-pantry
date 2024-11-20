@@ -118,51 +118,42 @@ class GetDataProxy(GetData):
         return _list
 
     def filter_recipe(self, param: FilterParam) -> list[RecipeFacade]:
-        """
-        Filter the recipe.
-        
-        :param param: The filter parameter object.
-        :return: List with RecipeFacade representing the recipe.
-        """
         queryset = Recipe.objects.all()
         for _filter in self.convert_parameter(param):
             key: str = list(_filter.keys())[0]
             if _filter[key] == "" or _filter[key] is None:
                 continue
-            _dict = {
-                key: _filter[key]
-            }
+            _dict = {key: _filter[key]}
             queryset = queryset.filter(**_dict)
         logger.debug(queryset)
-        stop = 0
-        start = 0
-        later_part = []
+
+        start = param.offset - 1
+        stop = start + param.number
         logger.debug(f"the len of the queryset is {len(queryset)}")
-        if len(queryset) < param.number + param.offset - 1:
-            logger.debug("The queryset is less than the number")
-            stop = len(queryset)
-            start = param.offset
-            logger.debug(f"number before: {param.number}")
-            if stop > start:
-                param.number = param.number - stop + start - 1
-            logger.debug(f"number after: {param.number}")
-            param.offset = param.offset - len(queryset)
-            if param.offset < 0:
-                param.offset = 1
-            logger.debug("param sent to the service: ", param)
+
+        if len(queryset) < param.offset:
+            # If the offset is greater than the number of records in the database, skip the database part entirely
+            initial_list = []
+            remaining_number = param.number
+        else:
+            initial_list = list(queryset[start:stop])
+            remaining_number = param.number - len(initial_list)
+
+        if remaining_number > 0:
+            param.offset = 1
+            param.number = remaining_number
+            logger.debug(f"param sent to the service: {param}")
             later_part = self._service.filter_recipe(param)
             logger.debug(later_part)
         else:
-            stop = param.number + param.offset - 1
-            start = param.offset
+            later_part = []
+
         _list = []
-        logger.debug(f"param.number: {start}, number: {stop}")
-        if start > stop:
-            return later_part
-        for recipe in queryset[start - 1: stop]:
+        for recipe in initial_list:
             facade = RecipeFacade()
             facade.set_recipe(recipe)
             _list.append(facade)
+
         return _list + later_part
     
     @classmethod
