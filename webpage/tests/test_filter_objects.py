@@ -6,4 +6,7 @@ from webpage.modules.filter_objects import FilterParam
 
 class GetDataProxyTest(TestCase):
     """"""
-    
+
+    @classmethod
+    def setUpTestData(cls):
+        """Set up test data and mocks."""
