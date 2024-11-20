@@ -12,6 +12,7 @@ class RecipeFacade():  # Shot gun
     :param id: The Spoonacular ID of the recipe, None if there's none.
     :param favorite: The number of people who put the recipe in their favorite.
     :param pk: The pk of the recipe. It is None if the recipe comes from Spoonacular.
+    :param username: The username of the poster of this recipe.
     """
     
     def __init__(self):
@@ -19,6 +20,7 @@ class RecipeFacade():  # Shot gun
         self.__recipe: Recipe | None = None
         self.favorite: int
         self.pk: int|None = None
+        self.username: str
     
     def set_recipe(self, recipe: Recipe):
         """
@@ -31,7 +33,8 @@ class RecipeFacade():  # Shot gun
         self.name = recipe.name
         self.spoonacular_id = recipe.spoonacular_id
         self.favorite = recipe.favourites
-        self.pk = recipe.pk
+        self.pk = recipe.id
+        self.username = recipe.poster_id.username
     
     def set_by_spoonacular(self, name: str, _id: str, image: str | None):
         """
@@ -46,6 +49,7 @@ class RecipeFacade():  # Shot gun
         self.name = name
         self.id = _id
         self.favorite = 0
+        self.username = "Spoonacular"
         
     def get_recipe(self) -> Recipe | None:
         """

@@ -101,9 +101,10 @@
             <div class="card h-100">
             <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.name }}">
             <div class="card-body">
+            {% if recipe.id %}
                 <small>Favourites: <span class="favourite-count" id="favourite-count-{{ recipe.id }}">{{ recipe.favourite_set.count }}</span></small>
             <h3 class="card-title">{{ recipe.name }}</h3>
-                <small class="card-text">By: {{ recipe.poster_id.username }}</small>
+                <small class="card-text">By: {{ recipe.username }}</small>
                 <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
                     <form method="post">
                     {% csrf_token %}
@@ -115,6 +116,22 @@
                         <i class="bi bi-heart"></i>
                     {% endif %}
                 </button>
+            {% else %}
+            <small>Favourites: <span class="favourite-count" id="favourite-count-{{ recipe.pk }}">{{ recipe.favourite_set.count }}</span></small>
+            <h3 class="card-title">{{ recipe.name }}</h3>
+                <small class="card-text">By: {{ recipe.username }}</small>
+                <a href="{% url 'recipe' recipe.pk %}" class="stretched-link"></a>
+                    <form method="post">
+                    {% csrf_token %}
+                    {% if user.is_authenticated %}
+                    <button class="btn border-0 favourite-btn position-absolute bottom-0 end-0" data-recipe-id="{{ recipe.pk }}">
+                    {% if recipe.pk in user_favourites %}
+                        <i class="bi bi-heart-fill text-danger"></i>
+                    {% else %}
+                        <i class="bi bi-heart"></i>
+                    {% endif %}
+                </button>
+            {% endif %}
 
             {% else %}
                <a class="btn border-0 position-absolute bottom-0 end-0" style="z-index: 1;" href="{% url 'login' %}">

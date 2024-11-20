@@ -1,6 +1,6 @@
 """The view handles the requests and handling data to the webpage."""
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.views import generic
 from webpage.models import Recipe, Diet, RecipeStep, Favourite
 from django.contrib import messages
@@ -231,3 +231,17 @@ class UserPageView(generic.ListView):
         favourite_ids = [f.recipe.id for f in context["favourites"]]
         context["favourite_ids"] = favourite_ids
         return context
+
+
+def get_spoonacular_recipe(request, spoonacular_id):
+    """
+    Toggle favourite of a recipe.
+
+    :param request: Request from the server.
+    :param spoonacular: Spoonacular ID of that recipe.
+    """
+    try:
+        recipe = GetDataProxy().find_by_spoonacular_id(int(spoonacular_id))
+        return redirect('recipe', pk=recipe.id)
+    except Exception:
+        return Http404("The recipe with that ID cannot be found.")
