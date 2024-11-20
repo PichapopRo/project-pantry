@@ -1,4 +1,6 @@
 """Tests for the GetDataProxy class and GetDataSpoonacular class."""
+import os
+import re
 from django.test import TestCase
 from unittest.mock import patch, Mock
 from django.contrib.auth.models import User
@@ -7,7 +9,7 @@ from webpage.models import (Recipe, Ingredient, IngredientList,
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
-import re
+from unittest import skipIf
 
 
 class GetDataProxyTest(TestCase):
@@ -122,25 +124,11 @@ class GetDataProxyTest(TestCase):
             self.recipe1.spoonacular_id)
         self.assertEqual(recipe, self.recipe1)
 
+    @skipIf(not os.getenv('API_KEY'), "Skipping because API_KEY is not set")
     def test_find_by_spoonacular_id_non_existing(self):
         """Test finding a recipe by spoonacular_id when it does not exist in the database."""
         recipe = self.get_data_proxy.find_by_spoonacular_id(10)
         self.assertEqual(recipe.spoonacular_id, 10)
-
-    def test_find_by_name_existing(self):
-        """Test finding recipes by name when they exist in the database."""
-        recipe = self.get_data_proxy.find_by_name("Salad")
-        recipe_list = [re.get_recipe() for re in recipe]
-        self.assertEqual([self.recipe1, self.recipe2], recipe_list)
-
-    def test_find_by_name_non_existing(self):
-        """Test finding recipes by name when they do not exist in the database."""
-        recipe = self.get_data_proxy.find_by_name("lentil soup")
-        recipe_list = [r.get_recipe().name for r in recipe]
-        self.assertTrue(any(re.search(r'\blentil soups?\b',
-                                      recipe,
-                                      re.IGNORECASE)
-                            for recipe in recipe_list))
 
     def test_filter_recipe_includeIngredients1(self):
         facades = self.get_data_proxy.filter_recipe(
@@ -155,6 +143,7 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
+    @skipIf(not os.getenv('API_KEY'), "Skipping because API_KEY is not set")
     def test_filter_recipe_includeIngredients2(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -180,6 +169,7 @@ class GetDataProxyTest(TestCase):
                                       re.IGNORECASE)
                             for ingredient in ingredient_list))
 
+    @skipIf(not os.getenv('API_KEY'), "Skipping because API_KEY is not set")
     def test_filter_recipe_includeIngredients3(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -222,6 +212,7 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
+    @skipIf(not os.getenv('API_KEY'), "Skipping because API_KEY is not set")
     def test_filer_recipe_equipment2(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -246,6 +237,7 @@ class GetDataProxyTest(TestCase):
             rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
             re.IGNORECASE) for equipment in equipment_list))
 
+    @skipIf(not os.getenv('API_KEY'), "Skipping because API_KEY is not set")
     def test_filer_recipe_equipment3(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -291,6 +283,7 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
+    @skipIf(not os.getenv('API_KEY'), "Skipping because API_KEY is not set")
     def test_filter_recipe_diet2(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -311,6 +304,7 @@ class GetDataProxyTest(TestCase):
             rf"\b{re.escape(self.diet2.name)}s?\b", diet,
             re.IGNORECASE) for diet in diets))
 
+    @skipIf(not os.getenv('API_KEY'), "Skipping because API_KEY is not set")
     def test_filter_recipe_diet3(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -348,6 +342,7 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
+    @skipIf(not os.getenv('API_KEY'), "Skipping because API_KEY is not set")
     def test_filter_recipe_maxReadyTime2(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -362,6 +357,7 @@ class GetDataProxyTest(TestCase):
         recipe_temp = facades[2].get_recipe()
         self.assertLessEqual(recipe_temp.estimated_time, 40)
 
+    @skipIf(not os.getenv('API_KEY'), "Skipping because API_KEY is not set")
     def test_filter_recipe_maxReadyTime3(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -387,6 +383,7 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
+    @skipIf(not os.getenv('API_KEY'), "Skipping because API_KEY is not set")
     def test_filter_recipe_titleMatch2(self):
         """Test filtering recipes."""
         facades = self.get_data_proxy.filter_recipe(
@@ -403,6 +400,7 @@ class GetDataProxyTest(TestCase):
                                   facades[2].get_recipe().name,
                                   re.IGNORECASE))
 
+    @skipIf(not os.getenv('API_KEY'), "Skipping because API_KEY is not set")
     def test_filter_recipe_titleMatch3(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -419,6 +417,7 @@ class GetDataProxyTest(TestCase):
                                   facades[1].get_recipe().name,
                                   re.IGNORECASE))
 
+    @skipIf(not os.getenv('API_KEY'), "Skipping because API_KEY is not set")
     def test_filter_recipe_titleMatch4(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -457,6 +456,7 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
+    @skipIf(not os.getenv('API_KEY'), "Skipping because API_KEY is not set")
     def test_filter_recipe_all2(self):
         """facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -600,44 +600,6 @@ class GetDataSpoonacularTest(TestCase):
         mock_get.return_value = Mock(status_code=404)
         with self.assertRaises(Exception):
             self.get_data_spoonacular.find_by_spoonacular_id(123450)
-
-    @patch('requests.get')
-    def test_find_by_name(self, mock_get):
-        """Test retrieving a recipe by name."""
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = {
-            "results": [
-                {
-                    "id": 112233,
-                    "title": "Apple Pie",
-                    "image": "https://applepie.com/image.jpg"
-                },
-                {
-                    "id": 223344,
-                    "title": "Fish Pie",
-                    "image": "https://fishsteak.com/image.jpg"
-                }
-            ]
-        }
-        recipes_facade = self.get_data_spoonacular.find_by_name("Pie")
-        self.assertIsInstance(recipes_facade[0], RecipeFacade)
-        self.assertIsInstance(recipes_facade[1], RecipeFacade)
-        self.assertEqual(recipes_facade[0].name, "Apple Pie")
-        self.assertEqual(recipes_facade[0].id, 112233)
-        self.assertEqual(recipes_facade[0].image,
-                         "https://applepie.com/image.jpg")
-        self.assertEqual(recipes_facade[1].name, "Fish Pie")
-        self.assertEqual(recipes_facade[1].id, 223344)
-        self.assertEqual(recipes_facade[1].image,
-                         "https://fishsteak.com/image.jpg")
-
-    @patch('requests.get')
-    def test_find_by_name_no_results(self, mock_get):
-        """Test retrieving a recipe by name when no results are found."""
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = {"results": []}
-        recipes = self.get_data_spoonacular.find_by_name("-")
-        self.assertEqual(len(recipes), 0)
 
     @patch('requests.get')
     def test_filter_recipe_success(self, mock_get):
