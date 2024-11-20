@@ -146,6 +146,13 @@
                 </script>
             </div>
             <div class="col-md-6">
+            <h4 class="mb-3">Equipments</h4>
+            <ul class="list-group fill" id="equipment">
+                {% for equipment in equipments %}
+                <li class="checked"><p class="my-2 mx-2">{{ equipment.name }}</li>
+                {% empty %}
+                {% endfor %}
+            </ul>
             <h4 class="mb-3">Instructions</h4>
             <ul class="list-group fill" id="steps">
                 {% for step in steps %}

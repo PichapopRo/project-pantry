@@ -173,6 +173,7 @@ class RecipeView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         recipe = self.get_object()
         context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
+        context['equipments'] = Recipe.get_equipments(recipe)
         if self.request.user.is_authenticated:
             context['user_favourites'] = Favourite.objects.filter(
                 user=self.request.user).values_list('recipe_id', flat=True)
