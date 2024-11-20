@@ -10,7 +10,7 @@ from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
 from decouple import config
 
-API_KEY = config('API_KEY', default=None)
+API_KEY = config('API_KEY', default='fake-secret-key')
 
 
 class GetDataProxyTest(TestCase):
@@ -127,7 +127,7 @@ class GetDataProxyTest(TestCase):
 
     def test_find_by_spoonacular_id_non_existing(self):
         """Test finding a recipe by spoonacular_id when it does not exist in the database."""
-        if API_KEY:
+        if API_KEY != "github-api-testing":
             recipe = self.get_data_proxy.find_by_spoonacular_id(10)
             self.assertEqual(recipe.spoonacular_id, 10)
 
@@ -146,7 +146,7 @@ class GetDataProxyTest(TestCase):
 
 
     def test_filter_recipe_includeIngredients2(self):
-        if API_KEY:
+        if API_KEY != "github-api-testing":
             facades = self.get_data_proxy.filter_recipe(
                 FilterParam(
                     offset=1,
@@ -161,7 +161,6 @@ class GetDataProxyTest(TestCase):
             recipe_temp = facades[2].get_recipe()
             ingredient_list = [igl.ingredient.name for igl in
                                list(recipe_temp.get_ingredients())]
-            print(ingredient_list)
             self.assertTrue(any(re.search(r'\bavocados?\b',
                                           ingredient,
                                           re.IGNORECASE)
@@ -172,7 +171,7 @@ class GetDataProxyTest(TestCase):
                             for ingredient in ingredient_list))
 
     def test_filter_recipe_includeIngredients3(self):
-        if API_KEY:
+        if API_KEY != "github-api-testing":
             facades = self.get_data_proxy.filter_recipe(
                 FilterParam(
                     offset=3,
@@ -215,7 +214,7 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
     def test_filter_recipe_diet2(self):
-        if API_KEY:
+        if API_KEY != "github-api-testing":
             facades = self.get_data_proxy.filter_recipe(
                 FilterParam(
                     offset=1,
@@ -236,7 +235,7 @@ class GetDataProxyTest(TestCase):
                 re.IGNORECASE) for diet in diets))
 
     def test_filter_recipe_diet3(self):
-        if API_KEY:
+        if API_KEY != "github-api-testing":
             facades = self.get_data_proxy.filter_recipe(
                 FilterParam(
                     offset=3,
@@ -274,7 +273,7 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
     def test_filter_recipe_maxReadyTime2(self):
-        if API_KEY:
+        if API_KEY != "github-api-testing":
             facades = self.get_data_proxy.filter_recipe(
                 FilterParam(
                     offset=1,
@@ -289,7 +288,7 @@ class GetDataProxyTest(TestCase):
             self.assertLessEqual(recipe_temp.estimated_time, 40)
 
     def test_filter_recipe_maxReadyTime3(self):
-        if API_KEY:
+        if API_KEY != "github-api-testing":
             facades = self.get_data_proxy.filter_recipe(
                 FilterParam(
                     offset=3,
@@ -316,7 +315,7 @@ class GetDataProxyTest(TestCase):
 
     def test_filter_recipe_titleMatch2(self):
         """Test filtering recipes."""
-        if API_KEY:
+        if API_KEY != "github-api-testing":
             facades = self.get_data_proxy.filter_recipe(
                 FilterParam(
                     offset=1,
@@ -332,7 +331,7 @@ class GetDataProxyTest(TestCase):
                                       re.IGNORECASE))
 
     def test_filter_recipe_titleMatch3(self):
-        if API_KEY:
+        if API_KEY != "github-api-testing":
             facades = self.get_data_proxy.filter_recipe(
                 FilterParam(
                     offset=3,
@@ -349,7 +348,7 @@ class GetDataProxyTest(TestCase):
                                       re.IGNORECASE))
 
     def test_filter_recipe_titleMatch4(self):
-        if API_KEY:
+        if API_KEY != "github-api-testing":
             facades = self.get_data_proxy.filter_recipe(
                 FilterParam(
                     offset=1,
@@ -386,7 +385,7 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
     def test_filter_recipe_all2(self):
-        """if API_KEY:
+        """if API_KEY != "github-api-testing":
             facades = self.get_data_proxy.filter_recipe(
                 FilterParam(
                     offset=1,
