@@ -57,8 +57,12 @@
             justify-content: center;
         }
         ul li:nth-child(odd) {
-          background: #f9f9f9;
+          background: #b6b6b6;
         }
         ol li:nth-child(odd) {
-          background: #f9f9f9;
+          background: #b6b6b6;
+        }
+        .thick {
+          text-decoration: solid underline 4px;
+            color: #59704e;
         }

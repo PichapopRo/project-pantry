@@ -10,7 +10,7 @@ from django.utils import timezone
 
 
 class Ingredient(models.Model):
-    """An ingredient contains the name, a spoonacauar_id(if exists) and a link to a picture."""
+    """An ingredient contains the name, a spoonacular_id(if exists) and a link to a picture."""
 
     name = models.CharField(max_length=100, default='Unnamed Ingredient')
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
@@ -22,7 +22,7 @@ class Ingredient(models.Model):
 
 
 class Equipment(models.Model):
-    """Equipment contains the name, a spoonacauar_id(if exists) and a link to a picture."""
+    """Equipment contains the name, a spoonacular_id(if exists) and a link to a picture."""
 
     name = models.CharField(max_length=100, default='Unnamed Equipment')
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
