@@ -10,7 +10,7 @@ from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
 from webpage.modules.builder import SpoonacularRecipeBuilder
 import logging
-API_KEY = config('API_KEY')
+API_KEY = config('API_KEY', default=None)
 logger = logging.getLogger("proxy class")
 
 

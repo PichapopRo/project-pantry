@@ -4,4 +4,3 @@ requests~=2.32.3
 pytest>=8.3.3
 beautifulsoup4~=4.12.3
 openai>=1.51.2
-python-dotenv~=1.0.1

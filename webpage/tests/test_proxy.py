@@ -1,7 +1,5 @@
 """Tests for the GetDataProxy class and GetDataSpoonacular class."""
-import os
 import re
-import pytest
 from django.test import TestCase
 from unittest.mock import patch, Mock
 from django.contrib.auth.models import User
@@ -10,9 +8,9 @@ from webpage.models import (Recipe, Ingredient, IngredientList,
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
-from dotenv import load_dotenv
+from decouple import config
 
-load_dotenv()
+API_KEY = config('API_KEY', default=None)
 
 
 class GetDataProxyTest(TestCase):
@@ -127,12 +125,11 @@ class GetDataProxyTest(TestCase):
             self.recipe1.spoonacular_id)
         self.assertEqual(recipe, self.recipe1)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'),
-                        reason="Skipping because API_KEY is not set")
     def test_find_by_spoonacular_id_non_existing(self):
         """Test finding a recipe by spoonacular_id when it does not exist in the database."""
-        recipe = self.get_data_proxy.find_by_spoonacular_id(10)
-        self.assertEqual(recipe.spoonacular_id, 10)
+        if API_KEY:
+            recipe = self.get_data_proxy.find_by_spoonacular_id(10)
+            self.assertEqual(recipe.spoonacular_id, 10)
 
     def test_filter_recipe_includeIngredients1(self):
         facades = self.get_data_proxy.filter_recipe(
@@ -147,63 +144,62 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'),
-                        reason="Skipping because API_KEY is not set")
+
     def test_filter_recipe_includeIngredients2(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=3,
-                includeIngredients=[self.ingredient1.name,
-                                    self.ingredient2.name]
+        if API_KEY:
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=1,
+                    number=3,
+                    includeIngredients=[self.ingredient1.name,
+                                        self.ingredient2.name]
+                )
             )
-        )
-        self.assertEqual(len(facades), 3)
-        self.assertEqual(facades[0].get_recipe(), self.recipe1)
-        self.assertEqual(facades[1].get_recipe(), self.recipe2)
-        recipe_temp = facades[2].get_recipe()
-        ingredient_list = [igl.ingredient.name for igl in
-                           list(recipe_temp.get_ingredients())]
-        print(ingredient_list)
-        self.assertTrue(any(re.search(r'\bavocados?\b',
-                                      ingredient,
-                                      re.IGNORECASE)
-                            for ingredient in ingredient_list))
-        self.assertTrue(any(re.search(r'\bcarrots?\b',
-                                      ingredient,
-                                      re.IGNORECASE)
+            self.assertEqual(len(facades), 3)
+            self.assertEqual(facades[0].get_recipe(), self.recipe1)
+            self.assertEqual(facades[1].get_recipe(), self.recipe2)
+            recipe_temp = facades[2].get_recipe()
+            ingredient_list = [igl.ingredient.name for igl in
+                               list(recipe_temp.get_ingredients())]
+            print(ingredient_list)
+            self.assertTrue(any(re.search(r'\bavocados?\b',
+                                          ingredient,
+                                          re.IGNORECASE)
+                                for ingredient in ingredient_list))
+            self.assertTrue(any(re.search(r'\bcarrots?\b',
+                                          ingredient,
+                                          re.IGNORECASE)
                             for ingredient in ingredient_list))
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'),
-                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_includeIngredients3(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=3,
-                number=2,
-                includeIngredients=[self.ingredient1.name,
-                                    self.ingredient2.name]
+        if API_KEY:
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=3,
+                    number=2,
+                    includeIngredients=[self.ingredient1.name,
+                                        self.ingredient2.name]
+                )
             )
-        )
-        self.assertEqual(len(facades), 2)
-        recipe_temp1 = facades[0].get_recipe()
-        ingredient_list1 = [igl.ingredient.name for igl in
-                            list(recipe_temp1.get_ingredients())]
-        recipe_temp2 = facades[1].get_recipe()
-        ingredient_list2 = [igl.ingredient.name for igl in
-                            list(recipe_temp2.get_ingredients())]
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.ingredient1.name)}s?\b", ingredient,
-            re.IGNORECASE) for ingredient in ingredient_list1))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.ingredient2.name)}s?\b", ingredient,
-            re.IGNORECASE) for ingredient in ingredient_list1))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.ingredient1.name)}s?\b", ingredient,
-            re.IGNORECASE) for ingredient in ingredient_list2))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.ingredient2.name)}s?\b", ingredient,
-            re.IGNORECASE) for ingredient in ingredient_list2))
+            self.assertEqual(len(facades), 2)
+            recipe_temp1 = facades[0].get_recipe()
+            ingredient_list1 = [igl.ingredient.name for igl in
+                                list(recipe_temp1.get_ingredients())]
+            recipe_temp2 = facades[1].get_recipe()
+            ingredient_list2 = [igl.ingredient.name for igl in
+                                list(recipe_temp2.get_ingredients())]
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.ingredient1.name)}s?\b", ingredient,
+                re.IGNORECASE) for ingredient in ingredient_list1))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.ingredient2.name)}s?\b", ingredient,
+                re.IGNORECASE) for ingredient in ingredient_list1))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.ingredient1.name)}s?\b", ingredient,
+                re.IGNORECASE) for ingredient in ingredient_list2))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.ingredient2.name)}s?\b", ingredient,
+                re.IGNORECASE) for ingredient in ingredient_list2))
 
     def test_filer_recipe_equipment1(self):
         facades = self.get_data_proxy.filter_recipe(
@@ -218,65 +214,63 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'),
-                        reason="Skipping because API_KEY is not set")
     def test_filer_recipe_equipment2(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=3,
-                equipment=[self.equipment1.name,
-                           self.equipment2.name]
+        if API_KEY:
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=1,
+                    number=3,
+                    equipment=[self.equipment1.name,
+                               self.equipment2.name]
+                )
             )
-        )
-        self.assertEqual(len(facades), 3)
-        self.assertEqual(facades[0].get_recipe(), self.recipe1)
-        self.assertEqual(facades[1].get_recipe(), self.recipe2)
-        recipe_temp = facades[2].get_recipe()
-        equipment_list = [eql.equipment.name for eql in
-                          list(recipe_temp.get_equipments())]
-        # equipment_list = ['food processor', 'frying pan']
-        # It would get just eq1 OR eq2 and not eq1 AND eq2
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.equipment1.name)}s?\b", equipment,
-            re.IGNORECASE) for equipment in equipment_list))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
-            re.IGNORECASE) for equipment in equipment_list))
+            self.assertEqual(len(facades), 3)
+            self.assertEqual(facades[0].get_recipe(), self.recipe1)
+            self.assertEqual(facades[1].get_recipe(), self.recipe2)
+            recipe_temp = facades[2].get_recipe()
+            equipment_list = [eql.equipment.name for eql in
+                              list(recipe_temp.get_equipments())]
+            # equipment_list = ['food processor', 'frying pan']
+            # It would get just eq1 OR eq2 and not eq1 AND eq2
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.equipment1.name)}s?\b", equipment,
+                re.IGNORECASE) for equipment in equipment_list))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
+                re.IGNORECASE) for equipment in equipment_list))
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'),
-                        reason="Skipping because API_KEY is not set")
     def test_filer_recipe_equipment3(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=3,
-                number=2,
-                equipment=[self.equipment1.name,
-                           self.equipment2.name]
+        if API_KEY:
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=3,
+                    number=2,
+                    equipment=[self.equipment1.name,
+                               self.equipment2.name]
+                )
             )
-        )
-        self.assertEqual(len(facades), 2)
-        recipe_temp1 = facades[0].get_recipe()
-        equipment_list1 = [eql.equipment.name for eql in
-                           list(recipe_temp1.get_equipments())]
-        recipe_temp2 = facades[1].get_recipe()
-        equipment_list2 = [eql.equipment.name for eql in
-                           list(recipe_temp2.get_equipments())]
-        # equipment_list1 = ['food processor', 'frying pan']
-        # equipment_list2 = ['mixing bowl', 'sauce pan', 'frying pan', 'whisk']
-        # It would get just eq1 OR eq2 and not eq1 AND eq2
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.equipment1.name)}s?\b", equipment,
-            re.IGNORECASE) for equipment in equipment_list1))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
-            re.IGNORECASE) for equipment in equipment_list1))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.equipment1.name)}s?\b", equipment,
-            re.IGNORECASE) for equipment in equipment_list2))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
-            re.IGNORECASE) for equipment in equipment_list2))
+            self.assertEqual(len(facades), 2)
+            recipe_temp1 = facades[0].get_recipe()
+            equipment_list1 = [eql.equipment.name for eql in
+                               list(recipe_temp1.get_equipments())]
+            recipe_temp2 = facades[1].get_recipe()
+            equipment_list2 = [eql.equipment.name for eql in
+                               list(recipe_temp2.get_equipments())]
+            # equipment_list1 = ['food processor', 'frying pan']
+            # equipment_list2 = ['mixing bowl', 'sauce pan', 'frying pan', 'whisk']
+            # It would get just eq1 OR eq2 and not eq1 AND eq2
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.equipment1.name)}s?\b", equipment,
+                re.IGNORECASE) for equipment in equipment_list1))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
+                re.IGNORECASE) for equipment in equipment_list1))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.equipment1.name)}s?\b", equipment,
+                re.IGNORECASE) for equipment in equipment_list2))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
+                re.IGNORECASE) for equipment in equipment_list2))
 
     def test_filter_recipe_diet1(self):
         facades = self.get_data_proxy.filter_recipe(
@@ -291,54 +285,52 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'),
-                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_diet2(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=3,
-                diet=[self.diet1.name,
-                      self.diet2.name]
+        if API_KEY:
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=1,
+                    number=3,
+                    diet=[self.diet1.name,
+                          self.diet2.name]
+                )
             )
-        )
-        self.assertEqual(len(facades), 3)
-        self.assertEqual(facades[0].get_recipe(), self.recipe1)
-        self.assertEqual(facades[1].get_recipe(), self.recipe2)
-        diets = [diet.name for diet in facades[2].get_recipe().diets.all()]
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.diet1.name)}s?\b", diet,
-            re.IGNORECASE) for diet in diets))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.diet2.name)}s?\b", diet,
-            re.IGNORECASE) for diet in diets))
+            self.assertEqual(len(facades), 3)
+            self.assertEqual(facades[0].get_recipe(), self.recipe1)
+            self.assertEqual(facades[1].get_recipe(), self.recipe2)
+            diets = [diet.name for diet in facades[2].get_recipe().diets.all()]
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.diet1.name)}s?\b", diet,
+                re.IGNORECASE) for diet in diets))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.diet2.name)}s?\b", diet,
+                re.IGNORECASE) for diet in diets))
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'),
-                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_diet3(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=3,
-                number=2,
-                diet=[self.diet1.name,
-                      self.diet2.name]
+        if API_KEY:
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=3,
+                    number=2,
+                    diet=[self.diet1.name,
+                          self.diet2.name]
+                )
             )
-        )
-        self.assertEqual(len(facades), 2)
-        diets1 = [diet.name for diet in facades[0].get_recipe().diets.all()]
-        diets2 = [diet.name for diet in facades[1].get_recipe().diets.all()]
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.diet1.name)}s?\b", diet,
-            re.IGNORECASE) for diet in diets1))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.diet2.name)}s?\b", diet,
-            re.IGNORECASE) for diet in diets1))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.diet1.name)}s?\b", diet,
-            re.IGNORECASE) for diet in diets2))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.diet2.name)}s?\b", diet,
-            re.IGNORECASE) for diet in diets2))
+            self.assertEqual(len(facades), 2)
+            diets1 = [diet.name for diet in facades[0].get_recipe().diets.all()]
+            diets2 = [diet.name for diet in facades[1].get_recipe().diets.all()]
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.diet1.name)}s?\b", diet,
+                re.IGNORECASE) for diet in diets1))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.diet2.name)}s?\b", diet,
+                re.IGNORECASE) for diet in diets1))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.diet1.name)}s?\b", diet,
+                re.IGNORECASE) for diet in diets2))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.diet2.name)}s?\b", diet,
+                re.IGNORECASE) for diet in diets2))
 
     def test_filter_recipe_maxReadyTime1(self):
         facades = self.get_data_proxy.filter_recipe(
@@ -352,34 +344,33 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'))
     def test_filter_recipe_maxReadyTime2(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=3,
-                maxReadyTime=40
+        if API_KEY:
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=1,
+                    number=3,
+                    maxReadyTime=40
+                )
             )
-        )
-        self.assertEqual(len(facades), 3)
-        self.assertEqual(facades[0].get_recipe(), self.recipe1)
-        self.assertEqual(facades[1].get_recipe(), self.recipe2)
-        recipe_temp = facades[2].get_recipe()
-        self.assertLessEqual(recipe_temp.estimated_time, 40)
+            self.assertEqual(len(facades), 3)
+            self.assertEqual(facades[0].get_recipe(), self.recipe1)
+            self.assertEqual(facades[1].get_recipe(), self.recipe2)
+            recipe_temp = facades[2].get_recipe()
+            self.assertLessEqual(recipe_temp.estimated_time, 40)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'),
-                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_maxReadyTime3(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=3,
-                number=2,
-                maxReadyTime=40
+        if API_KEY:
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=3,
+                    number=2,
+                    maxReadyTime=40
+                )
             )
-        )
-        self.assertEqual(len(facades), 2)
-        self.assertLessEqual(facades[0].get_recipe().estimated_time, 40)
-        self.assertLessEqual(facades[1].get_recipe().estimated_time, 40)
+            self.assertEqual(len(facades), 2)
+            self.assertLessEqual(facades[0].get_recipe().estimated_time, 40)
+            self.assertLessEqual(facades[1].get_recipe().estimated_time, 40)
 
     def test_filter_recipe_titleMatch1(self):
         """Test filtering recipes."""
@@ -394,61 +385,58 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'),
-                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_titleMatch2(self):
         """Test filtering recipes."""
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=3,
-                titleMatch="salad"
+        if API_KEY:
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=1,
+                    number=3,
+                    titleMatch="salad"
+                )
             )
-        )
-        self.assertEqual(len(facades), 3)
-        self.assertEqual(facades[0].get_recipe(), self.recipe1)
-        self.assertEqual(facades[1].get_recipe(), self.recipe2)
-        self.assertTrue(re.search(r'\bsalads?\b',
-                                  facades[2].get_recipe().name,
-                                  re.IGNORECASE))
+            self.assertEqual(len(facades), 3)
+            self.assertEqual(facades[0].get_recipe(), self.recipe1)
+            self.assertEqual(facades[1].get_recipe(), self.recipe2)
+            self.assertTrue(re.search(r'\bsalads?\b',
+                                      facades[2].get_recipe().name,
+                                      re.IGNORECASE))
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'),
-                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_titleMatch3(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=3,
-                number=2,
-                titleMatch="salad"
+        if API_KEY:
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=3,
+                    number=2,
+                    titleMatch="salad"
+                )
             )
-        )
-        self.assertEqual(len(facades), 2)
-        self.assertTrue(re.search(r'\bsalads?\b',
-                                  facades[0].get_recipe().name,
-                                  re.IGNORECASE))
-        self.assertTrue(re.search(r'\bsalads?\b',
-                                  facades[1].get_recipe().name,
-                                  re.IGNORECASE))
+            self.assertEqual(len(facades), 2)
+            self.assertTrue(re.search(r'\bsalads?\b',
+                                      facades[0].get_recipe().name,
+                                      re.IGNORECASE))
+            self.assertTrue(re.search(r'\bsalads?\b',
+                                      facades[1].get_recipe().name,
+                                      re.IGNORECASE))
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'),
-                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_titleMatch4(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=2,
-                titleMatch="fish"
+        if API_KEY:
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=1,
+                    number=2,
+                    titleMatch="fish"
+                )
             )
-        )
-        # facades[0].get_recipe().name = Greek-Style Baked Fish: Fresh, Simple, and Delicious
-        # facades[1].get_recipe().name = Winter Kimchi which is wrong
-        self.assertEqual(len(facades), 2)
-        self.assertTrue(re.search(r'\bfishs?\b',
-                                  facades[0].get_recipe().name,
-                                  re.IGNORECASE))
-        self.assertTrue(re.search(r'\bfishs?\b',
-                                  facades[1].get_recipe().name,
-                                  re.IGNORECASE))
+            # facades[0].get_recipe().name = Greek-Style Baked Fish: Fresh, Simple, and Delicious
+            # facades[1].get_recipe().name = Winter Kimchi which is wrong
+            self.assertEqual(len(facades), 2)
+            self.assertTrue(re.search(r'\bfishs?\b',
+                                      facades[0].get_recipe().name,
+                                      re.IGNORECASE))
+            self.assertTrue(re.search(r'\bfishs?\b',
+                                      facades[1].get_recipe().name,
+                                      re.IGNORECASE))
 
     def test_filter_recipe_all1(self):
         """"""
@@ -470,24 +458,23 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'),
-                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_all2(self):
-        """facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=3,
-                includeIngredients=[self.ingredient1.name],
-                equipment=[self.equipment1.name],
-                diet=[self.diet1.name],
-                maxReadyTime=200,
-                titleMatch="avocado"
+        """if API_KEY:
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=1,
+                    number=3,
+                    includeIngredients=[self.ingredient1.name],
+                    equipment=[self.equipment1.name],
+                    diet=[self.diet1.name],
+                    maxReadyTime=200,
+                    titleMatch="avocado"
+                )
             )
-        )
-        self.assertEqual(len(facades), 3)
-        self.assertEqual(facades[0].get_recipe(), self.recipe1)
-        self.assertEqual(facades[1].get_recipe(), self.recipe2)
-        print(facades[2].get_recipe())"""
+            self.assertEqual(len(facades), 3)
+            self.assertEqual(facades[0].get_recipe(), self.recipe1)
+            self.assertEqual(facades[1].get_recipe(), self.recipe2)
+            print(facades[2].get_recipe())"""
 
     def test_convert_parameter(self):
         parameter = self.get_data_proxy.convert_parameter(
