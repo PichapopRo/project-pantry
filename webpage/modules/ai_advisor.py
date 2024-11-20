@@ -37,6 +37,7 @@ class AIRecipeAdvisor:
         self._gpt = GPTHandler(config("ALTER_PROMT", default="default"), "gpt-4o-mini")
         self._difficulty_gpt = GPTHandler(config("DIFF_PROMPT", default="default"), "gpt-4o-mini")
         self._nutrition_gpt = GPTHandler(config("NUTRITION_PROMPT", default="default"), "gpt-4o-mini")
+        self._approval_gpt = GPTHandler(config("APPROVAL_PROMPT", default="default"), "gpt-4o-mini")
         name = "The recipe name:" + self._recipe.name
         description = "Description:" + self._recipe.description
         ingredients = ""
@@ -152,3 +153,45 @@ class AIRecipeAdvisor:
                 continue
 
         raise Exception("Error with LLM in nutrition calculation. Please try again.")
+
+    def recipe_approval(self):
+        """
+        Determine whether the recipe is possible to make and eatable.
+
+        :return: True if the recipe is approved (possible to make and eatable), False otherwise.
+        :raises: Exception if the GPT model fails to generate a valid response.
+        """
+        LIMIT = 5
+        name = f"Recipe Name: {self._recipe.name}\n"
+        description = f"Description: {self._recipe.description}\n"
+        ingredients = "Ingredients:\n"
+        for ingre in self._recipe.get_ingredients():
+            ingredients += f"- {ingre.ingredient.name}, amount: {ingre.amount} {ingre.unit}\n"
+
+        equipment = "Equipment:\n"
+        for equip in self._recipe.get_equipments():
+            equipment += f"- {equip.equipment.name}\n"
+
+        steps = "Steps:\n"
+        for step in self._recipe.steps.all():
+            steps += f"{step.number}. {step.description}\n"
+
+        diets = f"Diet Restrictions: {', '.join([diet.name for diet in self._recipe.diets.all()])}\n"
+        query = name + description + ingredients + equipment + steps + diets
+
+        for _ in range(LIMIT):
+            try:
+                response = self._approval_gpt.generate(query)
+                approval = bool(response.strip())
+                if isinstance(approval, bool):
+                    if approval is True:
+                        self._recipe.status = 'Approved'
+                    elif approval is False:
+                        self._recipe.status = 'Rejected'
+                return
+            except Exception as e:
+                logger.error(f"Error during recipe approval calculation: {e}")
+                continue
+
+        raise Exception(
+            "Error with LLM in recipe approval calculation. Please try again.")
