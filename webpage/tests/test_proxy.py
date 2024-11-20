@@ -27,7 +27,7 @@ class GetDataProxyTest(TestCase):
             username="Spoonacular")
         cls.recipe1 = Recipe.objects.create(
             spoonacular_id=1,
-            name='Pork Salad',
+            name='Avocado Pork Salad',
             image='http://example.com/porksalad.jpg',
             estimated_time=30,
             description='This is a pork salad.',
@@ -35,7 +35,7 @@ class GetDataProxyTest(TestCase):
         )
         cls.recipe2 = Recipe.objects.create(
             spoonacular_id=2,
-            name='Meat Salad',
+            name='Avocado Meat Salad',
             image='http://example.com/meatsalad.jpg',
             estimated_time=30,
             description='This is a meat salad.',
@@ -214,7 +214,8 @@ class GetDataProxyTest(TestCase):
             FilterParam(
                 offset=1,
                 number=2,
-                equipment=[self.equipment1.name, self.equipment2.name]
+                equipment=[self.equipment1.name,
+                           self.equipment2.name]
             )
         )
         self.assertEqual(len(facades), 2)
@@ -226,7 +227,8 @@ class GetDataProxyTest(TestCase):
             FilterParam(
                 offset=1,
                 number=3,
-                equipment=[self.equipment1.name, self.equipment2.name]
+                equipment=[self.equipment1.name,
+                           self.equipment2.name]
             )
         )
         self.assertEqual(len(facades), 3)
@@ -249,7 +251,8 @@ class GetDataProxyTest(TestCase):
             FilterParam(
                 offset=3,
                 number=2,
-                equipment=[self.equipment1.name, self.equipment2.name]
+                equipment=[self.equipment1.name,
+                           self.equipment2.name]
             )
         )
         self.assertEqual(len(facades), 2)
@@ -280,7 +283,8 @@ class GetDataProxyTest(TestCase):
             FilterParam(
                 offset=1,
                 number=2,
-                diet=[self.diet1.name, self.diet2.name]
+                diet=[self.diet1.name,
+                      self.diet2.name]
             )
         )
         self.assertEqual(len(facades), 2)
@@ -292,7 +296,8 @@ class GetDataProxyTest(TestCase):
             FilterParam(
                 offset=1,
                 number=3,
-                diet=[self.diet1.name, self.diet2.name]
+                diet=[self.diet1.name,
+                      self.diet2.name]
             )
         )
         self.assertEqual(len(facades), 3)
@@ -311,7 +316,8 @@ class GetDataProxyTest(TestCase):
             FilterParam(
                 offset=3,
                 number=2,
-                diet=[self.diet1.name, self.diet2.name]
+                diet=[self.diet1.name,
+                      self.diet2.name]
             )
         )
         self.assertEqual(len(facades), 2)
@@ -397,7 +403,7 @@ class GetDataProxyTest(TestCase):
                                   facades[2].get_recipe().name,
                                   re.IGNORECASE))
 
-    def test_filter_recipe_not_enough_titleMatch3(self):
+    def test_filter_recipe_titleMatch3(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
                 offset=3,
@@ -413,7 +419,7 @@ class GetDataProxyTest(TestCase):
                                   facades[1].get_recipe().name,
                                   re.IGNORECASE))
 
-    def test_filter_recipe_not_enough_titleMatch4(self):
+    def test_filter_recipe_titleMatch4(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
                 offset=1,
@@ -431,14 +437,54 @@ class GetDataProxyTest(TestCase):
                                   facades[1].get_recipe().name,
                                   re.IGNORECASE))
 
+    def test_filter_recipe_all1(self):
+        """"""
+        facades = self.get_data_proxy.filter_recipe(
+            FilterParam(
+                offset=1,
+                number=2,
+                includeIngredients=[self.ingredient1.name,
+                                    self.ingredient2.name],
+                equipment=[self.equipment1.name,
+                           self.equipment2.name],
+                diet=[self.diet1.name,
+                      self.diet2.name],
+                maxReadyTime=40,
+                titleMatch="salad"
+            )
+        )
+        self.assertEqual(len(facades), 2)
+        self.assertEqual(facades[0].get_recipe(), self.recipe1)
+        self.assertEqual(facades[1].get_recipe(), self.recipe2)
+
+    def test_filter_recipe_all2(self):
+        """facades = self.get_data_proxy.filter_recipe(
+            FilterParam(
+                offset=1,
+                number=3,
+                includeIngredients=[self.ingredient1.name],
+                equipment=[self.equipment1.name],
+                diet=[self.diet1.name],
+                maxReadyTime=200,
+                titleMatch="avocado"
+            )
+        )
+        self.assertEqual(len(facades), 3)
+        self.assertEqual(facades[0].get_recipe(), self.recipe1)
+        self.assertEqual(facades[1].get_recipe(), self.recipe2)
+        print(facades[2].get_recipe())"""
+
     def test_convert_parameter(self):
         parameter = self.get_data_proxy.convert_parameter(
             FilterParam(
                 offset=1,
                 number=2,
-                includeIngredients=["avocado", "carrots"],
-                equipment=["slow cooker", "bowl"],
-                diet=["Paleo", "Low FODMAP"],
+                includeIngredients=["avocado",
+                                    "carrots"],
+                equipment=["slow cooker",
+                           "bowl"],
+                diet=["Paleo",
+                      "Low FODMAP"],
                 maxReadyTime=40,
                 titleMatch="fish"
             )
