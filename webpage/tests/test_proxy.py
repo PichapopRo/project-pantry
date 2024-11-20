@@ -10,6 +10,9 @@ from webpage.models import (Recipe, Ingredient, IngredientList,
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class GetDataProxyTest(TestCase):
