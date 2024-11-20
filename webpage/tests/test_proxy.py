@@ -124,7 +124,8 @@ class GetDataProxyTest(TestCase):
             self.recipe1.spoonacular_id)
         self.assertEqual(recipe, self.recipe1)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'))
+    @pytest.mark.skipif(not os.getenv('API_KEY'),
+                        reason="Skipping because API_KEY is not set")
     def test_find_by_spoonacular_id_non_existing(self):
         """Test finding a recipe by spoonacular_id when it does not exist in the database."""
         recipe = self.get_data_proxy.find_by_spoonacular_id(10)
@@ -143,7 +144,8 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'))
+    @pytest.mark.skipif(not os.getenv('API_KEY'),
+                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_includeIngredients2(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -169,7 +171,8 @@ class GetDataProxyTest(TestCase):
                                       re.IGNORECASE)
                             for ingredient in ingredient_list))
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'))
+    @pytest.mark.skipif(not os.getenv('API_KEY'),
+                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_includeIngredients3(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -212,7 +215,8 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'))
+    @pytest.mark.skipif(not os.getenv('API_KEY'),
+                        reason="Skipping because API_KEY is not set")
     def test_filer_recipe_equipment2(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -237,7 +241,8 @@ class GetDataProxyTest(TestCase):
             rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
             re.IGNORECASE) for equipment in equipment_list))
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'))
+    @pytest.mark.skipif(not os.getenv('API_KEY'),
+                        reason="Skipping because API_KEY is not set")
     def test_filer_recipe_equipment3(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -283,7 +288,8 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'))
+    @pytest.mark.skipif(not os.getenv('API_KEY'),
+                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_diet2(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -304,7 +310,8 @@ class GetDataProxyTest(TestCase):
             rf"\b{re.escape(self.diet2.name)}s?\b", diet,
             re.IGNORECASE) for diet in diets))
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'))
+    @pytest.mark.skipif(not os.getenv('API_KEY'),
+                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_diet3(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -357,7 +364,8 @@ class GetDataProxyTest(TestCase):
         recipe_temp = facades[2].get_recipe()
         self.assertLessEqual(recipe_temp.estimated_time, 40)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'))
+    @pytest.mark.skipif(not os.getenv('API_KEY'),
+                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_maxReadyTime3(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -383,7 +391,8 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'))
+    @pytest.mark.skipif(not os.getenv('API_KEY'),
+                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_titleMatch2(self):
         """Test filtering recipes."""
         facades = self.get_data_proxy.filter_recipe(
@@ -400,7 +409,8 @@ class GetDataProxyTest(TestCase):
                                   facades[2].get_recipe().name,
                                   re.IGNORECASE))
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'))
+    @pytest.mark.skipif(not os.getenv('API_KEY'),
+                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_titleMatch3(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -417,7 +427,8 @@ class GetDataProxyTest(TestCase):
                                   facades[1].get_recipe().name,
                                   re.IGNORECASE))
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'))
+    @pytest.mark.skipif(not os.getenv('API_KEY'),
+                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_titleMatch4(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -456,7 +467,8 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
-    @pytest.mark.skipif(not os.getenv('API_KEY'))
+    @pytest.mark.skipif(not os.getenv('API_KEY'),
+                        reason="Skipping because API_KEY is not set")
     def test_filter_recipe_all2(self):
         """facades = self.get_data_proxy.filter_recipe(
             FilterParam(
