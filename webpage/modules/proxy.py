@@ -137,7 +137,6 @@ class GetDataProxy(GetData):
         parameter_for_django = []
         _keys = {
             'includeIngredients': 'ingredientlist__ingredient__name__icontains',
-            'equipment': 'equipmentlist__equipment__name__icontains',
             "diet": 'diets__name__icontains',
             'maxReadyTime': 'estimated_time__lte',
             'titleMatch': 'name__contains'

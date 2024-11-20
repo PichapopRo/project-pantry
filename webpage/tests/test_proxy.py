@@ -201,77 +201,6 @@ class GetDataProxyTest(TestCase):
                 rf"\b{re.escape(self.ingredient2.name)}s?\b", ingredient,
                 re.IGNORECASE) for ingredient in ingredient_list2))
 
-    def test_filer_recipe_equipment1(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=2,
-                equipment=[self.equipment1.name,
-                           self.equipment2.name]
-            )
-        )
-        self.assertEqual(len(facades), 2)
-        self.assertEqual(facades[0].get_recipe(), self.recipe1)
-        self.assertEqual(facades[1].get_recipe(), self.recipe2)
-
-    def test_filer_recipe_equipment2(self):
-        if API_KEY:
-            facades = self.get_data_proxy.filter_recipe(
-                FilterParam(
-                    offset=1,
-                    number=3,
-                    equipment=[self.equipment1.name,
-                               self.equipment2.name]
-                )
-            )
-            self.assertEqual(len(facades), 3)
-            self.assertEqual(facades[0].get_recipe(), self.recipe1)
-            self.assertEqual(facades[1].get_recipe(), self.recipe2)
-            recipe_temp = facades[2].get_recipe()
-            equipment_list = [eql.equipment.name for eql in
-                              list(recipe_temp.get_equipments())]
-            # equipment_list = ['food processor', 'frying pan']
-            # It would get just eq1 OR eq2 and not eq1 AND eq2
-            self.assertTrue(any(re.search(
-                rf"\b{re.escape(self.equipment1.name)}s?\b", equipment,
-                re.IGNORECASE) for equipment in equipment_list))
-            self.assertTrue(any(re.search(
-                rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
-                re.IGNORECASE) for equipment in equipment_list))
-
-    def test_filer_recipe_equipment3(self):
-        if API_KEY:
-            facades = self.get_data_proxy.filter_recipe(
-                FilterParam(
-                    offset=3,
-                    number=2,
-                    equipment=[self.equipment1.name,
-                               self.equipment2.name]
-                )
-            )
-            self.assertEqual(len(facades), 2)
-            recipe_temp1 = facades[0].get_recipe()
-            equipment_list1 = [eql.equipment.name for eql in
-                               list(recipe_temp1.get_equipments())]
-            recipe_temp2 = facades[1].get_recipe()
-            equipment_list2 = [eql.equipment.name for eql in
-                               list(recipe_temp2.get_equipments())]
-            # equipment_list1 = ['food processor', 'frying pan']
-            # equipment_list2 = ['mixing bowl', 'sauce pan', 'frying pan', 'whisk']
-            # It would get just eq1 OR eq2 and not eq1 AND eq2
-            self.assertTrue(any(re.search(
-                rf"\b{re.escape(self.equipment1.name)}s?\b", equipment,
-                re.IGNORECASE) for equipment in equipment_list1))
-            self.assertTrue(any(re.search(
-                rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
-                re.IGNORECASE) for equipment in equipment_list1))
-            self.assertTrue(any(re.search(
-                rf"\b{re.escape(self.equipment1.name)}s?\b", equipment,
-                re.IGNORECASE) for equipment in equipment_list2))
-            self.assertTrue(any(re.search(
-                rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
-                re.IGNORECASE) for equipment in equipment_list2))
-
     def test_filter_recipe_diet1(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
@@ -446,8 +375,6 @@ class GetDataProxyTest(TestCase):
                 number=2,
                 includeIngredients=[self.ingredient1.name,
                                     self.ingredient2.name],
-                equipment=[self.equipment1.name,
-                           self.equipment2.name],
                 diet=[self.diet1.name,
                       self.diet2.name],
                 maxReadyTime=40,
@@ -483,8 +410,6 @@ class GetDataProxyTest(TestCase):
                 number=2,
                 includeIngredients=["avocado",
                                     "carrots"],
-                equipment=["slow cooker",
-                           "bowl"],
                 diet=["Paleo",
                       "Low FODMAP"],
                 maxReadyTime=40,
@@ -494,8 +419,6 @@ class GetDataProxyTest(TestCase):
         expected_parameter = [
             {"ingredientlist__ingredient__name__icontains": "avocado"},
             {"ingredientlist__ingredient__name__icontains": "carrots"},
-            {"equipmentlist__equipment__name__icontains": "slow cooker"},
-            {"equipmentlist__equipment__name__icontains": "bowl"},
             {"diets__name__icontains": "Paleo"},
             {"diets__name__icontains": "Low FODMAP"},
             {"estimated_time__lte": 40},
@@ -582,7 +505,6 @@ class GetDataSpoonacularTest(TestCase):
         self.assertEqual(["bowl", "fork"], equipment_list)
         nutrition_list = [ntl.nutrition.name for ntl in
                           list(recipe.get_nutrition())]
-        print(nutrition_list)
         self.assertEqual(["Calories"], nutrition_list)
         step_list = [step.description for step in
                      list(recipe.get_steps().order_by("number"))]
@@ -657,7 +579,6 @@ class GetDataSpoonacularTest(TestCase):
     def test_filter_recipe_error_response(self, mock_get):
         """Test filtering recipes with an error response."""
         mock_get.return_value.status_code = 500
-
         with self.assertRaises(Exception) as context:
             self.get_data_spoonacular.filter_recipe(
                 FilterParam(
@@ -673,7 +594,6 @@ class GetDataSpoonacularTest(TestCase):
                 offset=0,
                 number=2,
                 includeIngredients=["Apple", "Banana"],
-                equipment=["Pan", "Spoon"],
                 diet=["Vegan"],
                 maxReadyTime=70,
                 titleMatch="Pie"
@@ -681,7 +601,6 @@ class GetDataSpoonacularTest(TestCase):
         )
         expected_parameter = {
             'includeIngredients': "Apple,Banana",
-            'equipment': "Pan,Spoon",
             'diet': 'Vegan',
             'maxReadyTime': 70,
             'titleMatch': "Pie"

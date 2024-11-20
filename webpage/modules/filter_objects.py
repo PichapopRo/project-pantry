@@ -11,7 +11,6 @@ class FilterParam:
     offset: int
     number: int
     includeIngredients: List[str] = field(default_factory=list)
-    equipment: List[str] = field(default_factory=list)
     diet: List[str] = field(default_factory=list)
     maxReadyTime: int = 9999
     titleMatch: str = ""
@@ -32,7 +31,6 @@ class FilterParam:
         """
         return {
             'includeIngredients': self.includeIngredients,
-            'equipment': self.equipment,
             'diet': self.diet,
             'maxReadyTime': self.maxReadyTime,
             'titleMatch': self.titleMatch
@@ -40,7 +38,9 @@ class FilterParam:
 
     def __repr__(self) -> str:
         """Return the representation string of the object."""
-        return (f"FilterParam(offset={self.offset}, number={self.number}, "
-                f"includeIngredients={self.includeIngredients}, equipment={self.equipment}, "
-                f"diet={self.diet}, maxReadyTime={self.maxReadyTime},"
+        return (f"FilterParam(offset={self.offset}, "
+                f"number={self.number}, "
+                f"includeIngredients={self.includeIngredients}, "
+                f"diet={self.diet}, "
+                f"maxReadyTime={self.maxReadyTime},"
                 f" titleMatch={self.titleMatch}")
