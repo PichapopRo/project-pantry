@@ -233,15 +233,17 @@ class UserPageView(generic.ListView):
         return context
 
 
-def get_spoonacular_recipe(request, spoonacular_id):
+def get_spoonacular_recipe_pk(request, spoonacular_id) -> JsonResponse:
     """
     Toggle favourite of a recipe.
 
     :param request: Request from the server.
     :param spoonacular: Spoonacular ID of that recipe.
     """
+    if request.method != "POST":
+        return Http404()
     try:
         recipe = GetDataProxy().find_by_spoonacular_id(int(spoonacular_id))
-        return redirect('recipe', pk=recipe.id)
+        return JsonResponse({"pk":recipe.id})
     except Exception:
-        return Http404("The recipe with that ID cannot be found.")
+        return JsonResponse({"pk": False}, status=404)
