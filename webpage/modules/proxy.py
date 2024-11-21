@@ -1,6 +1,8 @@
 """This module saves the data fetched from the API into the database if it doesn't exists."""
 
 from abc import ABC, abstractmethod
+
+from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from webpage.models import Recipe
 import requests
@@ -184,6 +186,7 @@ class GetDataSpoonacular(GetData):
         builder.build_details()
         builder.build_diet()
         builder.build_spoonacular_id()
+        builder.build_recipe().AI_status = True
         builder.build_recipe().save()
         return builder.build_recipe()
 

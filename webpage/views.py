@@ -1,4 +1,5 @@
 """The view handles the requests and handling data to the webpage."""
+import asyncio
 from decimal import Decimal
 import re
 
@@ -7,7 +8,8 @@ from django.db import IntegrityError
 from django.http import JsonResponse
 from django.views import generic
 from pantry import settings
-from webpage.models import Recipe, Diet, RecipeStep, Favourite, Ingredient, Equipment
+from webpage.models import Recipe, Diet, RecipeStep, Favourite, Ingredient, Equipment, Nutrition, NutritionList
+from webpage.modules.ai_advisor import AIRecipeAdvisor
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
@@ -262,6 +264,8 @@ class AddRecipeView(generic.CreateView):
         self.process_diets(builder)
         self.process_equipments(builder)
         self.process_steps(builder)
+        self.process_status(builder)
+        self.process_nutrition(builder)
         builder.build_recipe().save()
         return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
 
@@ -368,6 +372,53 @@ class AddRecipeView(generic.CreateView):
                     builder.build_step(step_entry)
                 except Exception as e:
                     logger.error(f"Error adding step '{step_entry}': {e}")
+
+    def process_status(self, builder: NormalRecipeBuilder):
+        builder.build_recipe().status = 'Pending'
+        try:
+            recipe = Recipe.objects.get(id=builder.build_recipe().id)
+            advisor = AIRecipeAdvisor(recipe)
+            is_approved = advisor.recipe_approval()
+
+            if is_approved == 'True':
+                recipe.AI_status = True
+            elif is_approved == 'False':
+                recipe.AI_status = False
+            recipe.save()
+        except Recipe.DoesNotExist:
+            logger.error(f"Recipe with ID {builder.build_recipe()} does not exist.")
+        except Exception as e:
+            logger.error(f"Error during recipe approval: {e}")
+
+    def process_nutrition(self, builder: NormalRecipeBuilder):
+        """
+        Process the nutrition data for the recipe.
+
+        :param builder: Recipe Builder instance.
+        """
+        try:
+            advisor = AIRecipeAdvisor(builder.build_recipe())
+            nutrition_data = advisor.nutrition_calculator()
+            if nutrition_data:
+                nutrition_json = json.loads(nutrition_data)
+                nutrients = nutrition_json.get("nutrients", [])
+
+                for nutrition_entry in nutrients:
+                    name = nutrition_entry.get("name")
+                    amount = nutrition_entry.get("amount")
+                    unit = nutrition_entry.get("unit")
+
+                    if name and amount is not None:
+                        nutrition_obj, _ = Nutrition.objects.get_or_create(name=name)
+                        builder.build_nutrition(
+                            nutrition=nutrition_obj,
+                            amount=Decimal(amount),
+                            unit=unit
+                        )
+
+        except Exception as e:
+            logger.error(f"Error processing nutrition data: {e}")
+
 
     def parse_ingredient_input(self, ingredient_entry):
         """Parse the ingredient input string and return amount, unit, and name."""

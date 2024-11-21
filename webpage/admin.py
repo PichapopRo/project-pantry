@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django import forms
-from .models import Recipe, IngredientList, EquipmentList, NutritionList
+from .models import Recipe, IngredientList, EquipmentList, NutritionList, RecipeStep
 
 
 class IngredientListInline(admin.TabularInline):
@@ -11,6 +11,7 @@ class IngredientListInline(admin.TabularInline):
     verbose_name = "Ingredient"
     verbose_name_plural = "Ingredients"
 
+
 class EquipmentListInline(admin.TabularInline):
     model = EquipmentList
     extra = 1
@@ -18,12 +19,22 @@ class EquipmentListInline(admin.TabularInline):
     verbose_name = "Equipment"
     verbose_name_plural = "Equipment List"
 
+
+class RecipeStepInline(admin.TabularInline):
+    model = RecipeStep
+    extra = 1
+    readonly_fields = ['number', 'description']
+    verbose_name = "Step"
+    verbose_name_plural = "Steps"
+
+
 class NutritionListInline(admin.TabularInline):
     model = NutritionList
     extra = 1
     readonly_fields = ['nutrition', 'amount', 'unit']
     verbose_name = "Nutrition"
     verbose_name_plural = "Nutrition List"
+
 
 class RecipeAdminForm(forms.ModelForm):
     class Meta:
@@ -33,13 +44,13 @@ class RecipeAdminForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'rows': 6, 'cols': 100}),
         }
 
+
 class RecipeAdmin(admin.ModelAdmin):
     form = RecipeAdminForm
-    list_display = ('name', 'poster_id', 'created_at', 'status')
-    list_filter = ('status',)
+    list_display = ('name', 'poster_id', 'created_at', 'status', 'AI_status')
+    list_filter = ('status', 'AI_status')
     list_editable = ('status',)
     search_fields = ('name', 'description')
-    inlines = [IngredientListInline, EquipmentListInline, NutritionListInline]
+    inlines = [IngredientListInline, EquipmentListInline, NutritionListInline, RecipeStepInline]
 
-admin.register(User)
 admin.site.register(Recipe, RecipeAdmin)

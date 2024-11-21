@@ -106,6 +106,7 @@ class Recipe(models.Model):
     description = models.CharField(max_length=300, null=True, blank=True)
     diets = models.ManyToManyField(Diet, related_name="recipes")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+    AI_status = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         """Return the name of the recipe."""

@@ -3,6 +3,8 @@ This module contains the implementation of the Builder pattern for constructing 
 
 Both manually (NormalRecipeBuilder) and via Spoonacular API (SpoonacularRecipeBuilder).
 """
+from decimal import Decimal
+
 from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, IngredientList, EquipmentList, \
     Nutrition, NutritionList, Diet
 from django.contrib.auth.models import User
@@ -129,6 +131,7 @@ class NormalRecipeBuilder(Builder):
         """
         self.__recipe = Recipe.objects.create(name=name, poster_id=user)
         self.__diet_list = []
+        self.__user = user
 
     def build_details(self, **kwargs):  # Bad code change later.
         """Build the properties of the Recipe class."""
@@ -194,7 +197,7 @@ class NormalRecipeBuilder(Builder):
             number=number)
         step.save()
 
-    def build_nutrition(self, nutrition: Nutrition, amount: int, unit: str):
+    def build_nutrition(self, nutrition: Nutrition, amount: Decimal, unit: str):
         """
         Build the nutrition in recipe.
 
@@ -216,26 +219,7 @@ class NormalRecipeBuilder(Builder):
 
         :param user: The user that is the author of the recipe.
         """
-        self.__recipe.poster_id = user
-        if user.username == config('API_USER', default='fake-user'):
-            self.__recipe.status = 'Approved'
-            self.__recipe.save()
-        else:
-            self.__recipe.status = 'Pending'
-            self.__recipe.save()
-            asyncio.run(self.approve_recipe(self.__recipe.id))
-
-    async def approve_recipe(self, recipe_id):
-        try:
-            recipe = Recipe.objects.get(id=recipe_id)
-            advisor = AIRecipeAdvisor(recipe)
-            is_approved = await advisor.recipe_approval()
-            recipe.status = 'Approved' if is_approved else 'Rejected'
-            recipe.save()
-        except Recipe.DoesNotExist:
-            logger.error(f"Recipe with ID {recipe_id} does not exist.")
-        except Exception as e:
-            logger.error(f"Error during recipe approval: {e}")
+        pass
         
     def build_diet(self, diet: Diet):
         """
