@@ -4,7 +4,7 @@ from django.test import TestCase
 from webpage.modules.filter_objects import FilterParam
 
 
-class GetDataProxyTest(TestCase):
+class FilterParamTest(TestCase):
     """Test the FilterParam model."""
 
     @classmethod
