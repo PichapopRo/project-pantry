@@ -38,9 +38,11 @@ class FilterParam:
 
     def __repr__(self) -> str:
         """Return the representation string of the object."""
-        return (f"FilterParam(offset={self.offset}, "
+        return (f"FilterParam("
+                f"offset={self.offset}, "
                 f"number={self.number}, "
                 f"includeIngredients={self.includeIngredients}, "
                 f"diet={self.diet}, "
-                f"maxReadyTime={self.maxReadyTime},"
-                f" titleMatch={self.titleMatch}")
+                f"maxReadyTime={self.maxReadyTime}, "
+                f"titleMatch={self.titleMatch}"
+                f")")
