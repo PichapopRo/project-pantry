@@ -27,14 +27,32 @@ body::-webkit-scrollbar {
     border-color: transparent;
 }
 h4{
-    color: #000000
+    color: #000000;
+    font-family: "Open Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+.bg-success{
+    font-size: 14px;
+    font-family: "Open Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
 }
 h3{
-    color: #59704e
+    color: #59704e;
 }
 h1{
-    font-weight: 500;
-    color: #59704e
+    color: #59704e;
+  font-family: "Josefin Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
 }
 .badge-warning{
     color: #ffffff;
@@ -67,4 +85,26 @@ z-index: 1;
 .thick {
   text-decoration: solid underline 2px;
   color: #000000;
+  font-family: "PT Serif", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+.nutrition{
+    height: 50px;
+    overflow-y: scroll;
+}
+a .nutrients{
+    cursor: pointer;
+    text-decoration: none;
+}
+p {
+      font-family: "Open Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+img {
+    overflow: hidden;
 }

@@ -60,12 +60,14 @@
 <div class="d-grid d-md-block">
     <a href="{% url 'recipe_list' %}" class="btn btn-success my-3 mx-3" type="button">Go Back</a>
 </div>
-<div class="container-fluid">
+<div class="container-fluid my-3">
 <div class="well">
 <div class="d-flex">
-        <img src="{{ recipe.image }}" alt="{{ recipe.name }}" style="float: left;">
+<div class="d-flex">
+        <img src="{{ recipe.image }}" alt="{{ recipe.name }}" class="">
+</div>
     <div class="flex-grow-1 ms-3">
-        <h1 class="display-5 d-inline media-heading">{{ recipe.name }}
+        <h1 class="display-5 d-inline">{{ recipe.name }}
             <form method="post" class="d-inline">
                 {% csrf_token %}
                 {% if user.is_authenticated %}
@@ -95,13 +97,12 @@
                 <h4 class="badge bg-success" style="font-size: 14px">{{ diet.name }}</h4>
                 {% empty %}
                 {% endfor %}
-        <h4 class="mt-2">Description</h4>
+        <h4 class="mt-2 thick">Description</h4>
         <p class="recipe-description">{{ recipe.description }}</p>
         </div>
 </div>
 </div>
-
-    <div class="row fill">
+    <div class="row">
             <div class="col-md-6">
             <h4 class="mb-3 mt-3 thick">Ingredients</h4>
                 <ul class="list-group" id="ingredients">
@@ -130,12 +131,32 @@
                     }
                 }
                 </script>
-                <h4 class="mb-3 mt-3 thick">Nutritions</h4>
-                <ul class="list-group fill" id="nutrition">
-                    {% for nutrients in recipe.get_nutrition %}
-                    <li><p class="my-2 mx-2">{{ nutrients }}</p></li>
+            <h4 class="mb-3 mt-3 thick">Nutrition</h4>
+                <ul class="list-group my-2" id="nutrition">
+                    {% for nutrients in recipe.get_nutrition|slice:":5" %}
+                        <li><p class="my-2 mx-2">{{ nutrients }}</p></li>
                     {% endfor %}
                 </ul>
+                <a class="primary mx-2 nutrients" data-bs-toggle="modal" data-bs-target="#nutritionModal">
+                    See All Nutrients..
+                </a>
+                <div class="modal fade" id="nutritionModal" tabindex="-1" aria-labelledby="nutritionModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="nutritionModalLabel">All Nutrients</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <ul class="list-group fill" id="nutrition">
+                                    {% for nutrients in recipe.get_nutrition %}
+                                        <li><p class="my-2 mx-2">{{ nutrients }}</p></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 <script>
                     $(document).ready(function(){
