@@ -397,11 +397,11 @@ class AddRecipeView(generic.CreateView):
             return 1, equipment_entry
 
           
-class UserPageView(generic.ListView):
-    """UserPageView view."""
+class FavouritePage(generic.ListView):
+    """FavouritePage view."""
 
     model = Favourite
-    template_name = "user_page.html"
+    template_name = "favourite.html"
     context_object_name = "favourites"  # Name for use in the template
 
     def get_queryset(self):
@@ -414,3 +414,14 @@ class UserPageView(generic.ListView):
         favourite_ids = [f.recipe.id for f in context["favourites"]]
         context["favourite_ids"] = favourite_ids
         return context
+
+class MyRecipeView(generic.ListView):
+    """MyRecipeView view."""
+
+    model = Recipe
+    template_name = "my_recipe.html"
+    context_object_name = "my_recipes"  # Name for use in the template
+
+    def get_queryset(self):
+        """Return user's recipe."""
+        return Recipe.objects.filter(poster_id=self.request.user)

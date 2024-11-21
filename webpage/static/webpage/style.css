@@ -62,7 +62,3 @@
         ol li:nth-child(odd) {
           background: #b6b6b6;
         }
-        .thick {
-          text-decoration: solid underline 4px;
-            color: #59704e;
-        }
