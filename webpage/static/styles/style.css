@@ -29,23 +29,26 @@ body::-webkit-scrollbar {
 h4{
     color: #000000;
     font-family: "Open Sans", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-  font-variation-settings:
-    "wdth" 100;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
 }
 .bg-success{
     font-size: 14px;
     font-family: "Open Sans", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 700;
-  font-style: normal;
-  font-variation-settings:
-    "wdth" 100;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
 }
 h3{
     color: #59704e;
+    font-family: "Open Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
 }
 h1{
     color: #59704e;
@@ -107,4 +110,9 @@ p {
 }
 img {
     overflow: hidden;
+}
+.card-img-top{
+    width: 100%;
+    height: 15vw;
+    object-fit: cover;
 }
