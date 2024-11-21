@@ -61,56 +61,56 @@
     <a href="{% url 'recipe_list' %}" class="btn btn-success my-3 mx-3" type="button">Go Back</a>
 </div>
 <div class="container-fluid">
-    <div class="row fill">
-        <div class="col-md-6 align-content-left flex-fill">
-            <div class="text-center card-text mx-3 mt-3">
-                <img src="{{ recipe.image }}" alt="{{ recipe.name }}" class="img-fluid">
-            </div>
+<div class="well">
+<div class="d-flex">
+        <img src="{{ recipe.image }}" alt="{{ recipe.name }}" style="float: left;">
+    <div class="flex-grow-1 ms-3">
+        <h1 class="display-5 d-inline media-heading">{{ recipe.name }}
+            <form method="post" class="d-inline">
+                {% csrf_token %}
+                {% if user.is_authenticated %}
+                <button class="btn border-0 favourite-btn" data-recipe-id="{{ recipe.id }}">
+                {% if recipe.id in user_favourites %}
+                    <i class="bi bi-heart-fill text-danger"></i>
+                {% else %}
+                    <i class="bi bi-heart"></i>
+                {% endif %}
+                </button>
+                {% else %}
+                   <a class="btn border-0" href="{% url 'login' %}">
+                       <i class="bi bi-heart"></i>
+                   </a>
+                {% endif %}
+                </form></h1>
+        <p>By: {{ recipe.poster_id.username }}</p>
+        <h5><i class="bi bi-clock mx-1"></i> {{ recipe.estimated_time }} minutes</h5>
+                {% if recipe.get_difficulty == "Easy" %}
+                <h4><a href="?difficulty=Easy" class="badge badge-pill badge-success" style="text-decoration:none">Easy</a></h4>
+                {% elif recipe.get_difficulty == "Medium" %}
+                <h4><a href="?difficulty=Medium" class="badge badge-pill badge-warning" style="text-decoration:none">Medium</a></h4>
+                {% elif recipe.get_difficulty == "Hard" %}
+                <h4><a href="?difficulty=Hard" class="badge badge-pill badge-danger" style="text-decoration:none">Hard</a></h4>
+                {% endif %}
+                {% for diet in recipe.diets.all %}
+                <h4 class="badge bg-success" style="font-size: 14px">{{ diet.name }}</h4>
+                {% empty %}
+                {% endfor %}
+        <h4 class="mt-2">Description</h4>
+        <p class="recipe-description">{{ recipe.description }}</p>
         </div>
+</div>
+</div>
 
-        <div class="col-md-6">
-            <h1 class="display-4 d-inline">{{ recipe.name }}
-                <form method="post" class="d-inline">
-                    {% csrf_token %}
-                    {% if user.is_authenticated %}
-                    <button class="btn border-0 favourite-btn" data-recipe-id="{{ recipe.id }}">
-                    {% if recipe.id in user_favourites %}
-                        <i class="bi bi-heart-fill text-danger"></i>
-                    {% else %}
-                        <i class="bi bi-heart"></i>
-                    {% endif %}
-                    </button>
-                    {% else %}
-                       <a class="btn border-0" href="{% url 'login' %}">
-                           <i class="bi bi-heart"></i>
-                       </a>
-                    {% endif %}
-                    </form></h1>
-            <p class="lead mx-1">By: {{ recipe.poster_id.username }}</p>
-        <div style="font-size: 20px ;display: flex; align-items: center;"><i class="bi bi-clock mx-1"></i> {{ recipe.estimated_time }} minutes</div>
-            <div class="d-flex align-items-center mt-2">
-                <div>
-                    {% if recipe.get_difficulty == "Easy" %}
-                    <h4><a href="?difficulty=Easy" class="badge badge-pill badge-success" style="text-decoration:none">Easy</a></h4>
-                    {% elif recipe.get_difficulty == "Medium" %}
-                    <h4><a href="?difficulty=Medium" class="badge badge-pill badge-warning" style="text-decoration:none">Medium</a></h4>
-                    {% elif recipe.get_difficulty == "Hard" %}
-                    <h4><a href="?difficulty=Hard" class="badge badge-pill badge-danger" style="text-decoration:none">Hard</a></h4>
-                    {% endif %}
-                    {% for diet in recipe.diets.all %}
-                    <h4 class="badge bg-success" style="font-size: 14px">{{ diet.name }}</h4>
-                    {% empty %}
-                    {% endfor %}
-                </div>
-            </div>
-            <h4 class="mt-2">Description</h4>
-            <p style="font-size: 14px">{{ recipe.description }}</p>
-            </div>
+    <div class="row fill">
             <div class="col-md-6">
-            <h4 class="mb-3 thick">Ingredients</h4>
+            <h4 class="mb-3 mt-3 thick">Ingredients</h4>
                 <ul class="list-group" id="ingredients">
                     {% for ingredient in recipe.get_ingredients %}
-                    <li class="checked" onclick="cross_out(this)"><p class="my-2 mx-2"><b>{{ ingredient.amount }}</b> {{ ingredient.unit }} {{ ingredient.ingredient.name }}</p></li>
+                    <li class="checked" onclick="cross_out(this)"><p class="my-2 mx-2"><b>{{ ingredient.amount }}</b>
+                        {{ ingredient.unit }} {{ ingredient.ingredient.name }}
+                        <i class="bi bi-chat-left-quote float-end" ></i>
+                    </p>
+                    </li>
                     {% endfor %}
                 </ul>
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -144,7 +144,7 @@
                 </script>
             </div>
             <div class="col-md-6">
-            <h4 class="mb-3 thick">Equipments</h4>
+            <h4 class="mb-3 thick mt-2">Equipments</h4>
             <ul class="list-group fill" id="equipment">
                 {% for equipment in equipments %}
                 <li class="checked"><p class="my-2 mx-2">{{ equipment.equipment.name }}</li>

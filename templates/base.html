@@ -17,9 +17,12 @@
       <li class="nav-item mx-3">
       <a class="nav-link" href="/recipes/">Home</a>
       </li>
-        <li class="nav-item mx-3">
+      {% if user.is_authenticated %}
+          <li class="nav-item mx-3">
       <a class="nav-link" href="{% url 'add_recipe' %}">Add Recipe</a>
         </li>
+      {% else %}
+      {% endif %}
       <li class="nav-item mx-3">
       <a class="nav-link" href="{% url 'random_recipe' %}">Random Recipe!</a>
       </li>

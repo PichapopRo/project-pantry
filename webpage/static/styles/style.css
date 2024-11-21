@@ -27,7 +27,7 @@ body::-webkit-scrollbar {
     border-color: transparent;
 }
 h4{
-    color: #59704e
+    color: #000000
 }
 h3{
     color: #59704e
@@ -65,6 +65,6 @@ cursor: pointer;
 z-index: 1;
 }
 .thick {
-  text-decoration: solid underline 4px;
-  color: #59704e;
+  text-decoration: solid underline 2px;
+  color: #000000;
 }
