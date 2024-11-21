@@ -1,4 +1,5 @@
 """Tests for the GetDataProxy class and GetDataSpoonacular class."""
+import re
 from django.test import TestCase
 from unittest.mock import patch, Mock
 from django.contrib.auth.models import User
@@ -7,7 +8,9 @@ from webpage.models import (Recipe, Ingredient, IngredientList,
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
-import re
+from decouple import config
+
+API_KEY = config('API_KEY', default='fake-secret-key')
 
 
 class GetDataProxyTest(TestCase):
@@ -27,7 +30,7 @@ class GetDataProxyTest(TestCase):
             username="Spoonacular")
         cls.recipe1 = Recipe.objects.create(
             spoonacular_id=1,
-            name='Pork Salad',
+            name='Avocado Pork Salad',
             image='http://example.com/porksalad.jpg',
             estimated_time=30,
             description='This is a pork salad.',
@@ -35,7 +38,7 @@ class GetDataProxyTest(TestCase):
         )
         cls.recipe2 = Recipe.objects.create(
             spoonacular_id=2,
-            name='Meat Salad',
+            name='Avocado Meat Salad',
             image='http://example.com/meatsalad.jpg',
             estimated_time=30,
             description='This is a meat salad.',
@@ -124,23 +127,9 @@ class GetDataProxyTest(TestCase):
 
     def test_find_by_spoonacular_id_non_existing(self):
         """Test finding a recipe by spoonacular_id when it does not exist in the database."""
-        recipe = self.get_data_proxy.find_by_spoonacular_id(10)
-        self.assertEqual(recipe.spoonacular_id, 10)
-
-    def test_find_by_name_existing(self):
-        """Test finding recipes by name when they exist in the database."""
-        recipe = self.get_data_proxy.find_by_name("Salad")
-        recipe_list = [re.get_recipe() for re in recipe]
-        self.assertEqual([self.recipe1, self.recipe2], recipe_list)
-
-    def test_find_by_name_non_existing(self):
-        """Test finding recipes by name when they do not exist in the database."""
-        recipe = self.get_data_proxy.find_by_name("lentil soup")
-        recipe_list = [r.get_recipe().name for r in recipe]
-        self.assertTrue(any(re.search(r'\blentil soups?\b',
-                                      recipe,
-                                      re.IGNORECASE)
-                            for recipe in recipe_list))
+        if API_KEY != "github-api-testing":
+            recipe = self.get_data_proxy.find_by_spoonacular_id(10)
+            self.assertEqual(recipe.spoonacular_id, 10)
 
     def test_filter_recipe_includeIngredients1(self):
         facades = self.get_data_proxy.filter_recipe(
@@ -155,132 +144,69 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
+
     def test_filter_recipe_includeIngredients2(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=3,
-                includeIngredients=[self.ingredient1.name,
-                                    self.ingredient2.name]
+        if API_KEY != "github-api-testing":
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=1,
+                    number=3,
+                    includeIngredients=[self.ingredient1.name,
+                                        self.ingredient2.name]
+                )
             )
-        )
-        self.assertEqual(len(facades), 3)
-        self.assertEqual(facades[0].get_recipe(), self.recipe1)
-        self.assertEqual(facades[1].get_recipe(), self.recipe2)
-        recipe_temp = facades[2].get_recipe()
-        ingredient_list = [igl.ingredient.name for igl in
-                           list(recipe_temp.get_ingredients())]
-        print(ingredient_list)
-        self.assertTrue(any(re.search(r'\bavocados?\b',
-                                      ingredient,
-                                      re.IGNORECASE)
-                            for ingredient in ingredient_list))
-        self.assertTrue(any(re.search(r'\bcarrots?\b',
-                                      ingredient,
-                                      re.IGNORECASE)
+            self.assertEqual(len(facades), 3)
+            self.assertEqual(facades[0].get_recipe(), self.recipe1)
+            self.assertEqual(facades[1].get_recipe(), self.recipe2)
+            recipe_temp = facades[2].get_recipe()
+            ingredient_list = [igl.ingredient.name for igl in
+                               list(recipe_temp.get_ingredients())]
+            self.assertTrue(any(re.search(r'\bavocados?\b',
+                                          ingredient,
+                                          re.IGNORECASE)
+                                for ingredient in ingredient_list))
+            self.assertTrue(any(re.search(r'\bcarrots?\b',
+                                          ingredient,
+                                          re.IGNORECASE)
                             for ingredient in ingredient_list))
 
     def test_filter_recipe_includeIngredients3(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=3,
-                number=2,
-                includeIngredients=[self.ingredient1.name,
-                                    self.ingredient2.name]
+        if API_KEY != "github-api-testing":
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=3,
+                    number=2,
+                    includeIngredients=[self.ingredient1.name,
+                                        self.ingredient2.name]
+                )
             )
-        )
-        self.assertEqual(len(facades), 2)
-        recipe_temp1 = facades[0].get_recipe()
-        ingredient_list1 = [igl.ingredient.name for igl in
-                            list(recipe_temp1.get_ingredients())]
-        recipe_temp2 = facades[1].get_recipe()
-        ingredient_list2 = [igl.ingredient.name for igl in
-                            list(recipe_temp2.get_ingredients())]
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.ingredient1.name)}s?\b", ingredient,
-            re.IGNORECASE) for ingredient in ingredient_list1))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.ingredient2.name)}s?\b", ingredient,
-            re.IGNORECASE) for ingredient in ingredient_list1))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.ingredient1.name)}s?\b", ingredient,
-            re.IGNORECASE) for ingredient in ingredient_list2))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.ingredient2.name)}s?\b", ingredient,
-            re.IGNORECASE) for ingredient in ingredient_list2))
-
-    def test_filer_recipe_equipment1(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=2,
-                equipment=[self.equipment1.name, self.equipment2.name]
-            )
-        )
-        self.assertEqual(len(facades), 2)
-        self.assertEqual(facades[0].get_recipe(), self.recipe1)
-        self.assertEqual(facades[1].get_recipe(), self.recipe2)
-
-    def test_filer_recipe_equipment2(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=3,
-                equipment=[self.equipment1.name, self.equipment2.name]
-            )
-        )
-        self.assertEqual(len(facades), 3)
-        self.assertEqual(facades[0].get_recipe(), self.recipe1)
-        self.assertEqual(facades[1].get_recipe(), self.recipe2)
-        recipe_temp = facades[2].get_recipe()
-        equipment_list = [eql.equipment.name for eql in
-                          list(recipe_temp.get_equipments())]
-        # equipment_list = ['food processor', 'frying pan']
-        # It would get just eq1 OR eq2 and not eq1 AND eq2
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.equipment1.name)}s?\b", equipment,
-            re.IGNORECASE) for equipment in equipment_list))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
-            re.IGNORECASE) for equipment in equipment_list))
-
-    def test_filer_recipe_equipment3(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=3,
-                number=2,
-                equipment=[self.equipment1.name, self.equipment2.name]
-            )
-        )
-        self.assertEqual(len(facades), 2)
-        recipe_temp1 = facades[0].get_recipe()
-        equipment_list1 = [eql.equipment.name for eql in
-                           list(recipe_temp1.get_equipments())]
-        recipe_temp2 = facades[1].get_recipe()
-        equipment_list2 = [eql.equipment.name for eql in
-                           list(recipe_temp2.get_equipments())]
-        # equipment_list1 = ['food processor', 'frying pan']
-        # equipment_list2 = ['mixing bowl', 'sauce pan', 'frying pan', 'whisk']
-        # It would get just eq1 OR eq2 and not eq1 AND eq2
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.equipment1.name)}s?\b", equipment,
-            re.IGNORECASE) for equipment in equipment_list1))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
-            re.IGNORECASE) for equipment in equipment_list1))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.equipment1.name)}s?\b", equipment,
-            re.IGNORECASE) for equipment in equipment_list2))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.equipment2.name)}s?\b", equipment,
-            re.IGNORECASE) for equipment in equipment_list2))
+            self.assertEqual(len(facades), 2)
+            recipe_temp1 = facades[0].get_recipe()
+            ingredient_list1 = [igl.ingredient.name for igl in
+                                list(recipe_temp1.get_ingredients())]
+            recipe_temp2 = facades[1].get_recipe()
+            ingredient_list2 = [igl.ingredient.name for igl in
+                                list(recipe_temp2.get_ingredients())]
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.ingredient1.name)}s?\b", ingredient,
+                re.IGNORECASE) for ingredient in ingredient_list1))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.ingredient2.name)}s?\b", ingredient,
+                re.IGNORECASE) for ingredient in ingredient_list1))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.ingredient1.name)}s?\b", ingredient,
+                re.IGNORECASE) for ingredient in ingredient_list2))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.ingredient2.name)}s?\b", ingredient,
+                re.IGNORECASE) for ingredient in ingredient_list2))
 
     def test_filter_recipe_diet1(self):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
                 offset=1,
                 number=2,
-                diet=[self.diet1.name, self.diet2.name]
+                diet=[self.diet1.name,
+                      self.diet2.name]
             )
         )
         self.assertEqual(len(facades), 2)
@@ -288,47 +214,51 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
     def test_filter_recipe_diet2(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=3,
-                diet=[self.diet1.name, self.diet2.name]
+        if API_KEY != "github-api-testing":
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=1,
+                    number=3,
+                    diet=[self.diet1.name,
+                          self.diet2.name]
+                )
             )
-        )
-        self.assertEqual(len(facades), 3)
-        self.assertEqual(facades[0].get_recipe(), self.recipe1)
-        self.assertEqual(facades[1].get_recipe(), self.recipe2)
-        diets = [diet.name for diet in facades[2].get_recipe().diets.all()]
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.diet1.name)}s?\b", diet,
-            re.IGNORECASE) for diet in diets))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.diet2.name)}s?\b", diet,
-            re.IGNORECASE) for diet in diets))
+            self.assertEqual(len(facades), 3)
+            self.assertEqual(facades[0].get_recipe(), self.recipe1)
+            self.assertEqual(facades[1].get_recipe(), self.recipe2)
+            diets = [diet.name for diet in facades[2].get_recipe().diets.all()]
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.diet1.name)}s?\b", diet,
+                re.IGNORECASE) for diet in diets))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.diet2.name)}s?\b", diet,
+                re.IGNORECASE) for diet in diets))
 
     def test_filter_recipe_diet3(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=3,
-                number=2,
-                diet=[self.diet1.name, self.diet2.name]
+        if API_KEY != "github-api-testing":
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=3,
+                    number=2,
+                    diet=[self.diet1.name,
+                          self.diet2.name]
+                )
             )
-        )
-        self.assertEqual(len(facades), 2)
-        diets1 = [diet.name for diet in facades[0].get_recipe().diets.all()]
-        diets2 = [diet.name for diet in facades[1].get_recipe().diets.all()]
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.diet1.name)}s?\b", diet,
-            re.IGNORECASE) for diet in diets1))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.diet2.name)}s?\b", diet,
-            re.IGNORECASE) for diet in diets1))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.diet1.name)}s?\b", diet,
-            re.IGNORECASE) for diet in diets2))
-        self.assertTrue(any(re.search(
-            rf"\b{re.escape(self.diet2.name)}s?\b", diet,
-            re.IGNORECASE) for diet in diets2))
+            self.assertEqual(len(facades), 2)
+            diets1 = [diet.name for diet in facades[0].get_recipe().diets.all()]
+            diets2 = [diet.name for diet in facades[1].get_recipe().diets.all()]
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.diet1.name)}s?\b", diet,
+                re.IGNORECASE) for diet in diets1))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.diet2.name)}s?\b", diet,
+                re.IGNORECASE) for diet in diets1))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.diet1.name)}s?\b", diet,
+                re.IGNORECASE) for diet in diets2))
+            self.assertTrue(any(re.search(
+                rf"\b{re.escape(self.diet2.name)}s?\b", diet,
+                re.IGNORECASE) for diet in diets2))
 
     def test_filter_recipe_maxReadyTime1(self):
         facades = self.get_data_proxy.filter_recipe(
@@ -343,30 +273,32 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
 
     def test_filter_recipe_maxReadyTime2(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=3,
-                maxReadyTime=40
+        if API_KEY != "github-api-testing":
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=1,
+                    number=3,
+                    maxReadyTime=40
+                )
             )
-        )
-        self.assertEqual(len(facades), 3)
-        self.assertEqual(facades[0].get_recipe(), self.recipe1)
-        self.assertEqual(facades[1].get_recipe(), self.recipe2)
-        recipe_temp = facades[2].get_recipe()
-        self.assertLessEqual(recipe_temp.estimated_time, 40)
+            self.assertEqual(len(facades), 3)
+            self.assertEqual(facades[0].get_recipe(), self.recipe1)
+            self.assertEqual(facades[1].get_recipe(), self.recipe2)
+            recipe_temp = facades[2].get_recipe()
+            self.assertLessEqual(recipe_temp.estimated_time, 40)
 
     def test_filter_recipe_maxReadyTime3(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=3,
-                number=2,
-                maxReadyTime=40
+        if API_KEY != "github-api-testing":
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=3,
+                    number=2,
+                    maxReadyTime=40
+                )
             )
-        )
-        self.assertEqual(len(facades), 2)
-        self.assertLessEqual(facades[0].get_recipe().estimated_time, 40)
-        self.assertLessEqual(facades[1].get_recipe().estimated_time, 40)
+            self.assertEqual(len(facades), 2)
+            self.assertLessEqual(facades[0].get_recipe().estimated_time, 40)
+            self.assertLessEqual(facades[1].get_recipe().estimated_time, 40)
 
     def test_filter_recipe_titleMatch1(self):
         """Test filtering recipes."""
@@ -383,62 +315,102 @@ class GetDataProxyTest(TestCase):
 
     def test_filter_recipe_titleMatch2(self):
         """Test filtering recipes."""
+        if API_KEY != "github-api-testing":
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=1,
+                    number=3,
+                    titleMatch="salad"
+                )
+            )
+            self.assertEqual(len(facades), 3)
+            self.assertEqual(facades[0].get_recipe(), self.recipe1)
+            self.assertEqual(facades[1].get_recipe(), self.recipe2)
+            self.assertTrue(re.search(r'\bsalads?\b',
+                                      facades[2].get_recipe().name,
+                                      re.IGNORECASE))
+
+    def test_filter_recipe_titleMatch3(self):
+        if API_KEY != "github-api-testing":
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=3,
+                    number=2,
+                    titleMatch="salad"
+                )
+            )
+            self.assertEqual(len(facades), 2)
+            self.assertTrue(re.search(r'\bsalads?\b',
+                                      facades[0].get_recipe().name,
+                                      re.IGNORECASE))
+            self.assertTrue(re.search(r'\bsalads?\b',
+                                      facades[1].get_recipe().name,
+                                      re.IGNORECASE))
+
+    def test_filter_recipe_titleMatch4(self):
+        if API_KEY != "github-api-testing":
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=1,
+                    number=2,
+                    titleMatch="fish"
+                )
+            )
+            # facades[0].get_recipe().name = Greek-Style Baked Fish: Fresh, Simple, and Delicious
+            # facades[1].get_recipe().name = Winter Kimchi which is wrong
+            self.assertEqual(len(facades), 2)
+            self.assertTrue(re.search(r'\bfishs?\b',
+                                      facades[0].get_recipe().name,
+                                      re.IGNORECASE))
+            self.assertTrue(re.search(r'\bfishs?\b',
+                                      facades[1].get_recipe().name,
+                                      re.IGNORECASE))
+
+    def test_filter_recipe_all1(self):
+        """"""
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
                 offset=1,
-                number=3,
+                number=2,
+                includeIngredients=[self.ingredient1.name,
+                                    self.ingredient2.name],
+                diet=[self.diet1.name,
+                      self.diet2.name],
+                maxReadyTime=40,
                 titleMatch="salad"
             )
         )
-        self.assertEqual(len(facades), 3)
+        self.assertEqual(len(facades), 2)
         self.assertEqual(facades[0].get_recipe(), self.recipe1)
         self.assertEqual(facades[1].get_recipe(), self.recipe2)
-        self.assertTrue(re.search(r'\bsalads?\b',
-                                  facades[2].get_recipe().name,
-                                  re.IGNORECASE))
 
-    def test_filter_recipe_not_enough_titleMatch3(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=3,
-                number=2,
-                titleMatch="salad"
+    def test_filter_recipe_all2(self):
+        """if API_KEY != "github-api-testing":
+            facades = self.get_data_proxy.filter_recipe(
+                FilterParam(
+                    offset=1,
+                    number=3,
+                    includeIngredients=[self.ingredient1.name],
+                    equipment=[self.equipment1.name],
+                    diet=[self.diet1.name],
+                    maxReadyTime=200,
+                    titleMatch="avocado"
+                )
             )
-        )
-        self.assertEqual(len(facades), 2)
-        self.assertTrue(re.search(r'\bsalads?\b',
-                                  facades[0].get_recipe().name,
-                                  re.IGNORECASE))
-        self.assertTrue(re.search(r'\bsalads?\b',
-                                  facades[1].get_recipe().name,
-                                  re.IGNORECASE))
-
-    def test_filter_recipe_not_enough_titleMatch4(self):
-        facades = self.get_data_proxy.filter_recipe(
-            FilterParam(
-                offset=1,
-                number=2,
-                titleMatch="fish"
-            )
-        )
-        # facades[0].get_recipe().name = Greek-Style Baked Fish: Fresh, Simple, and Delicious
-        # facades[1].get_recipe().name = Winter Kimchi which is wrong
-        self.assertEqual(len(facades), 2)
-        self.assertTrue(re.search(r'\bfishs?\b',
-                                  facades[0].get_recipe().name,
-                                  re.IGNORECASE))
-        self.assertTrue(re.search(r'\bfishs?\b',
-                                  facades[1].get_recipe().name,
-                                  re.IGNORECASE))
+            self.assertEqual(len(facades), 3)
+            self.assertEqual(facades[0].get_recipe(), self.recipe1)
+            self.assertEqual(facades[1].get_recipe(), self.recipe2)
+            print(facades[2].get_recipe())"""
 
     def test_convert_parameter(self):
         parameter = self.get_data_proxy.convert_parameter(
             FilterParam(
                 offset=1,
                 number=2,
-                includeIngredients=["avocado", "carrots"],
-                equipment=["slow cooker", "bowl"],
-                diet=["Paleo", "Low FODMAP"],
+                includeIngredients=["avocado",
+                                    "carrots"],
+                diet=["Paleo",
+                      "Low FODMAP"],
                 maxReadyTime=40,
                 titleMatch="fish"
             )
@@ -446,8 +418,6 @@ class GetDataProxyTest(TestCase):
         expected_parameter = [
             {"ingredientlist__ingredient__name__icontains": "avocado"},
             {"ingredientlist__ingredient__name__icontains": "carrots"},
-            {"equipmentlist__equipment__name__icontains": "slow cooker"},
-            {"equipmentlist__equipment__name__icontains": "bowl"},
             {"diets__name__icontains": "Paleo"},
             {"diets__name__icontains": "Low FODMAP"},
             {"estimated_time__lte": 40},
@@ -534,7 +504,6 @@ class GetDataSpoonacularTest(TestCase):
         self.assertEqual(["bowl", "fork"], equipment_list)
         nutrition_list = [ntl.nutrition.name for ntl in
                           list(recipe.get_nutrition())]
-        print(nutrition_list)
         self.assertEqual(["Calories"], nutrition_list)
         step_list = [step.description for step in
                      list(recipe.get_steps().order_by("number"))]
@@ -554,44 +523,6 @@ class GetDataSpoonacularTest(TestCase):
         mock_get.return_value = Mock(status_code=404)
         with self.assertRaises(Exception):
             self.get_data_spoonacular.find_by_spoonacular_id(123450)
-
-    @patch('requests.get')
-    def test_find_by_name(self, mock_get):
-        """Test retrieving a recipe by name."""
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = {
-            "results": [
-                {
-                    "id": 112233,
-                    "title": "Apple Pie",
-                    "image": "https://applepie.com/image.jpg"
-                },
-                {
-                    "id": 223344,
-                    "title": "Fish Pie",
-                    "image": "https://fishsteak.com/image.jpg"
-                }
-            ]
-        }
-        recipes_facade = self.get_data_spoonacular.find_by_name("Pie")
-        self.assertIsInstance(recipes_facade[0], RecipeFacade)
-        self.assertIsInstance(recipes_facade[1], RecipeFacade)
-        self.assertEqual(recipes_facade[0].name, "Apple Pie")
-        self.assertEqual(recipes_facade[0].id, 112233)
-        self.assertEqual(recipes_facade[0].image,
-                         "https://applepie.com/image.jpg")
-        self.assertEqual(recipes_facade[1].name, "Fish Pie")
-        self.assertEqual(recipes_facade[1].id, 223344)
-        self.assertEqual(recipes_facade[1].image,
-                         "https://fishsteak.com/image.jpg")
-
-    @patch('requests.get')
-    def test_find_by_name_no_results(self, mock_get):
-        """Test retrieving a recipe by name when no results are found."""
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = {"results": []}
-        recipes = self.get_data_spoonacular.find_by_name("-")
-        self.assertEqual(len(recipes), 0)
 
     @patch('requests.get')
     def test_filter_recipe_success(self, mock_get):
@@ -647,7 +578,6 @@ class GetDataSpoonacularTest(TestCase):
     def test_filter_recipe_error_response(self, mock_get):
         """Test filtering recipes with an error response."""
         mock_get.return_value.status_code = 500
-
         with self.assertRaises(Exception) as context:
             self.get_data_spoonacular.filter_recipe(
                 FilterParam(
@@ -663,7 +593,6 @@ class GetDataSpoonacularTest(TestCase):
                 offset=0,
                 number=2,
                 includeIngredients=["Apple", "Banana"],
-                equipment=["Pan", "Spoon"],
                 diet=["Vegan"],
                 maxReadyTime=70,
                 titleMatch="Pie"
@@ -671,7 +600,6 @@ class GetDataSpoonacularTest(TestCase):
         )
         expected_parameter = {
             'includeIngredients': "Apple,Banana",
-            'equipment': "Pan,Spoon",
             'diet': 'Vegan',
             'maxReadyTime': 70,
             'titleMatch': "Pie"
