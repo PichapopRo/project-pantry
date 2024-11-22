@@ -427,6 +427,7 @@ class MyRecipeView(generic.ListView):
         return Recipe.objects.filter(poster_id=self.request.user)
 
     def get_context_data(self, **kwargs):
+        """Return context of user's recipe."""
         context = super().get_context_data(**kwargs)
         context['reject'] = []
         context['accept'] = []
