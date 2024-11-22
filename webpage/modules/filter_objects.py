@@ -11,10 +11,8 @@ class FilterParam:
     offset: int
     number: int
     includeIngredients: List[str] = field(default_factory=list)
-    equipment: List[str] = field(default_factory=list)
     diet: List[str] = field(default_factory=list)
     maxReadyTime: int = 9999
-    cuisine: List[str] = field(default_factory=list)
     titleMatch: str = ""
 
     def add_ingredient(self, ingredient_name: str):
@@ -25,50 +23,6 @@ class FilterParam:
         """
         self.includeIngredients.append(ingredient_name)
 
-    def __get_string(self, _list: List[str]) -> str:
-        """
-        Turn the list of parameters into a string format according to Spoonacular.
-        
-        :return: The string format according to Spoonacular.
-        """
-        return ','.join(_list)
-
-    @property
-    def ingredient_str(self) -> str:
-        """
-        Get the string representation of ingredient for Spoonacular.
-        
-        :return: The string format according to Spoonacular.
-        """
-        return self.__get_string(self.includeIngredients)
-        
-    @property
-    def equipment_str(self) -> str:
-        """
-        Get the string representation of equipment for Spoonacular.
-        
-        :return: The string format according to Spoonacular.
-        """
-        return self.__get_string(self.equipment)
-
-    @property
-    def diet_str(self) -> str:
-        """
-        Get the string representation of diet for Spoonacular.
-        
-        :return: The string format according to Spoonacular.
-        """
-        return self.__get_string(self.diet)
-
-    @property
-    def cuisine_str(self) -> str:
-        """
-        Get the string representation of cuisine for Spoonacular.
-        
-        :return: The string format according to Spoonacular.
-        """
-        return self.__get_string(self.cuisine)
-
     def get_param(self) -> dict:
         """
         Get the parameter for filtering.
@@ -76,16 +30,19 @@ class FilterParam:
         :return: The dictionary of parameter that will be used to filter.
         """
         return {
-            'includeIngredients': self.ingredient_str,
-            'equipment': self.equipment_str,
-            'diet': self.diet_str,
+            'includeIngredients': self.includeIngredients,
+            'diet': self.diet,
             'maxReadyTime': self.maxReadyTime,
             'titleMatch': self.titleMatch
         }
 
     def __repr__(self) -> str:
         """Return the representation string of the object."""
-        return (f"FilterParam(offset={self.offset}, number={self.number}, "
-                f"includeIngredients={self.includeIngredients}, equipment={self.equipment}, "
-                f"diet={self.diet}, maxReadyTime={self.maxReadyTime}, "
-                f"cuisine={self.cuisine}), titleMatch={self.titleMatch}")
+        return (f"FilterParam("
+                f"offset={self.offset}, "
+                f"number={self.number}, "
+                f"includeIngredients={self.includeIngredients}, "
+                f"diet={self.diet}, "
+                f"maxReadyTime={self.maxReadyTime}, "
+                f"titleMatch={self.titleMatch}"
+                f")")
