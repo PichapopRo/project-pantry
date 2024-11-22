@@ -118,7 +118,11 @@
             <div class="card-body">
                 <small>Favourites: <span class="favourite-count" id="favourite-count-{{ recipe.id }}">{{ recipe.favourite_set.count }}</span></small>
             <h3 class="card-title">{{ recipe.name }}</h3>
-                <small class="card-text">By: {{ recipe.poster_id.username }}</small>
+                <small class="card-text">By: {{ recipe.poster_id.username }}
+                {% if recipe.poster_id.profile.chef_badge %}
+                    <i class="bi bi-star-fill"></i>
+                    {% endif %}
+                </small>
                 <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
                     <form method="post">
                     {% csrf_token %}

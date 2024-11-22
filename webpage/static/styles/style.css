@@ -134,3 +134,13 @@ img {
 .bi-arrow-up{
     font-size: 20px;
 }
+.star{
+    font-size: 14px;
+    color: #ffca18;
+    outline: #f1a60b;
+}
+.bi-star-fill{
+    font-size: 14px;
+    color: #ffffff;
+    font-weight: 500;
+}
