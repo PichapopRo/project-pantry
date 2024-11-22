@@ -415,6 +415,7 @@ class FavouritePage(generic.ListView):
         context["favourite_ids"] = favourite_ids
         return context
 
+
 class MyRecipeView(generic.ListView):
     """MyRecipeView view."""
 
@@ -436,8 +437,7 @@ class MyRecipeView(generic.ListView):
             if recipe.status in ['rejected', 'Rejected']:
                 context['reject'] += [recipe]
             elif recipe.status in ['approved', 'Approved']:
-                context['accept'] +=  [recipe]
+                context['accept'] += [recipe]
             else:
                 context['pending'] += [recipe]
         return context
-
