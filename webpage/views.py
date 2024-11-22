@@ -266,7 +266,7 @@ class AddRecipeView(generic.CreateView):
         self.process_steps(builder)
         self.process_nutrition(builder)
         builder.build_recipe().status = 'Pending'
-        builder.build_recipe().save()
+        builder.build_difficulty()
         self.process_status(builder)
         return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
 

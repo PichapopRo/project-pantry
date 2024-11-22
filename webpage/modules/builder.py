@@ -13,7 +13,6 @@ import requests
 from decouple import config
 from bs4 import BeautifulSoup
 import logging
-import asyncio
 from webpage.modules.ai_advisor import AIRecipeAdvisor
 
 logger = logging.getLogger("Builder")
@@ -238,6 +237,16 @@ class NormalRecipeBuilder(Builder):
         :param spoonacular_id: The Spoonacular ID of the recipe.
         """
         self.__recipe.spoonacular_id = spoonacular_id
+        self.__recipe.save()
+
+    def build_difficulty(self):
+        """
+        Build the difficulty of the recipe.
+
+        :return: A difficulty of the recipe.
+        """
+        advisor = AIRecipeAdvisor(recipe=self.__recipe)
+        self.__recipe.difficulty = advisor.difficulty_calculator()
         self.__recipe.save()
 
 
@@ -469,3 +478,12 @@ class SpoonacularRecipeBuilder(Builder):
         """Build the Spoonacular ID for the Recipe class."""
         self.__call_api()
         self.__builder.build_spoonacular_id(int(self.__data["id"]))
+
+    def build_difficulty(self):
+        """
+        Build the difficulty of the recipe.
+
+        :return: A difficulty of the recipe.
+        """
+        advisor = AIRecipeAdvisor(recipe=self.__builder.build_recipe())
+        return advisor.difficulty_calculator()
