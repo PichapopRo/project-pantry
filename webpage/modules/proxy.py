@@ -108,7 +108,8 @@ class GetDataProxy(GetData):
         logger.debug(f"the len of the queryset is {len(queryset)}")
 
         if len(queryset) < param.offset:
-            # If the offset is greater than the number of records in the database, skip the database part entirely
+            # If the offset is greater than the number of records in the database,
+            # skip the database part entirely
             initial_list = []
             remaining_number = param.number
         else:

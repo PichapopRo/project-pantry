@@ -16,6 +16,7 @@ from webpage.modules.builder import NormalRecipeBuilder
 from webpage.modules.image_to_url import upload_image_to_imgur
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 from webpage.modules.filter_objects import FilterParam
+from webpage.utils import login_with_backend
 import random
 import json
 import logging
@@ -50,7 +51,7 @@ def register_view(request):
             user = form.save(commit=False)
             user.set_password(password)
             user.save()
-            login(request, user)
+            login_with_backend(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('recipe_list')
         else:
             # Display validation errors from the form
