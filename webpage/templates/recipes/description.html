@@ -87,11 +87,11 @@
         <p>By: {{ recipe.poster_id.username }}</p>
         <h5><i class="bi bi-clock mx-1"></i> {{ recipe.estimated_time }} minutes</h5>
                 {% if recipe.get_difficulty == "Easy" %}
-                <h4><a href="?difficulty=Easy" class="badge badge-pill badge-success" style="text-decoration:none">Easy</a></h4>
+                <h4><span class="badge badge-pill badge-success">Easy</span></h4>
                 {% elif recipe.get_difficulty == "Medium" %}
-                <h4><a href="?difficulty=Medium" class="badge badge-pill badge-warning" style="text-decoration:none">Medium</a></h4>
+                <h4><span class="badge badge-pill badge-warning" style="text-decoration:none">Medium</span></h4>
                 {% elif recipe.get_difficulty == "Hard" %}
-                <h4><a href="?difficulty=Hard" class="badge badge-pill badge-danger" style="text-decoration:none">Hard</a></h4>
+                <h4><span class="badge badge-pill badge-danger" style="text-decoration:none">Hard</span></h4>
                 {% endif %}
                 {% for diet in recipe.diets.all %}
                 <h4 class="badge bg-success" style="font-size: 14px">{{ diet.name }}</h4>
