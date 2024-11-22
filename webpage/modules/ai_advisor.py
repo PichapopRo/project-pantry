@@ -184,11 +184,7 @@ class AIRecipeAdvisor:
                 response = self._approval_gpt.generate(query)
                 approval = response.strip()
                 print(approval, type(approval))
-                if approval == "True":
-                    self._recipe.AI_status = True
-                elif approval == "False":
-                    self._recipe.AI_status = False
-                return
+                return approval
             except Exception as e:
                 logger.error(f"Error during recipe approval calculation: {e}")
                 continue

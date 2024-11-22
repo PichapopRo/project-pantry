@@ -264,9 +264,10 @@ class AddRecipeView(generic.CreateView):
         self.process_diets(builder)
         self.process_equipments(builder)
         self.process_steps(builder)
-        self.process_status(builder)
         self.process_nutrition(builder)
+        builder.build_recipe().status = 'Pending'
         builder.build_recipe().save()
+        self.process_status(builder)
         return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
 
     def process_detail(self, builder: NormalRecipeBuilder, form):
@@ -374,12 +375,9 @@ class AddRecipeView(generic.CreateView):
                     logger.error(f"Error adding step '{step_entry}': {e}")
 
     def process_status(self, builder: NormalRecipeBuilder):
-        builder.build_recipe().status = 'Pending'
         try:
-            recipe = Recipe.objects.get(id=builder.build_recipe().id)
-            advisor = AIRecipeAdvisor(recipe)
-            is_approved = advisor.recipe_approval()
-
+            recipe = Recipe.objects.get(pk=builder.build_recipe().id)
+            is_approved = AIRecipeAdvisor(recipe).recipe_approval()
             if is_approved == 'True':
                 recipe.AI_status = True
             elif is_approved == 'False':
@@ -398,7 +396,7 @@ class AddRecipeView(generic.CreateView):
         """
         try:
             advisor = AIRecipeAdvisor(builder.build_recipe())
-            nutrition_data = advisor.nutrition_calculator()
+            nutrition_data = json.dumps(advisor.nutrition_calculator())
             if nutrition_data:
                 nutrition_json = json.loads(nutrition_data)
                 nutrients = nutrition_json.get("nutrients", [])
