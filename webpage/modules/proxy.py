@@ -88,6 +88,12 @@ class GetDataProxy(GetData):
         return recipe_queryset.first()
 
     def filter_recipe(self, param: FilterParam) -> list[RecipeFacade]:
+        """
+        Filter the recipe.
+
+        :param param: The filter parameter object.
+        :return: List with RecipeFacade representing the recipe.
+        """
         queryset = Recipe.objects.all()
         for _filter in self.convert_parameter(param):
             key: str = list(_filter.keys())[0]
