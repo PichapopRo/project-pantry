@@ -33,7 +33,7 @@ class RecipeFacade():  # Shot gun
         self.id = recipe.spoonacular_id
         self.favorite = recipe.favourites
     
-    def set_by_spoonacular(self, name: str, _id: str, image: str | None):
+    def set_by_spoonacular(self, name: str, _id: int, image: str | None):
         """
         Set up the class using newly-fetched recipe.
         

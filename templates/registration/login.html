@@ -1,4 +1,5 @@
 {% extends 'base_regis.html' %}
+{% load socialaccount %}
 
 <head>
 	<meta charset="UTF-8">
@@ -36,6 +37,10 @@
                         <div class="text-center mx-auto">
                             <button type="submit" class="btn btn-success">Login</button>
                         </div>
+                    </form>
+                    <form action="{% provider_login_url 'google' action='reauthenticate'%}" method="post">
+                       {% csrf_token %}
+                      <button type="submit">Login with Google account</button>
                     </form>
 				<p class="text-center">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
 			</div>

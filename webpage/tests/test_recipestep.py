@@ -31,7 +31,7 @@ class RecipeStepModelTest(TestCase):
             recipe=cls.recipe)
 
     def test_recipe_step_create(self):
-        """Test if the RecipeStep object is created correctly."""
+        """Test if the recipeStep object is created correctly."""
         self.assertIsInstance(self.recipe_step, RecipeStep)
         self.assertEqual(self.recipe_step, RecipeStep.objects.get(
             id=self.recipe_step.id))
