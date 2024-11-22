@@ -18,7 +18,7 @@ def check_approved_recipes(sender, instance, created, **kwargs):
     chef_badge_approved_amount = config('CHEF_BADGE_APPROVED', cast=int, default=10)
     if instance.status == 'approved':
         user = instance.poster_id
-        approved_recipes_count = Recipe.objects.filter(poster_id=user, status='approved').count()
+        approved_recipes_count = Recipe.objects.filter(poster_id=user, status='Approved').count()
         if approved_recipes_count >= chef_badge_approved_amount:
             profile, created = Profile.objects.get_or_create(user=user)
             profile.chef_badge = True

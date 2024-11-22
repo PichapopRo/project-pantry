@@ -219,7 +219,8 @@ class NormalRecipeBuilder(Builder):
 
         :param user: The user that is the author of the recipe.
         """
-        pass
+        self.__recipe.poster_id = user
+        self.__recipe.save()
         
     def build_diet(self, diet: Diet):
         """
