@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models import QuerySet
 from django.contrib.auth.models import User
 from django.utils import timezone
+from webpage.modules.ai_advisor import AIRecipeAdvisor
 
 
 class Ingredient(models.Model):
@@ -114,12 +115,8 @@ class Recipe(models.Model):
 
     def get_difficulty(self) -> str:
         """Return the difficulty of the recipe based on custom rules."""
-        if self.estimated_time < 30:
-            return 'Easy'
-        elif self.estimated_time < 60:
-            return 'Medium'
-        else:
-            return 'Hard'
+        advisor = AIRecipeAdvisor(self)
+        return advisor.difficulty_calculator()
 
     @property
     def favourites(self):
