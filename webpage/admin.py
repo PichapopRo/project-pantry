@@ -47,7 +47,7 @@ class RecipeAdminForm(forms.ModelForm):
 
 class RecipeAdmin(admin.ModelAdmin):
     form = RecipeAdminForm
-    list_display = ('name', 'poster_id', 'created_at', 'status', 'AI_status')
+    list_display = ('name', 'poster_id', 'created_at', 'status', 'difficulty', 'AI_status')
     list_filter = ('status', 'AI_status')
     list_editable = ('status',)
     search_fields = ('name', 'description')
