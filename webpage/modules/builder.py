@@ -256,7 +256,6 @@ class NormalRecipeBuilder(Builder):
         """
         if self.__recipe.poster_id.username == config('API_USERNAME', default='fake-username'):
             self.__recipe.status = 'approved'
-        print(self.__recipe.status)
         self.__recipe.save()
 
 

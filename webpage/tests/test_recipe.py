@@ -57,6 +57,8 @@ class RecipeModelTest(TestCase):
         self.assertEqual(self.recipe1.created_at, self.time)
         self.assertEqual(self.recipe1.description, "This is a pasta.")
         self.assertEqual(self.recipe1.status, "Pending")
+        self.assertEqual(self.recipe1.difficulty, "Unknown")
+        self.assertFalse(self.recipe1.AI_status)
         self.assertTrue(Recipe.objects.filter(
             name="Pasta",
             spoonacular_id=123,
@@ -65,7 +67,9 @@ class RecipeModelTest(TestCase):
             poster_id=self.user,
             created_at=self.time,
             description="This is a pasta.",
-            status="Pending").exists())
+            status="Pending",
+            difficulty="Unknown",
+            AI_status=False).exists())
 
     def test_recipe_diets_create(self):
         """Test if the recipe diets are created correctly."""
