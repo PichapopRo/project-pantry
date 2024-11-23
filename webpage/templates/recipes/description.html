@@ -181,6 +181,7 @@ content: document.getElementById(el.dataset.contentId)?.innerHTML || ''
                 <ul class="list-group my-2" id="nutrition">
                     {% for nutrients in recipe.get_nutrition|slice:":5" %}
                         <li><p class="my-2 mx-2">{{ nutrients }}</p></li>
+
                     {% endfor %}
                 </ul>
                 <a class="primary mx-2 nutrients" data-bs-toggle="modal" data-bs-target="#nutritionModal">
@@ -206,7 +207,7 @@ content: document.getElementById(el.dataset.contentId)?.innerHTML || ''
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 <script>
                     $(document).ready(function(){
-                    $('#nutrition li:nth-child(odd)').addClass('alternate');
+                        $('#nutrition li:nth-child(odd)').addClass('alternate');
                     });
                 </script>
             </div>

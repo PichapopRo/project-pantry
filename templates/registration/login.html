@@ -17,10 +17,9 @@
 				{% if messages %}
 					<ul class="list-group mb-4">
 						{% for message in messages %}
-							<li class="list-group-item alert alert-dismissible alert-{{ message.tags }}">
-								{{ message }}
-								<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-							</li>
+                        {% if "successfully signed in" not in message %}
+                            <div class="alert {{ message.tags }}">{{ message }}</div>
+                          {% endif %}
 						{% endfor %}
 					</ul>
 				{% endif %}
