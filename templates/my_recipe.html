@@ -72,7 +72,7 @@
                 {% if accept %}
                     {% for recipe in accept %}
                         <div class="col col-sm-4 mb-3 mt-3">
-                            <div class="card h-100">
+                            <div class="card h-100 shadow">
                                 <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.name }}">
                                 <div class="card-body">
                                     <h3 class="card-title">{{ recipe.name }}</h3>
@@ -102,7 +102,7 @@
                 {% if reject %}
                     {% for recipe in reject %}
                         <div class="col col-sm-4 mb-3">
-                            <div class="card h-100 mt-3">
+                            <div class="card h-100 mt-3 shadow">
                                 <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.name }}">
                                 <div class="card-body">
                                     <h3 class="card-title">{{ recipe.name }}</h3>
@@ -132,7 +132,7 @@
                 {% if pending %}
                     {% for recipe in pending %}
                         <div class="col col-sm-4 mb-3 mt-3">
-                            <div class="card h-100">
+                            <div class="card h-100 shadow">
                                 <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.name }}">
                                 <div class="card-body">
                                     <h3 class="card-title">{{ recipe.name }}</h3>
