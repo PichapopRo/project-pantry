@@ -2,10 +2,13 @@
 from django.test import TestCase
 from unittest.mock import patch, Mock
 from django.contrib.auth.models import User
-from webpage.models import (Recipe, Ingredient, IngredientList, Diet)
+from webpage.models import (Recipe, Ingredient, IngredientList,Diet)
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
+from decouple import config
+
+API_KEY = config('API_KEY', default='fake-secret-key')
 
 
 class GetDataProxyTest(TestCase):
@@ -85,10 +88,10 @@ class GetDataProxyTest(TestCase):
         self.assertEqual(recipe, self.recipe1)
 
     def test_find_by_spoonacular_id_non_existing(self):
-        """Test finding a recipe by spoonacular_id when it does not exist in the database.
+        """Test finding a recipe by spoonacular_id when it does not exist in the database."""
         if API_KEY != "github-api-testing":
             recipe = self.get_data_proxy.find_by_spoonacular_id(10)
-            self.assertEqual(recipe.spoonacular_id, 10)"""
+            self.assertEqual(recipe.spoonacular_id, 10)
 
     def test_filter_recipe_includeIngredients_enough(self):
         """Test enough includeIngredients of filter_recipe."""
@@ -109,7 +112,7 @@ class GetDataProxyTest(TestCase):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
                 offset=1,
-                number=3,
+                number=5,
                 includeIngredients=[self.ingredient1.name,
                                         self.ingredient2.name]
             )
@@ -149,7 +152,7 @@ class GetDataProxyTest(TestCase):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
                 offset=1,
-                number=3,
+                number=5,
                 diet=[self.diet1.name,
                           self.diet2.name]
             )
@@ -188,7 +191,7 @@ class GetDataProxyTest(TestCase):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
                 offset=1,
-                number=3,
+                number=5,
                 maxReadyTime=40
             )
         )
@@ -225,7 +228,7 @@ class GetDataProxyTest(TestCase):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
                 offset=1,
-                number=3,
+                number=5,
                 titleMatch="salad"
             )
         )
@@ -267,7 +270,7 @@ class GetDataProxyTest(TestCase):
         facades = self.get_data_proxy.filter_recipe(
             FilterParam(
                 offset=1,
-                number=3,
+                number=5,
                 includeIngredients=[self.ingredient1.name,
                                     self.ingredient2.name],
                 diet=[self.diet1.name,
