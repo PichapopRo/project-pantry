@@ -187,6 +187,12 @@ class RecipeView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         recipe = self.get_object()
         context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
+        context['equipments'] = Recipe.get_equipments(recipe)
+        if self.request.user.is_authenticated:
+            context['user_favourites'] = Favourite.objects.filter(
+                user=self.request.user).values_list('recipe_id', flat=True)
+        else:
+            context['user_favourites'] = []
         return context
 
 
@@ -438,12 +444,12 @@ class AddRecipeView(generic.CreateView):
         else:
             return 1, equipment_entry
 
-
-class UserPageView(generic.ListView):
-    """UserPageView view."""
+          
+class FavouritePage(generic.ListView):
+    """FavouritePage view."""
 
     model = Favourite
-    template_name = "user_page.html"
+    template_name = "favourite.html"
     context_object_name = "favourites"  # Name for use in the template
 
     def get_queryset(self):
@@ -455,4 +461,25 @@ class UserPageView(generic.ListView):
         context = super().get_context_data(**kwargs)
         favourite_ids = [f.recipe.id for f in context["favourites"]]
         context["favourite_ids"] = favourite_ids
+        return context
+
+
+class MyRecipeView(generic.ListView):
+    """MyRecipeView view."""
+
+    model = Recipe
+    template_name = "my_recipe.html"
+    context_object_name = "my_recipes"  # Name for use in the template
+
+    def get_queryset(self):
+        """Return user's recipe."""
+        return Recipe.objects.filter(poster_id=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        """Return context of user's recipe."""
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        context['accept'] = queryset.filter(status='approved')
+        context['reject'] = queryset.filter(status='rejected')
+        context['pending'] = queryset.filter(status='Pending')
         return context
