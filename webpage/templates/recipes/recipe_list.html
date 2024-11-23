@@ -50,95 +50,109 @@
     });
 </script>
 <html>
-    {% extends 'base.html' %}
-    {%  load static %}
-    <link rel="stylesheet" href="{% static 'styles/style.css' %}">
-    <body>
-        {% block content %}
-        <div class="container">
-            <div class="row ">
-                <div class="col-sm-12 mx-auto">
-                    <div class="col my-3">
-                    <div class="form-control hidden border-0 border">
-                            <form method="get">
-                            <div class="input-group">
-                            <input type="text" name="query" class="form-control border-end-0 border rounded-left" placeholder="Enter keyword" value="{{ query }}" aria-label="Enter Keyword">
-                            <button class="btn bg-white border-start-0 border rounded-left" type="submit">
-                            <i class="bi bi-search" style="font-size: 24px"></i>
-                            </button>
-                            <span class="btn btn-outline-success rounded mx-3" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight">
-                            <i class="bi bi-sliders2-vertical" style="font-size: 24px"></i> Filter
-                            </span>
-                            </div>
-                            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-                                <div class="offcanvas-header">
-                                    <h5 id="offcanvasRightLabel">Filter Recipes</h5>
-                                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                                </div>
-                                <div class="offcanvas-body">
-                                    <form method="get">
-                                        <p class="form-label">Select Diet Restrictions</p>
-                                        {% for diet in diets %}
-                                        <button type="button" class="btn btn-outline-secondary diet-btn mb-2" data-diet="{{ diet.name }}">
-                                        {{ diet.name }}
-                                        </button>
-                                        {% endfor %}
-                                        <p class="form-label">Estimate time</p>
-                                        <input type="number" min="0" class="form-control mt-2" name="estimated_time" id="estimated_time" value="{{ estimated_time }}" placeholder="30">
-                                        <label for="ingredients" class="form-label mt-2">Ingredients</label><br>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" id="ingredients" placeholder="Include ingredient">
-                                            <button type="button" class="btn btn-outline-success" onclick="newIngredient()">
-                                            <i class="bi bi-plus"></i> Add ingredient
-                                            </button>
-                                        </div>
-                                        <ul id="ingredientUL"></ul>
-                                        <button class="btn btn-success border-start-0 border rounded-left form-control mt-2" type="submit"> Search
-                                        </button>
-                                        <input type="hidden" id="ingredients_data" name="ingredients_data" value="[]">
-                                        <input type="hidden" name="diets_data" id="diets_data" value="[]">
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-            {% if recipe_list %}
-            <div class="row">
-                {% for recipe in recipe_list %}
-                <div class="col col-sm-4 mb-3">
-                    <div class="card h-100 shadow">
-                        <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.name }}">
-                        <div class="card-body">
-                            <small>Favourites: <span class="favourite-count" id="favourite-count-{{ recipe.id }}">{{ recipe.favourite_set.count }}</span></small>
-                            <h3 class="card-title">{{ recipe.name }}</h3>
-                            <small class="card-text">By: {{ recipe.poster_id.username }}</small>
-                            <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
-                            <form method="post">
-                                {% csrf_token %}
-                                {% if user.is_authenticated %}
-                                <button class="btn border-0 favourite-btn position-absolute bottom-0 end-0" data-recipe-id="{{ recipe.id }}">
-                                {% if recipe.id in user_favourites %}
-                                <i class="bi bi-heart-fill text-danger"></i>
-                                {% else %}
-                                <i class="bi bi-heart"></i>
-                                {% endif %}
-                                </button>
-                                {% else %}
-                                <a class="btn border-0 position-absolute bottom-0 end-0" style="z-index: 1;" href="{% url 'login' %}">
-                                <i class="bi bi-heart"></i>
-                                </a>
-                                {% endif %}
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+{% extends 'base.html' %}
+<body>
+{% block content %}
+    <button class="top_btn rounded-circle" onclick="topFunction()" id="top_btn" title="Go to top"><i class="bi bi-arrow-up"></i></button>
+<script>
+        let mybutton = document.getElementById("top_btn");
+        window.onscroll = function() {scrollFunction()};
+
+        function scrollFunction() {
+          if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            mybutton.style.display = "block";
+          } else {
+            mybutton.style.display = "none";
+          }
+        }
+        function topFunction() {
+          document.body.scrollTop = 0;
+          document.documentElement.scrollTop = 0;
+        }
+</script>
+<div class="container">
+   <div class="row ">
+        <div class="col-sm-12 mx-auto">
+        <div class="col my-3">
+<div class="input-group mb-3">
+  <input type="text" name="query" class="form-control border-end-0 border rounded-left" placeholder="Enter keyword" value="{{ query }}" aria-label="Enter Keyword">
+      <button class="btn bg-white border-start-0 border rounded-left" type="submit">
+        <i class="bi bi-search" style="font-size: 24px"></i>
+    </button>
+    <button class="btn-outline-success border rounded mx-3" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight">
+     <i class="bi bi-sliders2-vertical" style="font-size: 24px"></i> Filter
+  </button>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+      <div class="offcanvas-header">
+        <h5 id="offcanvasRightLabel">Filter</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <form method="get">
+        <select class= "btn form-control" name="diet" id="diet">
+            <option value="">All Diets</option>
+            {% for diet in diets %}
+            <option value="{{ diet.name }}" {% if diet.name == selected_diet %}selected{% endif %}>{{ diet.name }}</option>
+            {% endfor %}
+        </select>
+            <input type="number" min="0" class="form-control mt-2" name="estimated_time" id="estimated_time" value="{{ estimated_time }}" placeholder="Estimated time">
+                <input type="text" class="form-control mt-2" name="ingredient" id="ingredient" value="{{ selected_ingredient }}" placeholder="Ingredient">
+                <input type="text" class="form-control mt-2" name="equipment" id="equipment" value="{{ selected_equipment }}" placeholder="Equipment">
+        <button class="btn btn-success border-start-0 border rounded-left form-control mt-2" type="submit"> Search
+    </button>
+      </form>
+      </div>
+    </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+{% if recipe_list %}
+    <div class="row">
+    {% for recipe in recipe_list %}
+        <div class="col col-sm-4 mb-3">
+            <div class="card h-100">
+            <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.name }}">
+            <div class="card-body">
+                <small>Favourites: <span class="favourite-count" id="favourite-count-{{ recipe.id }}">{{ recipe.favourite_set.count }}</span></small>
+            <h3 class="card-title">{{ recipe.name }}</h3>
+                <small class="card-text">By: {{ recipe.poster_id.username }}
+                {% if recipe.poster_id.profile.chef_badge %}
+                    <i class="bi bi-star-fill"></i>
+                    {% endif %}
+                </small>
+                <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
+                    <form method="post">
+                    {% csrf_token %}
+                    {% if user.is_authenticated %}
+                    <button class="btn border-0 favourite-btn position-absolute bottom-0 end-0" data-recipe-id="{{ recipe.id }}">
+                    {% if recipe.id in user_favourites %}
+                        <i class="bi bi-heart-fill text-danger"></i>
+                    {% else %}
+                        <i class="bi bi-heart"></i>
+                    {% endif %}
+                </button>
+
+            {% else %}
+               <a class="btn border-0 position-absolute bottom-0 end-0" style="z-index: 1;" href="{% url 'login' %}">
+                   <i class="bi bi-heart"></i>
+               </a>
+            {% endif %}
+                    </form>
             </div>
         </div>
-        {% elif total_recipes == 0 %}
-        <p>No recipes available.</p>
+{% elif total_recipes == 0 %}
+    <p>No recipes available.</p>
+{% endif %}
+<div class="d-flex justify-content-center mt-4">
+    <form method="post" action=".">
+        {% csrf_token %}
+        {% if view_count == 0 and total_recipes > 0 %}
+            <button type="submit" name="increment" value="6" class="btn btn-success" id="load-more" {% if button_clicked %}autofocus{% endif %}>View Recipes</button>
+        {% elif total_recipes > 0 %}
+            <button type="submit" name="increment" value="6" class="btn btn-success" id="load-more" {% if button_clicked %}autofocus{% endif %}>Load More Recipes</button>
         {% endif %}
         <div class="d-flex justify-content-center mt-4">
             <form method="post" action=".">
