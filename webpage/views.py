@@ -111,7 +111,6 @@ class RecipeListView(generic.ListView):
         selected_diet = self.request.GET.get('diet')
         ingredient = self.request.GET.get('ingredient')
         estimated_time = self.request.GET.get('estimated_time', 9999)
-        equipment = self.request.GET.get('equipment')
         filter_params = FilterParam(
             offset=1,
             number=view_count,
