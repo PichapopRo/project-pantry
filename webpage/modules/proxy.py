@@ -89,7 +89,7 @@ class GetDataProxy(GetData):
 
     def filter_recipe(self, param: FilterParam) -> list[RecipeFacade]:
         """
-        Filter the recipe.
+        Filter the recipe. Currently, the filter can only filter for the recipe that is already in the database.
 
         :param param: The filter parameter object.
         :return: List with RecipeFacade representing the recipe.
