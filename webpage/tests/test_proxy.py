@@ -436,7 +436,7 @@ class GetDataSpoonacularTest(TestCase):
         cls.get_data_spoonacular = GetDataSpoonacular()
 
     @patch('requests.get')
-    @patch('path.to.SpoonacularRecipeBuilder.build_difficulty')
+    @patch('webpage.modules.builder.NormalRecipeBuilder.build_difficulty')
     def test_find_by_spoonacular_id(self, mock_build_difficulty, mock_get):
         """Test find_by_spoonacular_id method."""
         mock_get.return_value = Mock(status_code=200)
