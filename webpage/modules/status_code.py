@@ -1,4 +1,6 @@
+"""Status for the recipe."""
 from enum import Enum
+
 
 class StatusCode(Enum):
     """The status of the recipe approval."""
@@ -15,8 +17,9 @@ class StatusCode(Enum):
         """
         statuses = []
         for status in StatusCode:
-            statuses.append((status.value[0], status.value[1])) 
+            statuses.append((status.value[0], status.value[1]))
         return statuses
+
 
 # Example usage
 if __name__ == "__main__":
