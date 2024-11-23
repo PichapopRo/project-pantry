@@ -89,7 +89,7 @@ class GetDataProxy(GetData):
 
     def filter_recipe(self, param: FilterParam) -> list[RecipeFacade]:
         """
-        Filter the recipe.
+        Filter the recipe. Currently, the filter can only filter for the recipe that is already in the database.
 
         :param param: The filter parameter object.
         :return: List with RecipeFacade representing the recipe.
@@ -111,33 +111,22 @@ class GetDataProxy(GetData):
             # If the offset is greater than the number of records in the database,
             # skip the database part entirely
             initial_list = []
-            remaining_number = param.number
         else:
             initial_list = list(queryset[start:stop])
-            remaining_number = param.number - len(initial_list)
 
-        if remaining_number > 0:
-            param.offset = 1
-            param.number = remaining_number
-            logger.debug(f"param sent to the service: {param}")
-            later_part = self._service.filter_recipe(param)
-            logger.debug(later_part)
-        else:
-            later_part = []
-
-        _list = []
+        _list_of_data = []
         for recipe in initial_list:
             facade = RecipeFacade()
             facade.set_recipe(recipe)
-            _list.append(facade)
+            _list_of_data.append(facade)
 
-        return _list + later_part
-    
+        return _list_of_data
+
     @classmethod
     def convert_parameter(cls, param: FilterParam) -> list[dict[str, str]]:
         """
         Convert the FilterParam class into Django filter.
-        
+
         :param param: The FilterParam class that you want to convert.
         :return: The list of a dictionaries containing one pair of key and value.
         """
@@ -171,7 +160,7 @@ class GetDataSpoonacular(GetData):
         self.api_key = API_KEY  # Replace with your actual API key
         self.base_url = 'https://api.spoonacular.com/recipes'
         self.__complex_url = 'https://api.spoonacular.com/recipes/complexSearch'
-        
+
     def find_by_spoonacular_id(self, id: int) -> Recipe:
         """
         Find the recipe from Spoonacular's API using the recipe's spoonacular_id.
@@ -189,15 +178,13 @@ class GetDataSpoonacular(GetData):
         builder.build_details()
         builder.build_diet()
         builder.build_spoonacular_id()
-        builder.build_recipe().AI_status = True
-        builder.build_status()
-        builder.build_difficulty()
+        builder.build_recipe().save()
         return builder.build_recipe()
-    
+
     def filter_recipe(self, param: FilterParam) -> list[RecipeFacade]:
         """
         Filter the recipe.
-        
+
         :param param: The filter parameter object.
         :return: List with RecipeFacade representing the recipe.
                     Returns an empty list if it cannot find the recipe.
@@ -208,7 +195,7 @@ class GetDataSpoonacular(GetData):
             'offset': param.offset
         }
         query_params.update(self.convert_parameter(param))
-        
+
         response = requests.get(self.__complex_url, params=query_params)
 
         if response.status_code != 200:
@@ -216,13 +203,13 @@ class GetDataSpoonacular(GetData):
             if response.status_code != 402:
                 raise Exception("Error code: ", response.status_code)
             logger.warning("You ran out of quota.")
-        
+
         data = response.json()
         recipes = data.get('results', [])
 
         if not recipes:
             pass
-        
+
         _list: list[RecipeFacade] = []
         for recipe in recipes:
             recipe_facade = RecipeFacade()
@@ -232,14 +219,14 @@ class GetDataSpoonacular(GetData):
                 image=recipe["image"]
             )
             _list.append(recipe_facade)
-            
+
         return _list
-    
+
     @classmethod
     def convert_parameter(cls, param: FilterParam) -> Any:
         """
         Deals with converting the FilterParam class's parameter into the one that class can use.
-        
+
         :param param: The FilterParam class that you want to convert.
         :return: The parameter that the class can use.
         """
