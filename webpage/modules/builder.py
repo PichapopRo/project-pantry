@@ -83,15 +83,6 @@ class Builder(ABC):
         pass
 
     @abstractmethod
-    def build_user(self, user: User):
-        """
-        Build the user which is the author of the recipe.
-
-        :param user: The user that is the author of the recipe.
-        """
-        pass
-
-    @abstractmethod
     def build_diet(self, diet: Diet):
         """
         Add one Diet class into the recipe.
@@ -128,9 +119,8 @@ class NormalRecipeBuilder(Builder):
         self.__recipe = Recipe.objects.create(name=name, poster_id=user)
         self.__diet_list = []
 
-    def build_details(self, **kwargs):  # Bad code change later.
+    def build_details(self, **kwargs):
         """Build the properties of the Recipe class."""
-        # Process keyword arguments
         for key, value in kwargs.items():
             setattr(self.__recipe, key, value)
 
@@ -236,10 +226,8 @@ class NormalRecipeBuilder(Builder):
         self.__recipe.save()
 
 
-class SpoonacularRecipeBuilder(Builder):
+class SpoonacularRecipeBuilder():
     """
-    This class is unused, for now.
-
     Concrete implementation of Builder for constructing recipes from Spoonacular API data.
 
     This class is responsible for assembling a Recipe object along with its
@@ -451,14 +439,6 @@ class SpoonacularRecipeBuilder(Builder):
                 amount=nutrition_data['amount'],
                 unit=nutrition_data['unit'],
             )
-
-    def build_user(self, user: User):  # Bad code to be remove
-        """
-        Build the user which is the author of the recipe.
-
-        :param user: The user that is the author of the recipe.
-        """
-        pass
 
     def build_spoonacular_id(self):
         """Build the Spoonacular ID for the Recipe class."""
