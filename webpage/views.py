@@ -108,21 +108,36 @@ class RecipeListView(generic.ListView):
         """Return recipes filtered by diet, ingredient, max cooking time, and limited by view_count."""
         view_count = self.request.session.get('view_count', 0)
         query = self.request.GET.get('query', '')
-        selected_diet = self.request.GET.get('diet')
-        ingredient = self.request.GET.get('ingredient')
-        estimated_time = self.request.GET.get('estimated_time', 9999)
+        ingredient_data = self.request.GET.get('ingredients_data', '[]')
+        diets_data = self.request.GET.get('diets_data', '[]')
+        estimated_time = self.request.GET.get('estimated_time', None)
+        ingredients = json.loads(ingredient_data)
+        selected_diets = json.loads(diets_data)
+        try:
+            estimated_time = int(estimated_time) if estimated_time else 9999
+        except ValueError:
+            estimated_time = 9999
+
+        logger.debug(f"Query: {query}")
+        logger.debug(f"Ingredients: {ingredients}")
+        logger.debug(f"Diets: {selected_diets}")
+        logger.debug(f"Estimated time: {estimated_time}")
         filter_params = FilterParam(
             offset=1,
             number=view_count,
-            includeIngredients=[ingredient] if ingredient else [],
-            diet=[selected_diet] if selected_diet else [],
-            maxReadyTime=int(estimated_time) if estimated_time else 9999,
+            includeIngredients=ingredients,
+            diet=selected_diets,
+            maxReadyTime=estimated_time,
             titleMatch=query
         )
+
+        logger.debug(f"Filter parameters: {filter_params}")
         recipe_filter = GetDataProxy(GetDataSpoonacular())
         filtered_recipes = recipe_filter.filter_recipe(filter_params)
-        recipe_list = [facade.get_recipe() for facade in filtered_recipes]
-        return recipe_list[:view_count]
+
+        logger.debug(f"Filtered recipes response: {filtered_recipes}")
+
+        return [facade.get_recipe() for facade in filtered_recipes][:view_count]
 
     def post(self, request, *args, **kwargs):
         """
@@ -165,20 +180,6 @@ class RecipeView(generic.DetailView):
     template_name = 'recipes/description.html'
     model = Recipe
     context_object_name = 'recipe'
-
-    def get_context_data(self, **kwargs):
-        """Add steps directly from RecipeStep model to the context."""
-        context = super().get_context_data(**kwargs)
-        recipe = self.get_object()
-        context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
-        return context
-
-
-class StepView(generic.DetailView):
-    """StepView view for displaying the steps of a recipe."""
-
-    template_name = 'recipes/steps.html'
-    model = Recipe
 
     def get_context_data(self, **kwargs):
         """Add steps directly from RecipeStep model to the context."""
@@ -388,7 +389,7 @@ class AddRecipeView(generic.CreateView):
         else:
             return 1, equipment_entry
 
-          
+
 class UserPageView(generic.ListView):
     """UserPageView view."""
 
