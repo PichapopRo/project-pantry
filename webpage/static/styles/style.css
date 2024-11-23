@@ -12,7 +12,7 @@
         width: 200px;
     }
     body {
-        background-color: #f7f9f9;
+        background-color: #ffffff;
         overflow: auto;
     }
     body::-webkit-scrollbar {
@@ -75,4 +75,7 @@
         border: 1px solid #ccc;
         padding: 10px;
         background-color: #f9f9f9;
+    }
+    .filter_btn{
+        font-size: 16px;
     }

@@ -59,14 +59,17 @@
             <div class="row ">
                 <div class="col-sm-12 mx-auto">
                     <div class="col my-3">
-                        <div class="input-group mb-3">
+                    <div class="form-control hidden border-0 border">
+                            <form method="get">
+                            <div class="input-group">
                             <input type="text" name="query" class="form-control border-end-0 border rounded-left" placeholder="Enter keyword" value="{{ query }}" aria-label="Enter Keyword">
                             <button class="btn bg-white border-start-0 border rounded-left" type="submit">
                             <i class="bi bi-search" style="font-size: 24px"></i>
                             </button>
-                            <button class="btn-outline-success border rounded mx-3" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight">
+                            <span class="btn btn-outline-success rounded mx-3" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight">
                             <i class="bi bi-sliders2-vertical" style="font-size: 24px"></i> Filter
-                            </button>
+                            </span>
+                            </div>
                             <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
                                 <div class="offcanvas-header">
                                     <h5 id="offcanvasRightLabel">Filter Recipes</h5>
@@ -99,13 +102,13 @@
                             </div>
                         </div>
                     </div>
+                    </div>
                 </div>
-            </div>
             {% if recipe_list %}
             <div class="row">
                 {% for recipe in recipe_list %}
                 <div class="col col-sm-4 mb-3">
-                    <div class="card h-100">
+                    <div class="card h-100 shadow">
                         <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.name }}">
                         <div class="card-body">
                             <small>Favourites: <span class="favourite-count" id="favourite-count-{{ recipe.id }}">{{ recipe.favourite_set.count }}</span></small>
