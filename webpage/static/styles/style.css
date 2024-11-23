@@ -1,66 +1,81 @@
-.navbar {
-    background-color: #aeda99;
-}
-.navbar-brand {
-    font-family: "Sofia", sans-serif;
-    font-size: 30px;
-}
-i {
-    font-size: 24px
-}
-.navbar-nav .form-control {
-    width: 200px;
-}
-body {
-    background-color: #f7f9f9;
-    overflow: auto;
-}
-body::-webkit-scrollbar {
-  display: none;
-}
-.btn-success {
-    background-color: #74ad59;
-    border-color: transparent;
-}
-.btn-success:hover{
-    background-color: #74ad59;
-    border-color: transparent;
-}
-h4{
-    color: #59704e
-}
-h3{
-    color: #59704e
-}
-h1{
-    font-weight: 500;
-    color: #59704e
-}
-.badge-warning{
-    color: #ffffff;
-    background-color: #f1a60b;
-}
-.badge-success{
-    color: #ffffff;
-    background-color: #61c53a;
-}
-.badge-danger{
-    color: #ffffff;
-    background-color: #f0504e;
-}
-.alternate {
-background-color: #f5f5f5;
-}
-ul {
-list-style-type: none;
-}
-.fill-parent {
-width: 100%;
-}
-.checked {
-text-decoration: none;
-cursor: pointer;
-}
-.favourite-btn {
-z-index: 1;
-}
+    .navbar {
+        background-color: #aeda99;
+    }
+    .navbar-brand {
+        font-family: "Sofia", sans-serif;
+        font-size: 30px;
+    }
+    i {
+        font-size: 24px
+    }
+    .navbar-nav .form-control {
+        width: 200px;
+    }
+    body {
+        background-color: #ffffff;
+        overflow: auto;
+    }
+    body::-webkit-scrollbar {
+      display: none;
+    }
+    .btn-success {
+        background-color: #74ad59;
+        border-color: transparent;
+    }
+    .btn-success:hover{
+        background-color: #74ad59;
+        border-color: transparent;
+    }
+    h4{
+        color: #59704e
+    }
+    h3{
+        color: #59704e
+    }
+    h1{
+        font-weight: 500;
+        color: #59704e
+    }
+    .badge-warning{
+        color: #ffffff;
+        background-color: #f1a60b;
+    }
+    .badge-success{
+        color: #ffffff;
+        background-color: #61c53a;
+    }
+    .badge-danger{
+        color: #ffffff;
+        background-color: #f0504e;
+    }
+    .alternate {
+    background-color: #f5f5f5;
+    }
+    ul {
+    list-style-type: none;
+    }
+    .fill-parent {
+    width: 100%;
+    }
+    .checked {
+    text-decoration: none;
+    cursor: pointer;
+    }
+    .favourite-btn {
+    z-index: 1;
+    }
+    .image-preview-container
+    {
+        width: 180px;
+        height: 285px;
+    }
+    .nutri {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        background-color: #f9f9f9;
+    }
+    .filter_btn{
+        font-size: 16px;
+    }

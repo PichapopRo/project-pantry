@@ -48,7 +48,8 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="photos" class="form-label">Photos </label> <br>
-                                    <input type="file" id="file-upload" name="photo" accept="image/*" onchange="previewImage(event);" />
+                                    <input type="file" id="file-upload" name="photo" accept="image/*" onchange="previewImage(event);"/>
+                                    <button class="btn btn-outline-success" onclick="remove_picture()"><i class="bi bi-x"></i></button>
                                     <div class="image-preview-container">
                                         <img id="preview-selected-image" alt="Can't preview" style="display:none;">
                                     </div>
@@ -60,6 +61,14 @@
                                                 document.querySelector("#preview-selected-image").style.display = "block";
                                             }
                                         };
+                                        function remove_picture() {
+                                            const fileInput = document.getElementById("file-upload");
+                                            const fileChosenText = document.querySelector("#file-chosen");
+                                            fileInput.value = null;
+                                            document.querySelector("#preview-selected-image").style.display = "none";
+                                            document.querySelector("#preview-selected-image").src = "";
+                                            fileChosenText.textContent = "No file chosen";
+                                        }
                                     </script>
                                 </div>
                             </div>
@@ -99,9 +108,7 @@
                                     </div>
                                     <ol id="stepOL"></ol>
                                 </div>
-                                <div class="mb-3">
-                                    <button type="submit" class="btn btn-primary bottom-0 end-0">Submit Recipe</button>
-                                </div>
+                                    <button type="submit" class="btn btn-success bottom-0 end-0">Submit Recipe</button>
                             </div>
                         </div>
                     </div>

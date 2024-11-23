@@ -67,7 +67,7 @@
                 }
                 </script>
                 <h4 class="mb-3 mt-3">Nutritions</h4>
-                <ul class="list-group fill" id="nutrition">
+                <ul class="nutri list-group" id="nutrition">
                     {% for nutrients in recipe.get_nutrition %}
                     <li><p class="my-2 mx-2">{{ nutrients }}</p></li>
                     {% endfor %}
@@ -75,7 +75,7 @@
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 <script>
                     $(document).ready(function(){
-                    $('#nutrition li:nth-child(odd)').addClass('alternate');
+                        $('#nutrition li:nth-child(odd)').addClass('alternate');
                     });
                 </script>
             </div>

@@ -119,7 +119,6 @@ class GetDataProxy(GetData):
             facade = RecipeFacade()
             facade.set_recipe(recipe)
             _list_of_data.append(facade)
-
         return _list_of_data
 
     @classmethod
