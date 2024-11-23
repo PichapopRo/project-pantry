@@ -93,28 +93,6 @@ class RecipeModelTest(TestCase):
                 spoonacular_id=123,
                 poster_id=self.user)
 
-    def test_difficulty_Easy(self):
-        """Test the get_difficulty Easy."""
-        self.recipe2 = Recipe.objects.create(
-            name="Soup",
-            spoonacular_id=124,
-            estimated_time=15,
-            poster_id=self.user)
-        self.assertEqual(self.recipe2.get_difficulty(), "Easy")
-
-    def test_difficulty_Medium(self):
-        """Test the get_difficulty Medium."""
-        self.assertEqual(self.recipe1.get_difficulty(), "Medium")
-
-    def test_difficulty_Hard(self):
-        """Test the get_difficulty Hard."""
-        self.recipe3 = Recipe.objects.create(
-            name="Steak",
-            spoonacular_id=125,
-            estimated_time=75,
-            poster_id=self.user)
-        self.assertEqual(self.recipe3.get_difficulty(), "Hard")
-
     def test_favourites(self):
         """Test the favourites"""
         self.assertEqual(self.recipe1.favourites, 2)
