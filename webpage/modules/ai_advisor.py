@@ -35,6 +35,9 @@ class AIRecipeAdvisor:
         """
         self._recipe = recipe
         self._gpt = GPTHandler(config("ALTER_PROMT", default="default"), "gpt-4o-mini")
+        self._difficulty_gpt = GPTHandler(config("DIFF_PROMPT", default="default"), "gpt-4o-mini")
+        self._nutrition_gpt = GPTHandler(config("NUTRITION_PROMPT", default="default"), "gpt-4o-mini")
+        self._approval_gpt = GPTHandler(config("APPROVAL_PROMPT", default="default"), "gpt-4o-mini")
         name = "The recipe name:" + self._recipe.name
         description = "Description:" + self._recipe.description
         ingredients = ""
@@ -92,3 +95,99 @@ class AIRecipeAdvisor:
             except json.decoder.JSONDecodeError:
                 continue
         raise Exception("Error with LLM. Please try again.")
+
+    def difficulty_calculator(self):
+        """
+        Calculate the difficulty of the recipe using the GPT model.
+
+        :return: A string representing the difficulty level ("Easy", "Normal", "Hard").
+        :raises: Exception if the GPT model fails to generate a valid difficulty response.
+        """
+        query = "Based on the following recipe, determine the difficulty level. " + \
+                "The difficulty should be one of 'Easy', 'Normal', or 'Hard':\n\n" + \
+                f"{self._ingredient_information}\n" + \
+                "Steps:\n" + "\n".join([step.description for step in self._recipe.steps.all()])
+        LIMIT = 5
+        for _ in range(LIMIT):
+            try:
+                response = self._difficulty_gpt.generate(query)
+                difficulty = response.strip()
+                if difficulty in ["Easy", "Normal", "Hard"]:
+                    return difficulty
+            except Exception as e:
+                logger.error(f"Error during difficulty calculation: {e}")
+                continue
+        raise Exception("Error with LLM in difficulty calculation. Please try again.")
+
+    def nutrition_calculator(self):
+        """
+        Calculate the nutritional information of the recipe based on its ingredients.
+
+        :return: A dictionary containing a list of nutrients, each with name, amount, unit, and percent of daily needs.
+        :raises: Exception if the GPT model fails to generate valid nutritional information.
+        """
+        LIMIT = 5
+        ingredients_query = ""
+        for ingre in self._recipe.get_ingredients():
+            ingredients_query += f"{ingre.ingredient.name}, amount: {ingre.amount} {ingre.unit}\n"
+
+        query = ingredients_query
+
+        for _ in range(LIMIT):
+            try:
+                response = self._nutrition_gpt.generate(query)
+                nutrition_info = json.loads(response)
+                if "nutrients" in nutrition_info and isinstance(
+                        nutrition_info["nutrients"], list):
+                    required_keys = {"name", "amount", "unit", "percentOfDailyNeeds"}
+                    for nutrient in nutrition_info["nutrients"]:
+                        if not required_keys.issubset(nutrient.keys()):
+                            raise ValueError("Invalid structure for a nutrient entry.")
+                    return nutrition_info
+            except json.JSONDecodeError:
+                logger.error("Error decoding JSON from GPT response.")
+            except ValueError as e:
+                logger.error(f"Validation error in response structure: {e}")
+            except Exception as e:
+                logger.error(f"Error during nutrition calculation: {e}")
+                continue
+
+        raise Exception("Error with LLM in nutrition calculation. Please try again.")
+
+    def recipe_approval(self):
+        """
+        Determine whether the recipe is possible to make and eatable.
+
+        :return: True if the recipe is approved (possible to make and eatable), False otherwise.
+        :raises: Exception if the GPT model fails to generate a valid response.
+        """
+        LIMIT = 5
+        name = f"Recipe Name: {self._recipe.name}\n"
+        description = f"Description: {self._recipe.description}\n"
+        ingredients = "Ingredients:\n"
+        for ingre in self._recipe.get_ingredients():
+            ingredients += f"- {ingre.ingredient.name}, amount: {ingre.amount} {ingre.unit}\n"
+
+        equipment = "Equipment:\n"
+        for equip in self._recipe.get_equipments():
+            equipment += f"- {equip.equipment.name}\n"
+
+        steps = "Steps:\n"
+        for step in self._recipe.steps.all():
+            steps += f"{step.number}. {step.description}\n"
+
+        diets = f"Diet Restrictions: {', '.join([diet.name for diet in self._recipe.diets.all()])}\n"
+        query = name + description + ingredients + equipment + steps + diets
+
+        for _ in range(LIMIT):
+            try:
+                response = self._approval_gpt.generate(query)
+                approval = response.strip()
+                print(approval, type(approval))
+                return approval
+            except Exception as e:
+                logger.error(f"Error during recipe approval calculation: {e}")
+                continue
+
+        raise Exception(
+            "Error with LLM in recipe approval calculation. Please try again.")

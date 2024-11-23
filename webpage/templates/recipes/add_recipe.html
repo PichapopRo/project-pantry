@@ -78,7 +78,7 @@
                                 <div class="mb-3">
                                     <label for="ingredients" class="form-label">Ingredients</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="ingredients" placeholder="1 cup white flour">
+                                        <input type="text" class="form-control" id="ingredients" placeholder="1 cup white flour" >
                                         <button type="button" class="btn btn-outline-success" onclick="newIngredient()">
                                             <i class="bi bi-plus"></i> Add ingredient
                                         </button>
@@ -194,11 +194,21 @@
             document.getElementById("steps_data").value = JSON.stringify(steps);
             document.getElementById("stepOL").innerHTML = steps.map(stp => `<li>${stp} <span onclick="removeStep('${stp}')">×</span></li>`).join('');
         }
-        $('#recipe-form input').on('keydown', function (event) {
+        document.addEventListener('keydown', function (event) {
         if (event.key === 'Enter') {
             event.preventDefault();
+
+            const activeElement = document.activeElement;
+            if (activeElement.id === 'ingredients') {
+                newIngredient();
+            } else if (activeElement.id === 'equipment') {
+                newEquipment();
+            } else if (activeElement.id === 'steps') {
+                newStep();
+            }
         }
     });
+
 
         $(document).ready(function () {
     $('#recipe-form').on('submit', function (event) {
@@ -220,7 +230,7 @@
             error: function (xhr) {
                 let errorMessage = xhr.responseJSON ? xhr.responseJSON.errors : "An error occurred. Please try again.";
                 alert("Error: " + JSON.stringify(errorMessage));
-                submitButton.prop('enable', false).text('Submit Recipe');
+                submitButton.prop('enable', true).text('Submit Recipe');
             }
         });
     });

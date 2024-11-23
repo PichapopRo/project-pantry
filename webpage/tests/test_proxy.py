@@ -331,7 +331,7 @@ class GetDataSpoonacularTest(TestCase):
 
     @patch('requests.get')
     def test_find_by_spoonacular_id(self, mock_get):
-        """Test find_by_spoonacular_id method."""
+        """Test find_by_spoonacular_id method with mocked build_difficulty."""
         mock_get.return_value = Mock(status_code=200)
         mock_get.return_value.json.return_value = {
             "id": 123450,
@@ -340,56 +340,20 @@ class GetDataSpoonacularTest(TestCase):
             "image": "https://fruitsalad.com/image.jpg",
             "summary": "This is a fruit salad.",
             "extendedIngredients": [
-                {
-                    "id": 101,
-                    "name": "apple",
-                    "image": "apple.jpg",
-                    "measures": {"metric": {"amount": 100,
-                                            "unitLong": "grams"}}
-                },
-                {
-                    "id": 121,
-                    "name": "banana",
-                    "image": "banana.jpg",
-                    "measures": {"metric": {"amount": 100,
-                                            "unitLong": "grams"}}
-                }
+                {"id": 101, "name": "apple", "image": "apple.jpg",
+                 "measures": {"metric": {"amount": 100, "unitLong": "grams"}}},
+                {"id": 121, "name": "banana", "image": "banana.jpg",
+                 "measures": {"metric": {"amount": 100, "unitLong": "grams"}}},
             ],
             "analyzedInstructions": [
-                {
-                    "steps": [
-                        {
-                            "step": "Step 1"
-                        },
-                        {
-                            "step": "Step 2"
-                        }
-                    ]
-                }
+                {"steps": [{"step": "Step 1"}, {"step": "Step 2"}]}
             ],
-            "equipment": [
-                {
-                    "name": "bowl",
-                    "image": "bowl.jpg"
-                },
-                {
-                    "name": "fork",
-                    "image": "fork.jpg"
-                }
-            ],
-            "diets": [
-                "vegetarian"
-            ],
-            "nutrients": [
-                {
-                    "name": "Calories",
-                    "amount": 200,
-                    "unit": "kcal"
-                }
-            ]
+            "equipment": [{"name": "bowl", "image": "bowl.jpg"},
+                          {"name": "fork", "image": "fork.jpg"}],
+            "diets": ["vegetarian"],
+            "nutrients": [{"name": "Calories", "amount": 200, "unit": "kcal"}]
         }
-        recipe = self.get_data_spoonacular.find_by_spoonacular_id(
-            123450)
+        recipe = self.get_data_spoonacular.find_by_spoonacular_id(123450)
         self.assertTrue(Recipe.objects.filter(spoonacular_id=123450).exists())
         self.assertEqual(recipe.poster_id.username, "Spoonacular")
         self.assertEqual(recipe.name, "fruit salad")
@@ -412,6 +376,7 @@ class GetDataSpoonacularTest(TestCase):
         self.assertEqual(diet_list.count(), 1)
         self.assertEqual(diet_list.first().name, "Vegetarian")
         self.assertEqual(recipe.spoonacular_id, 123450)
+        self.assertIn(recipe.difficulty, ["Easy", "Normal", "Hard", "Unknown"])
         self.assertIsInstance(recipe, Recipe)
 
     @patch('requests.get')

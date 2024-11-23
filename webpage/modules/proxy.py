@@ -119,14 +119,13 @@ class GetDataProxy(GetData):
             facade = RecipeFacade()
             facade.set_recipe(recipe)
             _list_of_data.append(facade)
-
         return _list_of_data
-    
+
     @classmethod
     def convert_parameter(cls, param: FilterParam) -> list[dict[str, str]]:
         """
         Convert the FilterParam class into Django filter.
-        
+
         :param param: The FilterParam class that you want to convert.
         :return: The list of a dictionaries containing one pair of key and value.
         """
@@ -160,7 +159,7 @@ class GetDataSpoonacular(GetData):
         self.api_key = API_KEY  # Replace with your actual API key
         self.base_url = 'https://api.spoonacular.com/recipes'
         self.__complex_url = 'https://api.spoonacular.com/recipes/complexSearch'
-        
+
     def find_by_spoonacular_id(self, id: int) -> Recipe:
         """
         Find the recipe from Spoonacular's API using the recipe's spoonacular_id.
@@ -180,11 +179,11 @@ class GetDataSpoonacular(GetData):
         builder.build_spoonacular_id()
         builder.build_recipe().save()
         return builder.build_recipe()
-    
+
     def filter_recipe(self, param: FilterParam) -> list[RecipeFacade]:
         """
         Filter the recipe.
-        
+
         :param param: The filter parameter object.
         :return: List with RecipeFacade representing the recipe.
                     Returns an empty list if it cannot find the recipe.
@@ -195,7 +194,7 @@ class GetDataSpoonacular(GetData):
             'offset': param.offset
         }
         query_params.update(self.convert_parameter(param))
-        
+
         response = requests.get(self.__complex_url, params=query_params)
 
         if response.status_code != 200:
@@ -203,13 +202,13 @@ class GetDataSpoonacular(GetData):
             if response.status_code != 402:
                 raise Exception("Error code: ", response.status_code)
             logger.warning("You ran out of quota.")
-        
+
         data = response.json()
         recipes = data.get('results', [])
 
         if not recipes:
             pass
-        
+
         _list: list[RecipeFacade] = []
         for recipe in recipes:
             recipe_facade = RecipeFacade()
@@ -219,14 +218,14 @@ class GetDataSpoonacular(GetData):
                 image=recipe["image"]
             )
             _list.append(recipe_facade)
-            
+
         return _list
-    
+
     @classmethod
     def convert_parameter(cls, param: FilterParam) -> Any:
         """
         Deals with converting the FilterParam class's parameter into the one that class can use.
-        
+
         :param param: The FilterParam class that you want to convert.
         :return: The parameter that the class can use.
         """
