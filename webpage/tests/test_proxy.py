@@ -376,6 +376,7 @@ class GetDataSpoonacularTest(TestCase):
         self.assertEqual(diet_list.count(), 1)
         self.assertEqual(diet_list.first().name, "Vegetarian")
         self.assertEqual(recipe.spoonacular_id, 123450)
+        self.assertIn(recipe.difficulty, ["Easy", "Normal", "Hard"])
         self.assertIsInstance(recipe, Recipe)
 
     @patch('requests.get')
