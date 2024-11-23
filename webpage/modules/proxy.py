@@ -89,7 +89,7 @@ class GetDataProxy(GetData):
 
     def filter_recipe(self, param: FilterParam) -> list[RecipeFacade]:
         """
-        Filter the recipe.
+        Filter the recipe. Currently, the filter can only filter for the recipe that is already in the database.
 
         :param param: The filter parameter object.
         :return: List with RecipeFacade representing the recipe.
@@ -111,27 +111,16 @@ class GetDataProxy(GetData):
             # If the offset is greater than the number of records in the database,
             # skip the database part entirely
             initial_list = []
-            remaining_number = param.number
         else:
             initial_list = list(queryset[start:stop])
-            remaining_number = param.number - len(initial_list)
 
-        if remaining_number > 0:
-            param.offset = 1
-            param.number = remaining_number
-            logger.debug(f"param sent to the service: {param}")
-            later_part = self._service.filter_recipe(param)
-            logger.debug(later_part)
-        else:
-            later_part = []
-
-        _list = []
+        _list_of_data = []
         for recipe in initial_list:
             facade = RecipeFacade()
             facade.set_recipe(recipe)
-            _list.append(facade)
+            _list_of_data.append(facade)
 
-        return _list + later_part
+        return _list_of_data
     
     @classmethod
     def convert_parameter(cls, param: FilterParam) -> list[dict[str, str]]:

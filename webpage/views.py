@@ -119,13 +119,13 @@ class RecipeListView(generic.ListView):
         except ValueError:
             estimated_time = 9999
 
-        print(f"Query: {query}")
-        print(f"Ingredients: {ingredients}")
-        print(f"Diets: {selected_diets}")
-        print(f"Estimated time: {estimated_time}")
+        logger.debug(f"Query: {query}")
+        logger.debug(f"Ingredients: {ingredients}")
+        logger.debug(f"Diets: {selected_diets}")
+        logger.debug(f"Estimated time: {estimated_time}")
         filter_params = FilterParam(
             offset=1,
-            number=100,
+            number=view_count,
             includeIngredients=ingredients,
             diet=selected_diets,
             maxReadyTime=estimated_time,
