@@ -91,20 +91,10 @@
                                  Add ingredient
                             </button>
                         </div>
-                        <div class="input-group mt-3">
-                            <span class="input-group-text" id="basic-addon1"><i class="bi bi-x-circle"></i></span>
-                            <input type="text" class="form-control" id="ingredients" placeholder="Exclude ingredients">
-                            <button type="button" class="btn btn-outline-success" onclick="newIngredient()">
-                                 Add ingredient
-                            </button>
-                        </div>
                         <ul id="ingredientUL"></ul>
                 <label for="equipment" class="form-label">Equipment</label>
                         <div class="input-group">
                             <input type="text" class="form-control" id="equipment" placeholder="Oven">
-                            <button type="button" class="btn btn-outline-success" onclick="newEquipment()">
-                                <i class="bi bi-plus"></i> Add equipment
-                            </button>
                         </div>
                         <ul id="equipmentUL"></ul>
         <button class="btn btn-success border-start-0 border rounded-left form-control mt-2" type="submit"> Search
@@ -166,7 +156,22 @@
 </div>
 <script>
         const ingredients = [];
-        const equipment = [];
+        const selectedDiets = [];
+        document.querySelectorAll('.diet-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const dietName = this.getAttribute('data-diet');
+                if (selectedDiets.includes(dietName)) {
+                    selectedDiets.splice(selectedDiets.indexOf(dietName), 1);
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-outline-secondary');
+                } else {
+                    selectedDiets.push(dietName);
+                    this.classList.add('btn-success');
+                    this.classList.remove('btn-outline-secondary');
+                }
+                document.getElementById('diets_data').value = JSON.stringify(selectedDiets);
+            });
+        });
         function newIngredient() {
             const inputValue = document.getElementById("ingredients").value;
             if (inputValue) {
@@ -174,16 +179,6 @@
                 document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
                 document.getElementById("ingredientUL").innerHTML += `<li>${inputValue} <span onclick="removeIngredient('${inputValue}')">×</span></li>`;
                 document.getElementById("ingredients").value = '';
-            }
-        }
-
-        function newEquipment() {
-            const inputValue = document.getElementById("equipment").value;
-            if (inputValue) {
-                equipment.push(inputValue);
-                document.getElementById("equipment_data").value = JSON.stringify(equipment);
-                document.getElementById("equipmentUL").innerHTML += `<li>${inputValue} <span onclick="removeEquipment('${inputValue}')">×</span></li>`;
-                document.getElementById("equipment").value = '';
             }
         }
 </script>
