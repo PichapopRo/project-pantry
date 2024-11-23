@@ -109,23 +109,34 @@ class RecipeListView(generic.ListView):
         query = self.request.GET.get('query', '')
         ingredient_data = self.request.GET.get('ingredients_data', '[]')
         diets_data = self.request.GET.get('diets_data', '[]')
-        estimated_time = self.request.GET.get('estimated_time', 9999)
-        equipment = self.request.GET.get('equipment', '')
+        estimated_time = self.request.GET.get('estimated_time', None)
         ingredients = json.loads(ingredient_data)
         selected_diets = json.loads(diets_data)
+        try:
+            estimated_time = int(estimated_time) if estimated_time else 9999
+        except ValueError:
+            estimated_time = 9999
+
+        print(f"Query: {query}")
+        print(f"Ingredients: {ingredients}")
+        print(f"Diets: {selected_diets}")
+        print(f"Estimated time: {estimated_time}")
         filter_params = FilterParam(
             offset=1,
             number=100,
             includeIngredients=ingredients,
-            equipment=[equipment] if equipment else [],
             diet=selected_diets,
-            maxReadyTime=int(estimated_time),
+            maxReadyTime=estimated_time,
             titleMatch=query
         )
+
+        logger.debug(f"Filter parameters: {filter_params}")
         recipe_filter = GetDataProxy(GetDataSpoonacular())
         filtered_recipes = recipe_filter.filter_recipe(filter_params)
-        recipe_list = [facade.get_recipe() for facade in filtered_recipes]
-        return recipe_list[:view_count]
+
+        logger.debug(f"Filtered recipes response: {filtered_recipes}")
+
+        return [facade.get_recipe() for facade in filtered_recipes][:view_count]
 
     def post(self, request, *args, **kwargs):
         """
@@ -377,7 +388,7 @@ class AddRecipeView(generic.CreateView):
         else:
             return 1, equipment_entry
 
-          
+
 class UserPageView(generic.ListView):
     """UserPageView view."""
 
