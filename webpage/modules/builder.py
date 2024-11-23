@@ -485,5 +485,4 @@ class SpoonacularRecipeBuilder(Builder):
 
         :return: A difficulty of the recipe.
         """
-        advisor = AIRecipeAdvisor(recipe=self.__builder.build_recipe())
-        return advisor.difficulty_calculator()
+        self.__builder.build_difficulty()
