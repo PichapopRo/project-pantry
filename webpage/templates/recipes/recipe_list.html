@@ -84,14 +84,13 @@
         <p class="form-label">Estimate time</p>
             <input type="number" min="0" class="form-control mt-2" name="estimated_time" id="estimated_time" value="{{ estimated_time }}" placeholder="30">
                 <label for="ingredients" class="form-label mt-2">Ingredients</label><br>
-                        <div class="input-group">
-                            <span class="input-group-text" id="basic-addon1"><i class="bi bi-plus-circle"></i></span>
-                            <input type="text" class="form-control" id="ingredients" placeholder="Include ingredients">
-                            <button type="button" class="btn btn-outline-success" onclick="newIngredient()">
-                                 Add ingredient
-                            </button>
-                        </div>
-                        <ul id="ingredientUL"></ul>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="ingredients" placeholder="Include ingredient">
+                    <button type="button" class="btn btn-outline-success" onclick="newIngredient()">
+                        <i class="bi bi-plus"></i> Add ingredient
+                    </button>
+                </div>
+                <ul id="ingredientUL"></ul>
                 <label for="equipment" class="form-label">Equipment</label>
                         <div class="input-group">
                             <input type="text" class="form-control" id="equipment" placeholder="Oven">
@@ -154,6 +153,9 @@
         {% endif %}
     </form>
 </div>
+    <input type="hidden" id="ingredients_data" name="ingredients_data">
+    <input type="hidden" name="equipment_data" id="equipment_data">
+    <input type="hidden" name="diets_data" id="diets_data">
 <script>
         const ingredients = [];
         const selectedDiets = [];
@@ -173,14 +175,31 @@
             });
         });
         function newIngredient() {
-            const inputValue = document.getElementById("ingredients").value;
-            if (inputValue) {
-                ingredients.push(inputValue);
-                document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
-                document.getElementById("ingredientUL").innerHTML += `<li>${inputValue} <span onclick="removeIngredient('${inputValue}')">×</span></li>`;
-                document.getElementById("ingredients").value = '';
+    const inputValue = document.getElementById("ingredients").value;
+    if (inputValue) {
+        ingredients.push(inputValue);
+        document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
+        document.getElementById("ingredientUL").innerHTML +=
+            `<li>${inputValue} <span style="cursor: pointer; color: black;" onclick="removeIngredient('${inputValue}')">×</span></li>`;
+        document.getElementById("ingredients").value = '';
+    }
+}
+
+function removeIngredient(value) {
+    const index = ingredients.indexOf(value);
+    if (index > -1) {
+        ingredients.splice(index, 1);
+        document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
+        const ingredientList = document.getElementById("ingredientUL");
+        const listItems = ingredientList.getElementsByTagName("li");
+        for (let i = 0; i < listItems.length; i++) {
+            if (listItems[i].textContent.trim() === `${value} ×`) {
+                ingredientList.removeChild(listItems[i]);
+                break;
             }
         }
+    }
+}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
