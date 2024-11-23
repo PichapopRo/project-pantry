@@ -4,6 +4,7 @@ This module contains the implementation of the Builder pattern for constructing 
 Both manually (NormalRecipeBuilder) and via Spoonacular API (SpoonacularRecipeBuilder).
 """
 from decimal import Decimal
+from email.policy import default
 
 from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, IngredientList, EquipmentList, \
     Nutrition, NutritionList, Diet
@@ -249,6 +250,17 @@ class NormalRecipeBuilder(Builder):
         self.__recipe.difficulty = advisor.difficulty_calculator()
         self.__recipe.save()
 
+    def build_status(self):
+        """
+        Build the status of the recipe.
+
+        :return: A status of the recipe.
+        """
+        if self.__recipe.poster_id.username == config('API_USERNAME', default='fake-username'):
+            self.__recipe.status = 'approved'
+        print(self.__recipe.status)
+        self.__recipe.save()
+
 
 class SpoonacularRecipeBuilder(Builder):
     """
@@ -486,3 +498,11 @@ class SpoonacularRecipeBuilder(Builder):
         :return: A difficulty of the recipe.
         """
         self.__builder.build_difficulty()
+
+    def build_status(self):
+        """
+        Build the status of the recipe.
+
+        :return: A status of the recipe.
+        """
+        self.__builder.build_status()

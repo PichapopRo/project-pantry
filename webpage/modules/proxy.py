@@ -185,7 +185,7 @@ class GetDataSpoonacular(GetData):
         builder.build_diet()
         builder.build_spoonacular_id()
         builder.build_recipe().AI_status = True
-        builder.build_recipe().status = 'Approved'
+        builder.build_status()
         builder.build_difficulty()
         return builder.build_recipe()
 
