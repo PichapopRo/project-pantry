@@ -436,7 +436,8 @@ class GetDataSpoonacularTest(TestCase):
         cls.get_data_spoonacular = GetDataSpoonacular()
 
     @patch('requests.get')
-    def test_find_by_spoonacular_id(self, mock_get):
+    @patch('path.to.SpoonacularRecipeBuilder.build_difficulty')
+    def test_find_by_spoonacular_id(self, mock_build_difficulty, mock_get):
         """Test find_by_spoonacular_id method."""
         mock_get.return_value = Mock(status_code=200)
         mock_get.return_value.json.return_value = {
@@ -494,6 +495,11 @@ class GetDataSpoonacularTest(TestCase):
                 }
             ]
         }
+        def mock_set_difficulty(*args, **kwargs):
+            recipe = args[0]._SpoonacularRecipeBuilder__recipe
+            recipe.difficulty = "Unknown"
+            recipe.save()
+        mock_build_difficulty.side_effect = mock_set_difficulty
         recipe = self.get_data_spoonacular.find_by_spoonacular_id(
             123450)
         self.assertTrue(Recipe.objects.filter(spoonacular_id=123450).exists())
@@ -518,6 +524,7 @@ class GetDataSpoonacularTest(TestCase):
         self.assertEqual(diet_list.count(), 1)
         self.assertEqual(diet_list.first().name, "Vegetarian")
         self.assertEqual(recipe.spoonacular_id, 123450)
+        self.assertEqual(recipe.difficulty, "Unknown")
         self.assertIsInstance(recipe, Recipe)
 
     @patch('requests.get')

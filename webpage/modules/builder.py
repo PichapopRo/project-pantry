@@ -4,8 +4,6 @@ This module contains the implementation of the Builder pattern for constructing 
 Both manually (NormalRecipeBuilder) and via Spoonacular API (SpoonacularRecipeBuilder).
 """
 from decimal import Decimal
-from email.policy import default
-
 from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, IngredientList, EquipmentList, \
     Nutrition, NutritionList, Diet
 from django.contrib.auth.models import User
