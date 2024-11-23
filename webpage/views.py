@@ -1,14 +1,12 @@
 """The view handles the requests and handling data to the webpage."""
-import asyncio
 from decimal import Decimal
 import re
-
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.views import generic
 from pantry import settings
-from webpage.models import Recipe, Diet, RecipeStep, Favourite, Ingredient, Equipment, Nutrition, NutritionList
+from webpage.models import Recipe, Diet, RecipeStep, Favourite, Ingredient, Equipment, Nutrition
 from webpage.modules.ai_advisor import AIRecipeAdvisor
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -375,6 +373,11 @@ class AddRecipeView(generic.CreateView):
                     logger.error(f"Error adding step '{step_entry}': {e}")
 
     def process_status(self, builder: NormalRecipeBuilder):
+        """
+        Process the status data of the recipe.
+
+        :param builder: Recipe Builder instance.
+        """
         try:
             recipe = Recipe.objects.get(pk=builder.build_recipe().id)
             is_approved = AIRecipeAdvisor(recipe).recipe_approval()
@@ -400,12 +403,10 @@ class AddRecipeView(generic.CreateView):
             if nutrition_data:
                 nutrition_json = json.loads(nutrition_data)
                 nutrients = nutrition_json.get("nutrients", [])
-
                 for nutrition_entry in nutrients:
                     name = nutrition_entry.get("name")
                     amount = nutrition_entry.get("amount")
                     unit = nutrition_entry.get("unit")
-
                     if name and amount is not None:
                         nutrition_obj, _ = Nutrition.objects.get_or_create(name=name)
                         builder.build_nutrition(
@@ -413,10 +414,8 @@ class AddRecipeView(generic.CreateView):
                             amount=Decimal(amount),
                             unit=unit
                         )
-
         except Exception as e:
             logger.error(f"Error processing nutrition data: {e}")
-
 
     def parse_ingredient_input(self, ingredient_entry):
         """Parse the ingredient input string and return amount, unit, and name."""
