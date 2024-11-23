@@ -19,7 +19,7 @@ from webpage.modules.ai_advisor import AIRecipeAdvisor
 logger = logging.getLogger("Builder")
 
 API_KEY = config('API_KEY', default='fake-secret-key')
-spoonacular_password = config('SPOONACULAR_PASSWORD')
+spoonacular_password = config('SPOONACULAR_PASSWORD', default='fake-password')
 
 
 class Builder(ABC):
