@@ -2,7 +2,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
+<script>
     $(document).ready(function() {
         function getCookie(name) {
             let cookieValue = null;
@@ -23,7 +23,6 @@
         $.ajaxSetup({
             headers: { 'X-CSRFToken': csrftoken }
         });
-        
         $('.favourite-btn').click(function(e) {
             e.preventDefault();
             let button = $(this);
@@ -31,17 +30,16 @@
             let favouriteCountElement = $('#favourite-count-' + recipeId);
 
             $.ajax({
-                url: `/recipes/${recipeId}/toggle_favourite/`,
+                url: `/favourite/${recipeId}/toggle_favourite/`,
                 method: 'POST',
                 data: { csrfmiddlewaretoken: csrftoken },
                 success: function(response) {
                     if (response.favourited) {
-                        button.text('Unfavourite');
+                        button.find('i').removeClass('bi bi-heart').addClass('bi bi-heart-fill text-danger');
                         favouriteCountElement.text(parseInt(favouriteCountElement.text()) + 1);
                     } else {
-                        button.text('Favourite');
+                        button.find('i').removeClass('bi bi-heart-fill text-danger').addClass('bi bi-heart');
                         favouriteCountElement.text(parseInt(favouriteCountElement.text()) - 1);
-                        $('#recipe-card-' + recipeId).fadeOut();
                     }
                 },
                 error: function(xhr, status, error) {
@@ -60,29 +58,29 @@
     <div class="container">
     <h2 class="title my-3">My Favourite Recipe</h2>
     <div class="row">
+    {% if favourites %}
     {% for favourite in favourites %}
         <div class="col col-sm-4 mb-3">
-            <div class="card h-100">
+            <div class="card h-100 shadow">
             <img src="{{ favourite.recipe.image }}" class="card-img-top" alt="{{ favourite.recipe.name }}">
             <div class="card-body">
                 <small>Favourites: <span class="favourite-count" id="favourite-count-{{ favourite.recipe.id }}">{{ favourite.recipe.favourite_set.count }}</span></small>
             <h3 class="card-title">{{ favourite.recipe.name }}</h3>
                 <small class="card-text">By: {{ favourite.recipe.poster_id.username }}</small>
                 <a href="{% url 'recipe' favourite.recipe.id %}" class="stretched-link"></a>
-                <form method="post">
-                    {% csrf_token %}
-                    <button class="btn border-0 favourite-btn position-absolute bottom-0 end-0" data-recipe-id="{{ recipe.id }}">
-                    {% if recipe.id in user_favourites %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <button class="btn border-0 favourite-btn position-absolute bottom-0 end-0" data-recipe-id="{{ favourite.recipe.id }}">
                         <i class="bi bi-heart-fill text-danger"></i>
-                    {% else %}
-                        <i class="bi bi-heart"></i>
-                    {% endif %}
-                </button>
-                </form>
+                        </button>
+                    </form>
             </div>
             </div>
         </div>
         {% endfor %}
+    {% else %}
+    <h4 class="card-title">You don't have any favourited recipe...</h4>
+    {% endif %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </div>
     </div>

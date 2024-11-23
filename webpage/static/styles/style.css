@@ -144,3 +144,9 @@ img {
     color: #ffffff;
     font-weight: 500;
 }
+.image-preview-container img {
+        width: 100%;
+        display: none;
+        margin-bottom: 30px;
+        max-width: 70%;
+}
