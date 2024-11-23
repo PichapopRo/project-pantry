@@ -116,7 +116,6 @@ class RecipeListView(generic.ListView):
             offset=1,
             number=view_count,
             includeIngredients=[ingredient] if ingredient else [],
-            equipment=[equipment] if equipment else [],
             diet=[selected_diet] if selected_diet else [],
             maxReadyTime=int(estimated_time) if estimated_time else 9999,
             titleMatch=query
