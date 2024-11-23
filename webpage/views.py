@@ -430,14 +430,8 @@ class MyRecipeView(generic.ListView):
     def get_context_data(self, **kwargs):
         """Return context of user's recipe."""
         context = super().get_context_data(**kwargs)
-        context['reject'] = []
-        context['accept'] = []
-        context['pending'] = []
-        for recipe in self.get_queryset():
-            if recipe.status in ['rejected', 'Rejected']:
-                context['reject'] += [recipe]
-            elif recipe.status in ['approved', 'Approved']:
-                context['accept'] += [recipe]
-            else:
-                context['pending'] += [recipe]
+        queryset = self.get_queryset()
+        context['accept'] = queryset.filter(status='approved')
+        context['reject'] = queryset.filter(status='rejected')
+        context['pending'] = queryset.filter(status='Pending')
         return context
