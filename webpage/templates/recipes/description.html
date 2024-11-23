@@ -111,11 +111,53 @@
             <h4 class="mb-3 mt-3 thick">Ingredients</h4>
                 <ul class="list-group" id="ingredients">
                     {% for ingredient in recipe.get_ingredients %}
-                    <li class="checked" onclick="cross_out(this)"><p class="my-2 mx-2"><b>{{ ingredient.amount }}</b>
+                    <li class="checked" onclick="cross_out(this)">
+                        <p class="my-2 mx-2"><b>{{ ingredient.amount }}</b>
                         {{ ingredient.unit }} {{ ingredient.ingredient.name }}
-                        <i class="bi bi-chat-left-quote float-end" ></i>
+                        <i class="bi bi-chat-left-quote float-end " data-bs-toggle="modal"
+                           data-bs-target="#exampleModal" ></i>
                     </p>
                     </li>
+                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h3 class="modal-title fs-5" id="exampleModalLabel">Alternative Ingredient</h3>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form>
+                                  <div class="mb-3">
+                                    <label for="ingredients-name" class="col-form-label text-capitalize">For: {{ ingredient.amount }} {{ ingredient.unit }} {{ ingredient.ingredient.name }}</label>
+                                  </div>
+                                    <div class="mb-3">
+                                    <label for="prompts-name" class="col-form-label">Prompt:</label>
+                                    <input type="text" class="form-control" id="prompts-name">
+                                  </div>
+                                  <div class="mb-3">
+                                    <label for="alter-text" class="col-form-label">Your new ingredients:</label>
+                                    <h4 class="form-control alter">Click find alternative first</h4>
+                                  </div>
+                                </form>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-success">Find alternative</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+  const elems = document.querySelectorAll('[data-bs-toggle="popover"]');
+
+  const popovers = [...elems].map(el => new bootstrap.Popover(el, {
+trigger: 'focus',
+html: true,
+content: document.getElementById(el.dataset.contentId)?.innerHTML || ''
+  }));
+});
+                        </script>
                     {% endfor %}
                 </ul>
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
