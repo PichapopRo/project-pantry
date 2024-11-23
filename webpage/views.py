@@ -70,6 +70,8 @@ def login_view(request):
 
     :param request: Request from the server.
     """
+    message = messages.get_messages(request)
+    message.used = True
     if request.user.is_authenticated:
         return redirect('recipe_list')
 
@@ -80,7 +82,6 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            messages.success(request, "Login successful!")
             return redirect('recipe_list')
         else:
             messages.error(request, "Invalid username or password")
