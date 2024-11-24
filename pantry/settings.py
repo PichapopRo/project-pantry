@@ -39,7 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'webpage.apps.WebpageConfig'
+    'webpage.apps.WebpageConfig',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware'
 ]
 
 ROOT_URLCONF = 'pantry.urls'
@@ -71,6 +77,11 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'pantry.wsgi.application'
+
+AUTHENTICATION_BACKENDS = (
+ 'django.contrib.auth.backends.ModelBackend',
+ 'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 
 # Database
@@ -114,10 +125,25 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SITE_ID = 2
+
 LOGOUT_REDIRECT_URL = 'recipe'
 
 LOGIN_REDIRECT_URL = 'recipe'
 
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}
+
+SOCIALACCOUNT_ADAPTER = "webpage.socialaccount_adapter.CustomSocialAccountAdapter"
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

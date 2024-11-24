@@ -10,7 +10,7 @@ from django.utils import timezone
 
 
 class Ingredient(models.Model):
-    """An ingredient contains the name, a spoonacauar_id(if exists) and a link to a picture."""
+    """An ingredient contains the name, a spoonacular_id(if exists) and a link to a picture."""
 
     name = models.CharField(max_length=100, default='Unnamed Ingredient')
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
@@ -22,7 +22,7 @@ class Ingredient(models.Model):
 
 
 class Equipment(models.Model):
-    """Equipment contains the name, a spoonacauar_id(if exists) and a link to a picture."""
+    """Equipment contains the name, a spoonacular_id(if exists) and a link to a picture."""
 
     name = models.CharField(max_length=100, default='Unnamed Equipment')
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
@@ -106,19 +106,12 @@ class Recipe(models.Model):
     description = models.CharField(max_length=300, null=True, blank=True)
     diets = models.ManyToManyField(Diet, related_name="recipes")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+    difficulty = models.CharField(max_length=10, default='Unknown')
+    AI_status = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         """Return the name of the recipe."""
         return self.name
-
-    def get_difficulty(self) -> str:
-        """Return the difficulty of the recipe based on custom rules."""
-        if self.estimated_time < 30:
-            return 'Easy'
-        elif self.estimated_time < 60:
-            return 'Medium'
-        else:
-            return 'Hard'
 
     @property
     def favourites(self):

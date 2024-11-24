@@ -1,14 +1,61 @@
 <!DOCTYPE html>
 {% extends 'base.html' %}
 {% block content %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        $.ajaxSetup({
+            headers: { 'X-CSRFToken': csrftoken }
+        });
+        $('.favourite-btn').click(function(e) {
+            e.preventDefault();
+            let button = $(this);
+            let recipeId = button.data('recipe-id');
+            let favouriteCountElement = $('#favourite-count-' + recipeId);
+
+            $.ajax({
+                url: `/recipes/${recipeId}/toggle_favourite/`,
+                method: 'POST',
+                data: { csrfmiddlewaretoken: csrftoken },
+                success: function(response) {
+                    if (response.favourited) {
+                        button.find('i').removeClass('bi bi-heart').addClass('bi bi-heart-fill text-danger');
+                        favouriteCountElement.text(parseInt(favouriteCountElement.text()) + 1);
+                    } else {
+                        button.find('i').removeClass('bi bi-heart-fill text-danger').addClass('bi bi-heart');
+                        favouriteCountElement.text(parseInt(favouriteCountElement.text()) - 1);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(`Error: ${status} - ${error}`);
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+    });
+    </script>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ recipe.name }}</title>
 </head>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'styles/style.css' %}">
 <body>
 <div class="d-grid d-md-block">
     <a href="{% url 'recipe_list' %}" class="btn btn-success my-3 mx-3" type="button">Go Back</a>
@@ -20,33 +67,99 @@
                 <img src="{{ recipe.image }}" alt="{{ recipe.name }}" class="img-fluid">
             </div>
         </div>
-        <div class="col-md-6">
-            <h1 class="display-4">{{ recipe.name }}</h1>
-            <p class="lead mx-1">By: {{ recipe.poster_id.username }}</p>
-        <div style="font-size: 20px ;display: flex; align-items: center;"><i class="bi bi-clock mx-1"></i> {{ recipe.estimated_time }} minutes</div>
-            <div class="d-flex align-items-center mt-2">
-                <div>
-                    {% if recipe.get_difficulty == "Easy" %}
-                    <h4><a href="?difficulty=Easy" class="badge badge-pill badge-success" style="text-decoration:none">Easy</a></h4>
-                    {% elif recipe.get_difficulty == "Medium" %}
-                    <h4><a href="?difficulty=Medium" class="badge badge-pill badge-warning" style="text-decoration:none">Medium</a></h4>
-                    {% elif recipe.get_difficulty == "Hard" %}
-                    <h4><a href="?difficulty=Hard" class="badge badge-pill badge-danger" style="text-decoration:none">Hard</a></h4>
+            <div class="flex-grow-1 ms-3">
+        <h1 class="display-5 d-inline">{{ recipe.name }}
+            <form method="post" class="d-inline">
+                {% csrf_token %}
+                {% if user.is_authenticated %}
+                <button class="btn border-0 favourite-btn" data-recipe-id="{{ recipe.id }}">
+                {% if recipe.id in user_favourites %}
+                    <i class="bi bi-heart-fill text-danger"></i>
+                {% else %}
+                    <i class="bi bi-heart"></i>
+                {% endif %}
+                </button>
+                {% else %}
+                   <a class="btn border-0" href="{% url 'login' %}">
+                       <i class="bi bi-heart"></i>
+                   </a>
+                {% endif %}
+                </form></h1>
+        <p>By: {{ recipe.poster_id.username }}
+        {% if recipe.poster_id.profile.chef_badge %}
+                    <small class="badge badge-warning rounded my-3">Chef <i class="bi bi-star-fill star mb-3"></i></small>
+          
                     {% endif %}
-                    {% for diet in recipe.diets.all %}
-                    <h4 class="badge bg-success" style="font-size: 14px">{{ diet.name }}</h4>
-                    {% empty %}
-                    {% endfor %}
-                </div>
-            </div>
-            <h4 class="mt-2">Description</h4>
-            <p style="font-size: 14px">{{ recipe.description }}</p>
-            </div>
+        </p>
+        <h5><i class="bi bi-clock mx-1"></i> {{ recipe.estimated_time }} minutes</h5>
+                {% if recipe.get_difficulty == "Easy" %}
+                <h4><span class="badge badge-pill badge-success">Easy</span></h4>
+                {% elif recipe.get_difficulty == "Medium" %}
+                <h4><span class="badge badge-pill badge-warning" style="text-decoration:none">Medium</span></h4>
+                {% elif recipe.get_difficulty == "Hard" %}
+                <h4><span class="badge badge-pill badge-danger" style="text-decoration:none">Hard</span></h4>
+                {% endif %}
+                {% for diet in recipe.diets.all %}
+                <h4 class="badge bg-success" style="font-size: 14px">{{ diet.name }}</h4>
+                {% empty %}
+                {% endfor %}
+        <h4 class="mt-2 thick">Description</h4>
+        <p class="recipe-description">{{ recipe.description }}</p>
+        </div>
+</div>
+</div>
+    <div class="row">
             <div class="col-md-6">
-            <h4 class="mb-3">Ingredients</h4>
+            <h4 class="mb-3 mt-3 thick">Ingredients</h4>
                 <ul class="list-group" id="ingredients">
                     {% for ingredient in recipe.get_ingredients %}
-                    <li class="checked" onclick="cross_out(this)"><p class="my-2 mx-2"><b>{{ ingredient.amount }}</b> {{ ingredient.unit }} {{ ingredient.ingredient.name }}</p></li>
+                    <li class="checked" onclick="cross_out(this)">
+                        <p class="my-2 mx-2"><b>{{ ingredient.amount }}</b>
+                        {{ ingredient.unit }} {{ ingredient.ingredient.name }}
+                        <i class="bi bi-chat-left-quote float-end " data-bs-toggle="modal"
+                           data-bs-target="#exampleModal" ></i>
+                    </p>
+                    </li>
+                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h3 class="modal-title fs-5" id="exampleModalLabel">Alternative Ingredient</h3>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form>
+                                  <div class="mb-3">
+                                    <label for="ingredients-name" class="col-form-label text-capitalize">For: {{ ingredient.amount }} {{ ingredient.unit }} {{ ingredient.ingredient.name }}</label>
+                                  </div>
+                                    <div class="mb-3">
+                                    <label for="prompts-name" class="col-form-label">Prompt:</label>
+                                    <input type="text" class="form-control" id="prompts-name">
+                                  </div>
+                                  <div class="mb-3">
+                                    <label for="alter-text" class="col-form-label">Your new ingredients:</label>
+                                    <h4 class="form-control alter">Click find alternative first</h4>
+                                  </div>
+                                </form>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-success">Find alternative</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+  const elems = document.querySelectorAll('[data-bs-toggle="popover"]');
+
+  const popovers = [...elems].map(el => new bootstrap.Popover(el, {
+trigger: 'focus',
+html: true,
+content: document.getElementById(el.dataset.contentId)?.innerHTML || ''
+  }));
+});
+                        </script>
                     {% endfor %}
                 </ul>
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -66,12 +179,33 @@
                     }
                 }
                 </script>
-                <h4 class="mb-3 mt-3">Nutritions</h4>
-                <ul class="nutri list-group" id="nutrition">
-                    {% for nutrients in recipe.get_nutrition %}
-                    <li><p class="my-2 mx-2">{{ nutrients }}</p></li>
+            <h4 class="mb-3 mt-3 thick">Nutrition</h4>
+                <ul class="list-group my-2" id="nutrition">
+                    {% for nutrients in recipe.get_nutrition|slice:":5" %}
+                        <li><p class="my-2 mx-2">{{ nutrients }}</p></li>
+
                     {% endfor %}
                 </ul>
+                <a class="primary mx-2 nutrients" data-bs-toggle="modal" data-bs-target="#nutritionModal">
+                    See All Nutrients..
+                </a>
+                <div class="modal fade" id="nutritionModal" tabindex="-1" aria-labelledby="nutritionModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="nutritionModalLabel">All Nutrients</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <ul class="list-group fill" id="nutrition">
+                                    {% for nutrients in recipe.get_nutrition %}
+                                        <li><p class="my-2 mx-2">{{ nutrients }}</p></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 <script>
                     $(document).ready(function(){
@@ -80,7 +214,19 @@
                 </script>
             </div>
             <div class="col-md-6">
-            <h4 class="mb-3">Instructions</h4>
+            <h4 class="mb-3 thick mt-2">Equipments</h4>
+            <ul class="list-group fill" id="equipment">
+                {% for equipment in equipments %}
+                <li class="checked"><p class="my-2 mx-2 text-capitalize">{{ equipment.equipment.name }}</li>
+                {% empty %}
+                {% endfor %}
+            </ul>
+            <script>
+                    $(document).ready(function(){
+                    $('#equipment li:nth-child(even)').addClass('alternate');
+                    });
+                </script>
+            <h4 class="mb-3 thick">Instructions</h4>
             <ul class="list-group fill" id="steps">
                 {% for step in steps %}
                 <li class="checked" onclick="cross_out(this)"><p class="my-2 mx-2"><b class="mx-2">{{ step.number }}.</b>{{ step.description }}</p></li>

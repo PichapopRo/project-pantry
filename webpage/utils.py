@@ -1,6 +1,8 @@
 """This module contains functionality related to awarding badges to users."""
 from webpage.models import Recipe
 from decouple import config
+from django.contrib.auth import login as auth_login
+from django.conf import settings
 
 
 def award_chef_badge(user):
@@ -16,3 +18,17 @@ def award_chef_badge(user):
     if approved_recipe_count >= chef_badge_approved_amount:
         user.profile.chef_badge = True
         user.profile.save()
+
+
+def login_with_backend(request, user, backend=None):
+    """
+    Handle when user trying to register with the Google all-auth.
+
+    :param request: The request object.
+    :param user: The user to register.
+    :param backend: The backend to use.
+    """
+    if backend is None:
+        backend = settings.AUTHENTICATION_BACKENDS[0]
+    user.backend = backend
+    auth_login(request, user)

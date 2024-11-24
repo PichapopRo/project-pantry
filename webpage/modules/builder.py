@@ -3,6 +3,7 @@ This module contains the implementation of the Builder pattern for constructing 
 
 Both manually (NormalRecipeBuilder) and via Spoonacular API (SpoonacularRecipeBuilder).
 """
+from decimal import Decimal
 from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, IngredientList, EquipmentList, \
     Nutrition, NutritionList, Diet
 from django.contrib.auth.models import User
@@ -11,11 +12,12 @@ import requests
 from decouple import config
 from bs4 import BeautifulSoup
 import logging
+from webpage.modules.ai_advisor import AIRecipeAdvisor
 
 logger = logging.getLogger("Builder")
 
 API_KEY = config('API_KEY', default='fake-secret-key')
-spoonacular_password = config('SPOONACULAR_PASSWORD')
+spoonacular_password = config('SPOONACULAR_PASSWORD', default='fake-password')
 
 
 class Builder(ABC):
@@ -118,6 +120,7 @@ class NormalRecipeBuilder(Builder):
         """
         self.__recipe = Recipe.objects.create(name=name, poster_id=user)
         self.__diet_list = []
+        self.__user = user
 
     def build_details(self, **kwargs):
         """Build the properties of the Recipe class."""
@@ -182,7 +185,7 @@ class NormalRecipeBuilder(Builder):
             number=number)
         step.save()
 
-    def build_nutrition(self, nutrition: Nutrition, amount: int, unit: str):
+    def build_nutrition(self, nutrition: Nutrition, amount: Decimal, unit: str):
         """
         Build the nutrition in recipe.
 
@@ -223,6 +226,26 @@ class NormalRecipeBuilder(Builder):
         :param spoonacular_id: The Spoonacular ID of the recipe.
         """
         self.__recipe.spoonacular_id = spoonacular_id
+        self.__recipe.save()
+
+    def build_difficulty(self):
+        """
+        Build the difficulty of the recipe.
+
+        :return: A difficulty of the recipe.
+        """
+        advisor = AIRecipeAdvisor(recipe=self.__recipe)
+        self.__recipe.difficulty = advisor.difficulty_calculator()
+        self.__recipe.save()
+
+    def build_status(self):
+        """
+        Build the status of the recipe.
+
+        :return: A status of the recipe.
+        """
+        if self.__recipe.poster_id.username == config('API_USERNAME', default='fake-username'):
+            self.__recipe.status = 'approved'
         self.__recipe.save()
 
 
@@ -444,3 +467,19 @@ class SpoonacularRecipeBuilder():
         """Build the Spoonacular ID for the Recipe class."""
         self.__call_api()
         self.__builder.build_spoonacular_id(int(self.__data["id"]))
+
+    def build_difficulty(self):
+        """
+        Build the difficulty of the recipe.
+
+        :return: A difficulty of the recipe.
+        """
+        self.__builder.build_difficulty()
+
+    def build_status(self):
+        """
+        Build the status of the recipe.
+
+        :return: A status of the recipe.
+        """
+        self.__builder.build_status()
