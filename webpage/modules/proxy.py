@@ -10,6 +10,7 @@ from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
 from webpage.modules.builder import SpoonacularRecipeBuilder
 import logging
+from webpage.modules.status_code import StatusCode
 API_KEY = config('API_KEY', default=None)
 logger = logging.getLogger("proxy class")
 
@@ -94,7 +95,7 @@ class GetDataProxy(GetData):
         :param param: The filter parameter object.
         :return: List with RecipeFacade representing the recipe.
         """
-        queryset = Recipe.objects.all()
+        queryset = Recipe.objects.filter(status=StatusCode.APPROVE.value[0])
         for _filter in self.convert_parameter(param):
             key: str = list(_filter.keys())[0]
             if _filter[key] == "" or _filter[key] is None:

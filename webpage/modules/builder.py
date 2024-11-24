@@ -474,3 +474,4 @@ class SpoonacularRecipeBuilder():
         :return: A status of the recipe.
         """
         self.__builder.build_details(status=StatusCode.APPROVE.value[0])
+        self.__builder.build_details(AI_status=True)
