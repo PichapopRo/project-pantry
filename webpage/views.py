@@ -20,6 +20,7 @@ from webpage.utils import login_with_backend
 import random
 import json
 import logging
+from webpage.modules.status_code import StatusCode
 
 
 logger = logging.getLogger("Views")
@@ -202,10 +203,10 @@ def random_recipe_view(request):
 
     :param request: Request from the server.
     """
-    recipe_count = Recipe.objects.count()
-    if recipe_count > 0:
-        random_index = random.randint(0, recipe_count - 1)
-        random_recipe = Recipe.objects.all()[random_index]
+    random_recipes = Recipe.objects.filter(status=StatusCode.APPROVE.value[0])
+    if random_recipes.count() > 0:
+        random_index = random.randint(0, random_recipes.count() - 1)
+        random_recipe = random_recipes[random_index]
         return redirect('recipe', pk=random_recipe.id)
     else:
         messages.error(request, "No recipes available.")
@@ -269,7 +270,7 @@ class AddRecipeView(generic.CreateView):
         self.process_equipments(builder)
         self.process_steps(builder)
         self.process_nutrition(builder)
-        builder.build_recipe().status = 'Pending'
+        builder.build_recipe().status = StatusCode.PENDING.value[0]
         builder.build_difficulty()
         self.process_status(builder)
         return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
@@ -385,13 +386,12 @@ class AddRecipeView(generic.CreateView):
         :param builder: Recipe Builder instance.
         """
         try:
-            recipe = Recipe.objects.get(pk=builder.build_recipe().id)
-            is_approved = AIRecipeAdvisor(recipe).recipe_approval()
+            is_approved = AIRecipeAdvisor(builder.build_recipe()).recipe_approval()
             if is_approved == 'True':
-                recipe.AI_status = True
+                builder.build_details(AI_status=True)
             elif is_approved == 'False':
-                recipe.AI_status = False
-            recipe.save()
+                builder.build_details(AI_status=False)
+            builder.build_recipe().save()
         except Recipe.DoesNotExist:
             logger.error(f"Recipe with ID {builder.build_recipe()} does not exist.")
         except Exception as e:
@@ -479,7 +479,7 @@ class MyRecipeView(generic.ListView):
         """Return context of user's recipe."""
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
-        context['accept'] = queryset.filter(status='approved')
-        context['reject'] = queryset.filter(status='rejected')
-        context['pending'] = queryset.filter(status='Pending')
+        context['accept'] = queryset.filter(status=StatusCode.APPROVE.value[0])
+        context['reject'] = queryset.filter(status=StatusCode.REJECTED.value[0])
+        context['pending'] = queryset.filter(status=StatusCode.PENDING.value[0])
         return context

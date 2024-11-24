@@ -1,5 +1,9 @@
 """Import requests to receive request from the server."""
 import requests
+import logging
+
+
+logger = logging.getLogger('Image to url')
 
 
 def upload_image_to_imgur(image_file, client_id):
@@ -22,5 +26,5 @@ def upload_image_to_imgur(image_file, client_id):
     if response.status_code == 200:
         return response.json()['data']['link']
     else:
-        print(f"Error uploading image: {response.json()}")
+        logger.error(f"Error uploading image: {response.json()}")
         return None

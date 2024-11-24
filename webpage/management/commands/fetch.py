@@ -1,12 +1,12 @@
 """Module for fetching and storing recipes from the Spoonacular API."""
 import time
 from django.core.management.base import BaseCommand
-from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
+from webpage.modules.proxy import GetDataSpoonacular
 from webpage.modules.filter_objects import FilterParam
 from decouple import config
 
 API_KEY = config('API_KEY', default='fake-secret-key')
-proxy = GetDataProxy(GetDataSpoonacular())
+get_data = GetDataSpoonacular()
 
 
 class Command(BaseCommand):
@@ -24,10 +24,10 @@ class Command(BaseCommand):
         :param **kwargs: Keyword arguments.
         """
         param = FilterParam(
-            offset=300,
+            offset=550,
             number=3
         )
-        _list = proxy.filter_recipe(param)
+        _list = get_data.filter_recipe(param)
         for recipe in _list:
             self.stdout.write(self.style.SUCCESS(f"Save {recipe.name} successfully."))
             recipe.get_recipe().save()

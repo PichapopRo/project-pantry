@@ -60,14 +60,13 @@
 <div class="d-grid d-md-block">
     <a href="{% url 'recipe_list' %}" class="btn btn-success my-3 mx-3" type="button">Go Back</a>
 </div>
-<div class="container-fluid">
-    <div class="row fill">
-        <div class="col-md-6 align-content-left flex-fill">
-            <div class="text-center card-text mx-3 mt-3">
-                <img src="{{ recipe.image }}" alt="{{ recipe.name }}" class="img-fluid">
-            </div>
-        </div>
-            <div class="flex-grow-1 ms-3">
+<div class="container-fluid my-3">
+<div class="well">
+<div class="d-flex">
+<div class="d-flex">
+        <img src="{{ recipe.image }}" alt="{{ recipe.name }}">
+</div>
+    <div class="flex-grow-1 ms-3">
         <h1 class="display-5 d-inline">{{ recipe.name }}
             <form method="post" class="d-inline">
                 {% csrf_token %}
@@ -88,15 +87,14 @@
         <p>By: {{ recipe.poster_id.username }}
         {% if recipe.poster_id.profile.chef_badge %}
                     <small class="badge badge-warning rounded my-3">Chef <i class="bi bi-star-fill star mb-3"></i></small>
-          
                     {% endif %}
         </p>
         <h5><i class="bi bi-clock mx-1"></i> {{ recipe.estimated_time }} minutes</h5>
-                {% if recipe.get_difficulty == "Easy" %}
+                {% if recipe.difficulty == "Easy" %}
                 <h4><span class="badge badge-pill badge-success">Easy</span></h4>
-                {% elif recipe.get_difficulty == "Medium" %}
+                {% elif recipe.difficulty == "Medium" %}
                 <h4><span class="badge badge-pill badge-warning" style="text-decoration:none">Medium</span></h4>
-                {% elif recipe.get_difficulty == "Hard" %}
+                {% elif recipe.difficulty == "Hard" %}
                 <h4><span class="badge badge-pill badge-danger" style="text-decoration:none">Hard</span></h4>
                 {% endif %}
                 {% for diet in recipe.diets.all %}

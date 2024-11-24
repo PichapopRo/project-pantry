@@ -2,6 +2,54 @@
 <html lang="en">
 <head>
     {% extends 'base.html' %}
+    <script>
+    $(document).ready(function() {
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        $.ajaxSetup({
+            headers: { 'X-CSRFToken': csrftoken }
+        });
+        $('.favourite-btn').click(function(e) {
+            e.preventDefault();
+            let button = $(this);
+            let recipeId = button.data('recipe-id');
+            let favouriteCountElement = $('#favourite-count-' + recipeId);
+
+            $.ajax({
+                url: `/my_recipe/${recipeId}/toggle_favourite/`,
+                method: 'POST',
+                data: { csrfmiddlewaretoken: csrftoken },
+                success: function(response) {
+                    if (response.favourited) {
+                        button.find('i').removeClass('bi bi-heart').addClass('bi bi-heart-fill text-danger');
+                        favouriteCountElement.text(parseInt(favouriteCountElement.text()) + 1);
+                    } else {
+                        button.find('i').removeClass('bi bi-heart-fill text-danger').addClass('bi bi-heart');
+                        favouriteCountElement.text(parseInt(favouriteCountElement.text()) - 1);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log(`Error: ${status} - ${error}`);
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+    });
+</script>
 </head>
 {% block content %}
 <body>
@@ -23,13 +71,23 @@
             <div class="row">
                 {% if accept %}
                     {% for recipe in accept %}
-                        <div class="col col-sm-4 mb-3">
-                            <div class="card h-100">
+                        <div class="col col-sm-4 mb-3 mt-3">
+                            <div class="card h-100 shadow">
                                 <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.name }}">
                                 <div class="card-body">
                                     <h3 class="card-title">{{ recipe.name }}</h3>
                                     <small class="card-text">By: {{ recipe.poster_id.username }}</small>
                                     <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <button class="btn border-0 favourite-btn position-absolute bottom-0 end-0" data-recipe-id="{{ recipe.id }}">
+                                        {% if recipe.id in user_favourites %}
+                                        <i class="bi bi-heart-fill text-danger"></i>
+                                        {% else %}
+                                        <i class="bi bi-heart"></i>
+                                        {% endif %}
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -44,12 +102,22 @@
                 {% if reject %}
                     {% for recipe in reject %}
                         <div class="col col-sm-4 mb-3">
-                            <div class="card h-100">
+                            <div class="card h-100 mt-3 shadow">
                                 <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.name }}">
                                 <div class="card-body">
                                     <h3 class="card-title">{{ recipe.name }}</h3>
                                     <small class="card-text">By: {{ recipe.poster_id.username }}</small>
                                     <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <button class="btn border-0 favourite-btn position-absolute bottom-0 end-0" data-recipe-id="{{ recipe.id }}">
+                                        {% if recipe.id in user_favourites %}
+                                        <i class="bi bi-heart-fill text-danger"></i>
+                                        {% else %}
+                                        <i class="bi bi-heart"></i>
+                                        {% endif %}
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -63,13 +131,23 @@
             <div class="row">
                 {% if pending %}
                     {% for recipe in pending %}
-                        <div class="col col-sm-4 mb-3">
-                            <div class="card h-100">
+                        <div class="col col-sm-4 mb-3 mt-3">
+                            <div class="card h-100 shadow">
                                 <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.name }}">
                                 <div class="card-body">
                                     <h3 class="card-title">{{ recipe.name }}</h3>
                                     <small class="card-text">By: {{ recipe.poster_id.username }}</small>
                                     <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <button class="btn border-0 favourite-btn position-absolute bottom-0 end-0" data-recipe-id="{{ recipe.id }}">
+                                        {% if recipe.id in user_favourites %}
+                                        <i class="bi bi-heart-fill text-danger"></i>
+                                        {% else %}
+                                        <i class="bi bi-heart"></i>
+                                        {% endif %}
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>

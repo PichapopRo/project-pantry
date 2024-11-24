@@ -13,6 +13,7 @@ from decouple import config
 from bs4 import BeautifulSoup
 import logging
 from webpage.modules.ai_advisor import AIRecipeAdvisor
+from webpage.modules.status_code import StatusCode
 
 logger = logging.getLogger("Builder")
 
@@ -236,16 +237,6 @@ class NormalRecipeBuilder(Builder):
         """
         advisor = AIRecipeAdvisor(recipe=self.__recipe)
         self.__recipe.difficulty = advisor.difficulty_calculator()
-        self.__recipe.save()
-
-    def build_status(self):
-        """
-        Build the status of the recipe.
-
-        :return: A status of the recipe.
-        """
-        if self.__recipe.poster_id.username == config('API_USERNAME', default='fake-username'):
-            self.__recipe.status = 'approved'
         self.__recipe.save()
 
 
@@ -482,4 +473,5 @@ class SpoonacularRecipeBuilder():
 
         :return: A status of the recipe.
         """
-        self.__builder.build_status()
+        self.__builder.build_details(status=StatusCode.APPROVE.value[0])
+        self.__builder.build_details(AI_status=True)

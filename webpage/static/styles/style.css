@@ -12,7 +12,7 @@ i {
     width: 200px;
 }
 body {
-    background-color: #f7f9f9;
+    background-color: #ffffff;
     overflow: auto;
 }
 body::-webkit-scrollbar {
@@ -143,4 +143,10 @@ img {
     font-size: 14px;
     color: #ffffff;
     font-weight: 500;
+}
+.image-preview-container img {
+        width: 100%;
+        display: none;
+        margin-bottom: 30px;
+        max-width: 70%;
 }
