@@ -176,6 +176,8 @@ class GetDataSpoonacular(GetData):
         builder.build_step()
         builder.build_details()
         builder.build_diet()
+        builder.build_difficulty()
+        builder.build_status()
         builder.build_spoonacular_id()
         builder.build_recipe().save()
         return builder.build_recipe()

@@ -238,16 +238,6 @@ class NormalRecipeBuilder(Builder):
         self.__recipe.difficulty = advisor.difficulty_calculator()
         self.__recipe.save()
 
-    def build_status(self):
-        """
-        Build the status of the recipe.
-
-        :return: A status of the recipe.
-        """
-        if self.__recipe.poster_id.username == config('API_USERNAME', default='fake-username'):
-            self.__recipe.status = 'approved'
-        self.__recipe.save()
-
 
 class SpoonacularRecipeBuilder():
     """
