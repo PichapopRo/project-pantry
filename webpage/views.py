@@ -386,13 +386,12 @@ class AddRecipeView(generic.CreateView):
         :param builder: Recipe Builder instance.
         """
         try:
-            recipe = Recipe.objects.get(pk=builder.build_recipe().id)
-            is_approved = AIRecipeAdvisor(recipe).recipe_approval()
+            is_approved = AIRecipeAdvisor(builder.build_recipe()).recipe_approval()
             if is_approved == 'True':
-                recipe.AI_status = True
+                builder.build_details(AI_status=True)
             elif is_approved == 'False':
-                recipe.AI_status = False
-            recipe.save()
+                builder.build_details(AI_status=False)
+            builder.build_recipe().save()
         except Recipe.DoesNotExist:
             logger.error(f"Recipe with ID {builder.build_recipe()} does not exist.")
         except Exception as e:
