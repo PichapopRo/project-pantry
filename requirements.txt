@@ -7,3 +7,4 @@ openai>=1.51.2
 cryptography>=43.0.3
 django-allauth>=65.2.0
 djangorestframework-jwt>=1.11.0
+whitenoise==6.8.2

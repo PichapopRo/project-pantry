@@ -1,0 +1,61 @@
+        .btn-success {
+            background-color: #74ad59;
+            border-color: transparent;
+        }
+        .btn-success:hover{
+            background-color: #74ad59;
+            border-color: transparent;
+        }
+        h4{
+            color: #59704e
+        }
+        h3{
+            color: #59704e
+        }
+        h1{
+            color: #59704e
+        }
+        .badge-warning{
+            color: #ffffff;
+            background-color: #f1a60b;
+        }
+        .badge-success{
+            color: #ffffff;
+            background-color: #61c53a;
+        }
+        .badge-danger{
+            color: #ffffff;
+            background-color: #f0504e;
+        }
+
+        .image-preview-container img {
+            width: 100%;
+            display: none;
+            margin-bottom: 30px;
+        }
+        .image-preview-container input {
+            display: none;
+        }
+
+        .image-preview-container label {
+            width: 45%;
+            height: 45px;
+            margin-left: 25%;
+            text-align: center;
+            background: #59704e;
+            color: #fff;
+            font-size: 15px;
+            text-transform: Uppercase;
+            font-weight: 400;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        ul li:nth-child(odd) {
+          background: #b6b6b6;
+        }
+        ol li:nth-child(odd) {
+          background: #b6b6b6;
+        }
