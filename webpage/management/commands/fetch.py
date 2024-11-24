@@ -1,7 +1,7 @@
 """Module for fetching and storing recipes from the Spoonacular API."""
 import time
 from django.core.management.base import BaseCommand
-from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
+from webpage.modules.proxy import GetDataSpoonacular
 from webpage.modules.filter_objects import FilterParam
 from decouple import config
 

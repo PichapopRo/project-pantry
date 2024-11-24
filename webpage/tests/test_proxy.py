@@ -8,6 +8,7 @@ from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
 from decouple import config
 from webpage.modules.ai_advisor import AIRecipeAdvisor
+from webpage.modules.status_code import StatusCode
 
 API_KEY = config('API_KEY', default='fake-secret-key')
 
@@ -31,7 +32,8 @@ class GetDataProxyTest(TestCase):
             image='http://example.com/porksalad.jpg',
             estimated_time=30,
             description='This is a pork salad.',
-            poster_id=cls.user
+            poster_id=cls.user,
+            status=StatusCode.APPROVE.value[0]
         )
         cls.recipe2 = Recipe.objects.create(
             spoonacular_id=2,
@@ -39,7 +41,8 @@ class GetDataProxyTest(TestCase):
             image='http://example.com/meatsalad.jpg',
             estimated_time=30,
             description='This is a meat salad.',
-            poster_id=cls.user
+            poster_id=cls.user,
+            status=StatusCode.APPROVE.value[0]
         )
         cls.ingredient1 = Ingredient.objects.create(
             name="avocado",
