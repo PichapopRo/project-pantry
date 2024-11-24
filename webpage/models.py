@@ -103,10 +103,10 @@ class Recipe(models.Model):
     image = models.CharField(max_length=200, null=True, blank=True)
     poster_id = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
-    description = models.CharField(max_length=300, null=True, blank=True)
+    description = models.CharField(max_length=3000, null=True, blank=True)
     diets = models.ManyToManyField(Diet, related_name="recipes")
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
-    difficulty = models.CharField(max_length=10, default='Unknown')
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='Pending')
+    difficulty = models.CharField(max_length=30, default='Unknown')
     AI_status = models.BooleanField(default=False)
 
     def __str__(self) -> str:
