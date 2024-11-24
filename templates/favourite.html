@@ -30,7 +30,7 @@
             let favouriteCountElement = $('#favourite-count-' + recipeId);
 
             $.ajax({
-                url: `/favourite/${recipeId}/toggle_favourite/`,
+                url: `/recipes/${recipeId}/toggle_favourite/`,
                 method: 'POST',
                 data: { csrfmiddlewaretoken: csrftoken },
                 success: function(response) {
@@ -40,6 +40,7 @@
                     } else {
                         button.find('i').removeClass('bi bi-heart-fill text-danger').addClass('bi bi-heart');
                         favouriteCountElement.text(parseInt(favouriteCountElement.text()) - 1);
+                        $('#recipe-card-' + recipeId).fadeOut();
                     }
                 },
                 error: function(xhr, status, error) {
@@ -61,7 +62,7 @@
     {% if favourites %}
     {% for favourite in favourites %}
         <div class="col col-sm-4 mb-3">
-            <div class="card h-100 shadow">
+            <div class="card h-100 shadow" id="recipe-card-{{ favourite.recipe.id }}">
             <img src="{{ favourite.recipe.image }}" class="card-img-top" alt="{{ favourite.recipe.name }}">
             <div class="card-body">
                 <small>Favourites: <span class="favourite-count" id="favourite-count-{{ favourite.recipe.id }}">{{ favourite.recipe.favourite_set.count }}</span></small>
