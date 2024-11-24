@@ -1,4 +1,5 @@
-"""Status for the recipe."""
+"""Status for the recipe"""
+
 from enum import Enum
 
 

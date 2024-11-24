@@ -7,6 +7,7 @@ from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
 from webpage.modules.filter_objects import FilterParam
 from webpage.modules.recipe_facade import RecipeFacade
 from decouple import config
+from webpage.modules.ai_advisor import AIRecipeAdvisor
 
 API_KEY = config('API_KEY', default='fake-secret-key')
 
@@ -329,9 +330,11 @@ class GetDataSpoonacularTest(TestCase):
         """Set up test data and mocks."""
         cls.get_data_spoonacular = GetDataSpoonacular()
 
+    @patch('webpage.modules.ai_advisor.AIRecipeAdvisor.difficulty_calculator')
     @patch('requests.get')
-    def test_find_by_spoonacular_id(self, mock_get):
+    def test_find_by_spoonacular_id(self, mock_get, mock_difficulty):
         """Test find_by_spoonacular_id method with mocked build_difficulty."""
+        # Mocking the response from requests.get
         mock_get.return_value = Mock(status_code=200)
         mock_get.return_value.json.return_value = {
             "id": 123450,
@@ -341,40 +344,50 @@ class GetDataSpoonacularTest(TestCase):
             "summary": "This is a fruit salad.",
             "extendedIngredients": [
                 {"id": 101, "name": "apple", "image": "apple.jpg",
-                 "measures": {"metric": {"amount": 100, "unitLong": "grams"}}},
+                "measures": {"metric": {"amount": 100, "unitLong": "grams"}}},
                 {"id": 121, "name": "banana", "image": "banana.jpg",
-                 "measures": {"metric": {"amount": 100, "unitLong": "grams"}}},
+                "measures": {"metric": {"amount": 100, "unitLong": "grams"}}},
             ],
             "analyzedInstructions": [
                 {"steps": [{"step": "Step 1"}, {"step": "Step 2"}]}
             ],
             "equipment": [{"name": "bowl", "image": "bowl.jpg"},
-                          {"name": "fork", "image": "fork.jpg"}],
+                        {"name": "fork", "image": "fork.jpg"}],
             "diets": ["vegetarian"],
             "nutrients": [{"name": "Calories", "amount": 200, "unit": "kcal"}]
         }
+        
+        # Mocking the difficulty calculator return value
+        mock_difficulty.return_value = "Easy"
+        
+        # Call the method under test
         recipe = self.get_data_spoonacular.find_by_spoonacular_id(123450)
+
+        # Assertions
         self.assertTrue(Recipe.objects.filter(spoonacular_id=123450).exists())
         self.assertEqual(recipe.poster_id.username, "Spoonacular")
         self.assertEqual(recipe.name, "fruit salad")
-        ingredient_list = [igl.ingredient.name for igl in
-                           list(recipe.get_ingredients())]
+        
+        ingredient_list = [igl.ingredient.name for igl in list(recipe.get_ingredients())]
         self.assertEqual(["apple", "banana"], ingredient_list)
-        equipment_list = [eql.equipment.name for eql in
-                          list(recipe.get_equipments())]
+        
+        equipment_list = [eql.equipment.name for eql in list(recipe.get_equipments())]
         self.assertEqual(["bowl", "fork"], equipment_list)
-        nutrition_list = [ntl.nutrition.name for ntl in
-                          list(recipe.get_nutrition())]
+        
+        nutrition_list = [ntl.nutrition.name for ntl in list(recipe.get_nutrition())]
         self.assertEqual(["Calories"], nutrition_list)
-        step_list = [step.description for step in
-                     list(recipe.get_steps().order_by("number"))]
+        
+        step_list = [step.description for step in list(recipe.get_steps().order_by("number"))]
         self.assertEqual(["Step 1", "Step 2"], step_list)
+        
         self.assertEqual(recipe.image, "https://fruitsalad.com/image.jpg")
         self.assertEqual(recipe.estimated_time, 30)
         self.assertEqual(recipe.description, "This is a fruit salad.")
+        
         diet_list = recipe.diets.all()
         self.assertEqual(diet_list.count(), 1)
         self.assertEqual(diet_list.first().name, "Vegetarian")
+        
         self.assertEqual(recipe.spoonacular_id, 123450)
         self.assertIn(recipe.difficulty, ["Easy", "Normal", "Hard", "Unknown"])
         self.assertIsInstance(recipe, Recipe)
