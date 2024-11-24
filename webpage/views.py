@@ -203,10 +203,10 @@ def random_recipe_view(request):
 
     :param request: Request from the server.
     """
-    recipe_count = Recipe.objects.count()
-    if recipe_count > 0:
-        random_index = random.randint(0, recipe_count - 1)
-        random_recipe = Recipe.objects.all()[random_index]
+    random_recipes = Recipe.objects.filter(status=StatusCode.APPROVE.value[0])
+    if random_recipes.count() > 0:
+        random_index = random.randint(0, random_recipes.count() - 1)
+        random_recipe = random_recipes[random_index]
         return redirect('recipe', pk=random_recipe.id)
     else:
         messages.error(request, "No recipes available.")
