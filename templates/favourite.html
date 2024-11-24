@@ -37,10 +37,12 @@
                     if (response.favourited) {
                         button.find('i').removeClass('bi bi-heart').addClass('bi bi-heart-fill text-danger');
                         favouriteCountElement.text(parseInt(favouriteCountElement.text()) + 1);
+                        window.location.reload();
                     } else {
                         button.find('i').removeClass('bi bi-heart-fill text-danger').addClass('bi bi-heart');
                         favouriteCountElement.text(parseInt(favouriteCountElement.text()) - 1);
                         $('#recipe-card-' + recipeId).fadeOut();
+                        window.location.reload();
                     }
                 },
                 error: function(xhr, status, error) {
