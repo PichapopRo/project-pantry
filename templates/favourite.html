@@ -37,11 +37,13 @@
                     if (response.favourited) {
                         button.find('i').removeClass('bi bi-heart').addClass('bi bi-heart-fill text-danger');
                         favouriteCountElement.text(parseInt(favouriteCountElement.text()) + 1);
+                        history.go(1);
                         window.location.reload();
                     } else {
                         button.find('i').removeClass('bi bi-heart-fill text-danger').addClass('bi bi-heart');
                         favouriteCountElement.text(parseInt(favouriteCountElement.text()) - 1);
                         $('#recipe-card-' + recipeId).fadeOut();
+                        history.go(1);
                         window.location.reload();
                     }
                 },
@@ -73,7 +75,7 @@
                 <a href="{% url 'recipe' favourite.recipe.id %}" class="stretched-link"></a>
                     <form method="post">
                         {% csrf_token %}
-                        <button class="btn border-0 favourite-btn position-absolute bottom-0 end-0" data-recipe-id="{{ favourite.recipe.id }}">
+                        <button class="btn border-0 favourite-btn position-absolute bottom-0 end-0" onclick="true" data-recipe-id="{{ favourite.recipe.id }}">
                         <i class="bi bi-heart-fill text-danger"></i>
                         </button>
                     </form>
