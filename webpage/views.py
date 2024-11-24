@@ -20,6 +20,7 @@ from webpage.utils import login_with_backend
 import random
 import json
 import logging
+from webpage.modules.status_code import StatusCode
 
 
 logger = logging.getLogger("Views")
@@ -269,7 +270,7 @@ class AddRecipeView(generic.CreateView):
         self.process_equipments(builder)
         self.process_steps(builder)
         self.process_nutrition(builder)
-        builder.build_recipe().status = 'Pending'
+        builder.build_recipe().status = StatusCode.PENDING.value[0]
         builder.build_difficulty()
         self.process_status(builder)
         return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
@@ -479,7 +480,7 @@ class MyRecipeView(generic.ListView):
         """Return context of user's recipe."""
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
-        context['accept'] = queryset.filter(status='approved')
-        context['reject'] = queryset.filter(status='rejected')
-        context['pending'] = queryset.filter(status='Pending')
+        context['accept'] = queryset.filter(status=StatusCode.APPROVE.value[0])
+        context['reject'] = queryset.filter(status=StatusCode.REJECTED.value[0])
+        context['pending'] = queryset.filter(status=StatusCode.PENDING.value[0])
         return context

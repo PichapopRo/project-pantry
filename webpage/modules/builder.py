@@ -13,6 +13,7 @@ from decouple import config
 from bs4 import BeautifulSoup
 import logging
 from webpage.modules.ai_advisor import AIRecipeAdvisor
+from webpage.modules.status_code import StatusCode
 
 logger = logging.getLogger("Builder")
 
@@ -472,4 +473,4 @@ class SpoonacularRecipeBuilder():
 
         :return: A status of the recipe.
         """
-        self.__builder.build_status()
+        self.__builder.build_details(status=StatusCode.APPROVE.value[0])

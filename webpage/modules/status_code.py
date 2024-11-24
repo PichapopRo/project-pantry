@@ -26,6 +26,7 @@ if __name__ == "__main__":
     status_code = StatusCode
     choices = status_code.get_choice()
     print(choices)
+    print(StatusCode.APPROVE.value[0])
     
     for status in StatusCode:
         print(status)
