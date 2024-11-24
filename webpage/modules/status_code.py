@@ -1,10 +1,10 @@
 """Status for the recipe."""
-
 from enum import Enum
 
 
 class StatusCode(Enum):
     """The status of the recipe approval."""
+
     APPROVE = ("approved", "Pending")
     PENDING = ("pending", "Approved")
     REJECTED = ("rejected", "Rejected")
