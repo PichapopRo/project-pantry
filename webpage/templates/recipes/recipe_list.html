@@ -143,7 +143,7 @@
                                 {% endif %}
                                 </button>
                                 {% else %}
-                                <a class="btn border-0 position-absolute bottom-0 end-0" style="z-index: 1;" href="{% url 'login' %}">
+                                <a class="btn border-0 position-absolute bottom-0 end-0" style="z-index: 1;" href="{% url 'login' %}?next={{ request.path }}">
                                 <i class="bi bi-heart"></i>
                                 </a>
                                 {% endif %}
