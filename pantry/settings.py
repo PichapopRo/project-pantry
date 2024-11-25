@@ -89,24 +89,24 @@ AUTHENTICATION_BACKENDS = (
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+# if DEBUG:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': BASE_DIR / 'db.sqlite3',
+#         }
+#     }
+# else:
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',  
+        'NAME': config("DB_NAME"), 
+        'USER': config("DB_USERNAME"),
+        'PASSWORD': config("DB_PASSWORD"),
+        'HOST': 'aws-0-ap-southeast-1.pooler.supabase.com',
+        'PORT': '6543',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',  
-            'NAME': config("DB_NAME"), 
-            'USER': config("DB_USERNAME"),
-            'PASSWORD': config("DB_PASSWORD"),
-            'HOST': 'aws-0-ap-southeast-1.pooler.supabase.com',
-            'PORT': '6543',
-        }
-    }
+}
 
 
 # Password validation
@@ -172,3 +172,25 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 IMGUR_CLIENT_ID = config("IMGUR_CLIENT_ID", default='Your imgur client ID',
                          cast=str)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": config("DJANGO_LOG_LEVEL", default="INFO"),
+            "propagate": False,
+        },
+    },
+}
+
