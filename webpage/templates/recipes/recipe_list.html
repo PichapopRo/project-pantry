@@ -213,13 +213,13 @@
     loadMoreButton.addEventListener("click", function (e) {
         e.preventDefault();
 
-        const currentScroll = window.scrollY; // Capture the user's current scroll position
+        const currentScroll = window.scrollY;
 
         $.ajax({
             url: ".",
             method: "POST",
             data: {
-                increment: 9,  // Number of recipes to load
+                increment: 9,
                 csrfmiddlewaretoken: "{{ csrf_token }}"
             },
             success: function (response) {
@@ -243,8 +243,6 @@
                 });
 
                 viewCount += recipes.length;
-
-                // Hide the Load More button if all recipes are loaded
                 if (viewCount >= totalRecipes) {
                     loadMoreButton.style.display = "none";
                 }
