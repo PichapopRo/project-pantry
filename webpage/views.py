@@ -2,7 +2,6 @@
 from decimal import Decimal
 import re
 from django.contrib.auth.decorators import login_required
-from django.db import IntegrityError
 from django.http import JsonResponse
 from django.views import generic
 from pantry import settings
