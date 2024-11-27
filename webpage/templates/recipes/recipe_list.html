@@ -158,14 +158,7 @@
         <p>No recipes available.</p>
         {% endif %}
         <div class="d-flex justify-content-center mt-4">
-            <form method="post" action=".">
-                {% csrf_token %}
-                {% if view_count == 0 and total_recipes > 0 %}
-                <button type="submit" name="increment" value="5" class="btn btn-success" id="load-more" {% if button_clicked %}autofocus{% endif %}>View Recipes</button>
-                {% elif total_recipes > 0 %}
-                <button type="submit" name="increment" value="5" class="btn btn-success" id="load-more" {% if button_clicked %}autofocus{% endif %}>Load More Recipes</button>
-                {% endif %}
-            </form>
+            <button id="load-more" class="btn btn-success">Load More Recipes</button>
         </div>
         <script>
             const ingredients = [];
@@ -212,6 +205,58 @@
             }
             }
         </script>
+<script>
+    let viewCount = {{ view_count }};
+    let totalRecipes = {{ total_recipes }};
+    const loadMoreButton = document.getElementById("load-more");
+
+    loadMoreButton.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        const currentScroll = window.scrollY; // Capture the user's current scroll position
+
+        $.ajax({
+            url: ".",
+            method: "POST",
+            data: {
+                increment: 9,  // Number of recipes to load
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            success: function (response) {
+                const recipes = response.recipes;
+                const recipeContainer = document.querySelector(".row");
+
+                recipes.forEach(recipe => {
+                    const card = `
+                        <div class="col col-sm-4 mb-3">
+                            <div class="card h-100 shadow">
+                                <img src="${recipe.image}" class="card-img-top" alt="${recipe.name}">
+                                <div class="card-body">
+                                    <small>Favourites: <span class="favourite-count">${recipe.favourites_count}</span></small>
+                                    <h3 class="card-title">${recipe.name}</h3>
+                                    <small class="card-text">By: ${recipe.poster}</small>
+                                    <a href="/recipes/${recipe.id}/" class="stretched-link"></a>
+                                </div>
+                            </div>
+                        </div>`;
+                    recipeContainer.insertAdjacentHTML("beforeend", card);
+                });
+
+                viewCount += recipes.length;
+
+                // Hide the Load More button if all recipes are loaded
+                if (viewCount >= totalRecipes) {
+                    loadMoreButton.style.display = "none";
+                }
+                window.scrollTo({ top: currentScroll, behavior: 'auto' });
+            },
+            error: function () {
+                alert("Unable to load more recipes. Please try again.");
+            }
+        });
+    });
+</script>
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
         {% endblock %}
     </body>

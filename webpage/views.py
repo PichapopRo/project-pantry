@@ -143,15 +143,48 @@ class RecipeListView(generic.ListView):
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST request to increment view_count.
-
-        :param request: HttpRequest from the server.
+        Handle POST request to increment view_count and return recipes as JSON.
         """
         if 'increment' in request.POST:
             increment = int(request.POST.get('increment', 0))
             request.session['view_count'] = request.session.get('view_count', 0) + increment
-            request.session['button_clicked'] = True
-        return redirect(request.path)
+        view_count = request.session['view_count']
+        query = self.request.GET.get('query', '')
+        ingredient_data = self.request.GET.get('ingredients_data', '[]')
+        diets_data = self.request.GET.get('diets_data', '[]')
+        estimated_time = self.request.GET.get('estimated_time', None)
+
+        ingredients = json.loads(ingredient_data)
+        selected_diets = json.loads(diets_data)
+        try:
+            estimated_time = int(estimated_time) if estimated_time else 9999
+        except ValueError:
+            estimated_time = 9999
+
+        filter_params = FilterParam(
+            offset=1,
+            number=view_count,
+            includeIngredients=ingredients,
+            diet=selected_diets,
+            maxReadyTime=estimated_time,
+            titleMatch=query
+        )
+
+        recipe_filter = GetDataProxy(GetDataSpoonacular())
+        filtered_recipes = recipe_filter.filter_recipe(filter_params)
+        recipes = [facade.get_recipe() for facade in filtered_recipes][:view_count]
+        recipe_data = [
+            {
+                'id': recipe.id,
+                'name': recipe.name,
+                'image': recipe.image,
+                'poster': recipe.poster_id.username,
+                'favourites_count': recipe.favourite_set.count(),
+            }
+            for recipe in recipes
+        ]
+
+        return JsonResponse({'recipes': recipe_data})
 
     def get_context_data(self, **kwargs):
         """Add the current view_count and diet filter to the context."""
