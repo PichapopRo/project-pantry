@@ -2,8 +2,6 @@
 from decimal import Decimal
 import re
 from django.contrib.auth.decorators import login_required
-from django.db.models.base import Model as Model
-from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views import generic
 from pantry import settings

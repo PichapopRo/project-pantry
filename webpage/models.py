@@ -97,7 +97,6 @@ class NutritionList(models.Model):
 class Recipe(models.Model):
     """The recipe class containing information about the recipe and methods."""
 
-    STATUS_CHOICES = StatusCode.get_choice()
     name = models.CharField(max_length=200, default='Unnamed Recipe')
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
     estimated_time = models.FloatField(default=0)
