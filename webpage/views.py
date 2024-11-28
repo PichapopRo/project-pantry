@@ -188,6 +188,7 @@ class RecipeView(generic.DetailView):
         """Add steps directly from RecipeStep model to the context."""
         context = super().get_context_data(**kwargs)
         recipe: Recipe = self.get_object()
+        context['can_favorite'] = None if recipe.status != StatusCode.APPROVE.value[0] else True
         context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
         context['equipments'] = Recipe.get_equipments(recipe)
         if self.request.user.is_authenticated:
