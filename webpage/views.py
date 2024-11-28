@@ -2,7 +2,9 @@
 from decimal import Decimal
 import re
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.db.models.base import Model as Model
+from django.db.models.query import QuerySet
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views import generic
 from pantry import settings
 from webpage.models import Recipe, Diet, RecipeStep, Favourite, Ingredient, Equipment, Nutrition
@@ -185,7 +187,7 @@ class RecipeView(generic.DetailView):
     def get_context_data(self, **kwargs):
         """Add steps directly from RecipeStep model to the context."""
         context = super().get_context_data(**kwargs)
-        recipe = self.get_object()
+        recipe: Recipe = self.get_object()
         context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
         context['equipments'] = Recipe.get_equipments(recipe)
         if self.request.user.is_authenticated:
@@ -194,6 +196,13 @@ class RecipeView(generic.DetailView):
         else:
             context['user_favourites'] = []
         return context
+    
+    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        recipe: Recipe = self.get_object()
+        if recipe.status != StatusCode.APPROVE.value[0] and recipe.poster_id.id != request.user.id:
+            return redirect('recipe_list')
+        return super().get(request, *args, **kwargs)
+    
 
 
 def random_recipe_view(request):
