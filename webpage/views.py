@@ -237,6 +237,8 @@ def toggle_favourite(request, recipe_id):
     """
     try:
         recipe = Recipe.objects.get(id=recipe_id)
+        if recipe.status != StatusCode.APPROVE.value[0]:
+            return JsonResponse({'error': 'Recipe has not been approved'}, status=403)
         user = request.user
         favourite, created = Favourite.objects.get_or_create(recipe=recipe, user=user)
         if created:
