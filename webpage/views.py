@@ -108,7 +108,7 @@ class RecipeListView(generic.ListView):
 
     def get_queryset(self):
         """Return recipes filtered by diet, ingredient, max cooking time, and limited by view_count."""
-        view_count = self.request.session.get('view_count', 0)
+        view_count = self.request.session.get('view_count', 6)
         query = self.request.GET.get('query', '')
         ingredient_data = self.request.GET.get('ingredients_data', '[]')
         diets_data = self.request.GET.get('diets_data', '[]')
@@ -145,10 +145,10 @@ class RecipeListView(generic.ListView):
         """
         Handle POST request to increment view_count and return recipes as JSON.
         """
-        if 'increment' in request.POST:
-            increment = int(request.POST.get('increment', 0))
-            request.session['view_count'] = request.session.get('view_count', 0) + increment
-        view_count = request.session['view_count']
+        increment = int(request.POST.get('increment', 0))
+        view_count = self.request.session.get('view_count', 0) + increment
+        self.request.session['view_count'] = view_count
+
         query = self.request.GET.get('query', '')
         ingredient_data = self.request.GET.get('ingredients_data', '[]')
         diets_data = self.request.GET.get('diets_data', '[]')
@@ -156,14 +156,14 @@ class RecipeListView(generic.ListView):
 
         ingredients = json.loads(ingredient_data)
         selected_diets = json.loads(diets_data)
+
         try:
             estimated_time = int(estimated_time) if estimated_time else 9999
         except ValueError:
             estimated_time = 9999
-
         filter_params = FilterParam(
-            offset=1,
-            number=view_count,
+            offset=view_count - increment + 1,
+            number=increment,
             includeIngredients=ingredients,
             diet=selected_diets,
             maxReadyTime=estimated_time,
@@ -172,7 +172,8 @@ class RecipeListView(generic.ListView):
 
         recipe_filter = GetDataProxy(GetDataSpoonacular())
         filtered_recipes = recipe_filter.filter_recipe(filter_params)
-        recipes = [facade.get_recipe() for facade in filtered_recipes][:view_count]
+        recipes = [facade.get_recipe() for facade in filtered_recipes]
+
         recipe_data = [
             {
                 'id': recipe.id,
@@ -183,8 +184,9 @@ class RecipeListView(generic.ListView):
             }
             for recipe in recipes
         ]
+        has_more = len(recipes) == increment
 
-        return JsonResponse({'recipes': recipe_data})
+        return JsonResponse({'recipes': recipe_data, 'has_more': has_more})
 
     def get_context_data(self, **kwargs):
         """Add the current view_count and diet filter to the context."""
