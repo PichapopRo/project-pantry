@@ -2,7 +2,6 @@
 from decimal import Decimal
 import re
 from django.contrib.auth.decorators import login_required
-from django.db import IntegrityError
 from django.http import JsonResponse
 from django.views import generic
 from pantry import settings
@@ -333,19 +332,6 @@ class AddRecipeView(generic.CreateView):
                     builder.build_diet(diet)
             except Exception as e:
                 logger.error(f"Error parsing diets '{diets_data}': {e}")
-        custom_diet_name = self.request.POST.get('custom_diet')
-        if custom_diet_name:
-            try:
-                custom_diet, created = Diet.objects.get_or_create(
-                    name=custom_diet_name)
-                builder.build_diet(custom_diet)
-                if created:
-                    logger.debug(f"Created and added custom diet: {custom_diet.name}")
-                else:
-                    logger.debug(f"Added existing diet: {custom_diet.name}")
-            except IntegrityError:
-                logger.error(
-                    f"Failed to add custom diet: {custom_diet_name} due to IntegrityError")
 
     def process_equipments(self, builder: NormalRecipeBuilder):
         """

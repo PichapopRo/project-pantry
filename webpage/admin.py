@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django import forms
-from .models import Recipe, IngredientList, EquipmentList, NutritionList, RecipeStep
+from .models import Recipe, IngredientList, EquipmentList, NutritionList, RecipeStep, Diet
 
 
 class IngredientListInline(admin.TabularInline):
@@ -54,3 +54,7 @@ class RecipeAdmin(admin.ModelAdmin):
     inlines = [IngredientListInline, EquipmentListInline, NutritionListInline, RecipeStepInline]
 
 admin.site.register(Recipe, RecipeAdmin)
+
+@admin.register(Diet)
+class DietAdmin(admin.ModelAdmin):
+    list_display = ('name',)
