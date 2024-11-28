@@ -198,12 +198,17 @@ class RecipeView(generic.DetailView):
         return context
     
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        """
+        Get the Recipe class for the user. If the recipe is not approved, it will redirect to the main page.
+        
+        :param request: The request from the page.
+        :return: A HTTP Response. 
+        """
         recipe: Recipe = self.get_object()
         if recipe.status != StatusCode.APPROVE.value[0] and recipe.poster_id.id != request.user.id:
             return redirect('recipe_list')
         return super().get(request, *args, **kwargs)
     
-
 
 def random_recipe_view(request):
     """
