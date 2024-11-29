@@ -284,7 +284,6 @@ class AddRecipeView(generic.CreateView):
         self.process_equipments(builder)
         self.process_steps(builder)
         self.process_nutrition(builder)
-        builder.build_recipe().status = StatusCode.PENDING.value[0]
         builder.build_difficulty()
         self.process_status(builder)
         return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
@@ -390,6 +389,7 @@ class AddRecipeView(generic.CreateView):
             is_approved = AIRecipeAdvisor(builder.build_recipe()).recipe_approval()
             if is_approved == 'True':
                 builder.build_details(AI_status=True)
+                builder.build_details(status=StatusCode.APPROVE.value[0])
             elif is_approved == 'False':
                 builder.build_details(AI_status=False)
             builder.build_recipe().save()
