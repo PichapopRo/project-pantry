@@ -20,6 +20,7 @@ import random
 import json
 import logging
 from webpage.modules.status_code import StatusCode
+from django.http import HttpRequest, HttpResponse, Http404
 
 
 logger = logging.getLogger("Views")
@@ -469,3 +470,8 @@ class MyRecipeView(generic.ListView):
         context['reject'] = queryset.filter(status=StatusCode.REJECTED.value[0])
         context['pending'] = queryset.filter(status=StatusCode.PENDING.value[0])
         return context
+    
+def get_alternative_alternative(request: HttpRequest) -> HttpResponse:
+    if request.method != 'POST':
+        return Http404()
+    

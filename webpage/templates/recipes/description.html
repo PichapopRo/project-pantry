@@ -49,6 +49,29 @@
             });
         });
     });
+
+    // Fetch alternative ingredient
+    document.getElementById('alternative-recipe-form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+    
+        const formData = new FormData(this); // Create a FormData object from the form
+    
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest' // Indicate that this is an AJAX request
+            }
+        })
+        .then(response => response.json()) // Parse JSON response
+        .then(data => {
+            document.getElementById('response-text').innerText = data.response; // Display server response
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+    
     </script>
 <html lang="en">
 <head>
@@ -125,25 +148,25 @@
                                 <h3 class="modal-title fs-5" id="exampleModalLabel">Alternative Ingredient</h3>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
-                              <div class="modal-body">
-                                <form>
-                                  <div class="mb-3">
-                                    <label for="ingredients-name" class="col-form-label text-capitalize">For: {{ ingredient.amount }} {{ ingredient.unit }} {{ ingredient.ingredient.name }}</label>
-                                  </div>
+                              <form id="alternative-ingredient-form" action="/alternative_ingredients" method="POST">
+                                <div class="modal-body">
                                     <div class="mb-3">
-                                    <label for="prompts-name" class="col-form-label">Prompt:</label>
-                                    <input type="text" class="form-control" id="prompts-name">
-                                  </div>
-                                  <div class="mb-3">
-                                    <label for="alter-text" class="col-form-label">Your new ingredients:</label>
-                                    <h4 class="form-control alter">Click find alternative first</h4>
-                                  </div>
-                                </form>
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-success">Find alternative</button>
-                              </div>
+                                        <label for="ingredients-name" class="col-form-label text-capitalize">For: {{ ingredient.amount }} {{ ingredient.unit }} {{ ingredient.ingredient.name }}</label>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="prompts-name" class="col-form-label">Prompt:</label>
+                                        <input type="text" class="form-control" id="prompts-name" name="prompt">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="alter-text" class="col-form-label">Your new ingredients:</label>
+                                        <h4 class="form-control alter" id="response-text">Click find alternative first</h4>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-success">Find alternative</button>
+                                </div>
+                            </form>
                             </div>
                           </div>
                         </div>
