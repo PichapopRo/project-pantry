@@ -64,8 +64,14 @@
             }
         })
         .then(response => {
-            console.log(response.json())
-            document.getElementById('response-text').innerText = response.json().body.text; // Display server response
+            // Check if the response is okay (status in the range 200-299)
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json(); // Wait for the response to be parsed as JSON
+        })
+        .then(data => {
+            document.getElementById('response-text').innerText = data.text; // Display server response
         })
         .catch(error => {
             console.error('Error:', error);
