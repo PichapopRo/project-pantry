@@ -196,13 +196,22 @@ class RecipeView(generic.DetailView):
             context['user_favourites'] = []
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args, **kwargs) -> JsonResponse:
+        """
+        Get the alternative ingredient of each recipe.
+        
+        :param request: A POST request
+        :return: The JSON containing the alternative ingredient.
+        """
         recipe = self.get_object()
         ai_consultant = AIRecipeAdvisor(recipe)
         if 'ingredient_id' in request.POST:
             ingredient_id = int(request.POST.get('ingredient_id', 0))
             print(ingredient_id)
-            alternative = ai_consultant.get_alternative_ingredients([Ingredient.objects.get(id=ingredient_id)])
+            alternative = ai_consultant.get_alternative_ingredients(
+                [Ingredient.objects.get(id=ingredient_id)],
+                request.POST.get('prompt', None)
+                )
             text = ""
             for ingredient in alternative:
                 text += str(ingredient['amount'])+ " " + ingredient['unit'] + " " + ingredient['name'] + " - " + \
