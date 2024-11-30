@@ -5,8 +5,8 @@ from enum import Enum
 class StatusCode(Enum):
     """The status of the recipe approval."""
 
-    APPROVE = ("approved", "Pending")
-    PENDING = ("pending", "Approved")
+    APPROVE = ("approved", "Approved")
+    PENDING = ("pending", "Pending")
     REJECTED = ("rejected", "Rejected")
     
     @classmethod
