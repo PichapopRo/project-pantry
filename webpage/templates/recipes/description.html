@@ -60,39 +60,43 @@
     });
     
 });
-        // Fetch alternative ingredient
-    function onSubmitAlternative(event) {
-        console.log("onsubmit is called")
-        event.preventDefault(); // Prevent the default form submission
+// Fetch alternative ingredient
+function onSubmitAlternative(event) {
+    /**
+    * Submit the Alternative Ingredient POST request and update the field.
+    * @param event - the event provided by the form.
+    */
+    console.log("onsubmit is called")
+    event.preventDefault(); // Prevent the default form submission
 
-        const formData = new FormData(event.target); // Create a FormData object from the form
-        const formObject = Object.fromEntries(formData.entries());
+    const formData = new FormData(event.target); // Create a FormData object from the form
+    const formObject = Object.fromEntries(formData.entries());
 
 
-        console.log("formData: ", formObject.ingredient_id)
-        document.getElementById('submit-button').disabled = true;
-        fetch(this.action, {
+    console.log("formData: ", formObject.ingredient_id)
+    document.getElementById('submit-button').disabled = true;
+    fetch(event.target.action, {
         method: "POST",
         body: formData,
         headers: {
             "X-Requested-With": "XMLHttpRequest", // Indicate that this is an AJAX request
         },
-        })
-        .then((response) => {
-            // Check if the response is okay (status in the range 200-299)
-            if (!response.ok) {
-            throw new Error("Network response was not ok");
-            }
-            return response.json(); // Wait for the response to be parsed as JSON
-        })
-        .then((data) => {
-            document.getElementById("response-text-" + formObject.ingredient_id).innerText = data.text; // Display server response
-            document.getElementById('submit-button').disabled = false;
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-        });
+    })
+    .then((response) => {
+        // Check if the response is okay (status in the range 200-299)
+        if (!response.ok) {
+        throw new Error("Network response was not ok");
         }
+        return response.json(); // Wait for the response to be parsed as JSON
+    })
+    .then((data) => {
+        document.getElementById("response-text-" + formObject.ingredient_id).innerText = data.text; // Display server response
+        document.getElementById('submit-button').disabled = false;
+    })
+    .catch((error) => {
+        console.error("Error:", error);
+    });
+}
 </script>
 <html lang="en">
   <head>
