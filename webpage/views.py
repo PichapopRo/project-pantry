@@ -20,7 +20,6 @@ import random
 import json
 import logging
 from webpage.modules.status_code import StatusCode
-from django.http import HttpRequest
 
 
 logger = logging.getLogger("Views")
