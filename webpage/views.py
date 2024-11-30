@@ -205,7 +205,7 @@ class RecipeView(generic.DetailView):
             alternative = ai_consultant.get_alternative_ingredients([Ingredient.objects.get(id=ingredient_id)])
             text = ""
             for ingredient in alternative:
-                text += ingredient['amount']+ " " + ingredient['unit'] + " " + ingredient['name'] + " - " + \
+                text += str(ingredient['amount'])+ " " + ingredient['unit'] + " " + ingredient['name'] + " - " + \
                     ingredient['description'] + "\n"
             
         return JsonResponse({'text': text})

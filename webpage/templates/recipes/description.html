@@ -63,9 +63,9 @@
                 'X-Requested-With': 'XMLHttpRequest' // Indicate that this is an AJAX request
             }
         })
-        .then(response => response.json()) // Parse JSON response
-        .then(data => {
-            document.getElementById('response-text').innerText = data.response.text; // Display server response
+        .then(response => {
+            console.log(response.json())
+            document.getElementById('response-text').innerText = response.json().body.text; // Display server response
         })
         .catch(error => {
             console.error('Error:', error);
@@ -157,7 +157,7 @@
                                     <div class="mb-3">
                                         <label for="prompts-name" class="col-form-label">Prompt:</label>
                                         <input type="text" class="form-control" id="prompts-name" name="prompt">
-                                        <input type="hidden" name="ingredient_id" value={{ ingredient.id }}>
+                                        <input type="hidden" name="ingredient_id" value={{ ingredient.ingredient.id }}>
                                     </div>
                                     <div class="mb-3">
                                         <label for="alter-text" class="col-form-label">Your new ingredients:</label>
