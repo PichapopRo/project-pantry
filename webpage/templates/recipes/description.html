@@ -63,7 +63,7 @@
 <div class="container-fluid my-3">
 <div class="well">
 <div class="d-flex">
-<div class="d-flex">
+<div class="d-flex max-img">
         <img src="{{ recipe.image }}" alt="{{ recipe.name }}">
 </div>
     <div class="flex-grow-1 ms-3">
@@ -102,7 +102,7 @@
                 {% empty %}
                 {% endfor %}
         <h4 class="mt-2 thick">Description</h4>
-        <p class="recipe-description">{{ recipe.description }}</p>
+        <p class="recipe-description text-break">{{ recipe.description }}</p>
         </div>
 </div>
 </div>
