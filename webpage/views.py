@@ -196,6 +196,20 @@ class RecipeView(generic.DetailView):
             context['user_favourites'] = []
         return context
 
+    def post(self, request, *args, **kwargs):
+        recipe = self.get_object()
+        ai_consultant = AIRecipeAdvisor(recipe)
+        if 'ingredient_id' in request.POST:
+            ingredient_id = int(request.POST.get('ingredient_id', 0))
+            print(ingredient_id)
+            alternative = ai_consultant.get_alternative_ingredients([Ingredient.objects.get(id=ingredient_id)])
+            text = ""
+            for ingredient in alternative:
+                text += ingredient['amount']+ " " + ingredient['unit'] + " " + ingredient['name'] + " - " + \
+                    ingredient['description'] + "\n"
+            
+        return JsonResponse({'text': text})
+
 
 def random_recipe_view(request):
     """

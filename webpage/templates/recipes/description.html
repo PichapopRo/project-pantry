@@ -65,7 +65,7 @@
         })
         .then(response => response.json()) // Parse JSON response
         .then(data => {
-            document.getElementById('response-text').innerText = data.response; // Display server response
+            document.getElementById('response-text').innerText = data.response.text; // Display server response
         })
         .catch(error => {
             console.error('Error:', error);
@@ -148,7 +148,8 @@
                                 <h3 class="modal-title fs-5" id="exampleModalLabel">Alternative Ingredient</h3>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
-                              <form id="alternative-ingredient-form" action="/alternative_ingredients" method="POST">
+                              <form id="alternative-ingredient-form" action"{% url 'recipe' recipe.id %}" method="POST">
+                                {% csrf_token %}
                                 <div class="modal-body">
                                     <div class="mb-3">
                                         <label for="ingredients-name" class="col-form-label text-capitalize">For: {{ ingredient.amount }} {{ ingredient.unit }} {{ ingredient.ingredient.name }}</label>
@@ -156,6 +157,7 @@
                                     <div class="mb-3">
                                         <label for="prompts-name" class="col-form-label">Prompt:</label>
                                         <input type="text" class="form-control" id="prompts-name" name="prompt">
+                                        <input type="hidden" name="ingredient_id" value={{ ingredient.id }}>
                                     </div>
                                     <div class="mb-3">
                                         <label for="alter-text" class="col-form-label">Your new ingredients:</label>
