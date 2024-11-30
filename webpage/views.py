@@ -2,7 +2,7 @@
 from decimal import Decimal
 import re
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views import generic
 from pantry import settings
 from webpage.models import Recipe, Diet, RecipeStep, Favourite, Ingredient, Equipment, Nutrition
@@ -185,7 +185,8 @@ class RecipeView(generic.DetailView):
     def get_context_data(self, **kwargs):
         """Add steps directly from RecipeStep model to the context."""
         context = super().get_context_data(**kwargs)
-        recipe = self.get_object()
+        recipe: Recipe = self.get_object()
+        context['can_favorite'] = None if recipe.status != StatusCode.APPROVE.value[0] else True
         context['steps'] = RecipeStep.objects.filter(recipe=recipe).order_by('number')
         context['equipments'] = Recipe.get_equipments(recipe)
         if self.request.user.is_authenticated:
@@ -194,7 +195,19 @@ class RecipeView(generic.DetailView):
         else:
             context['user_favourites'] = []
         return context
-
+    
+    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        """
+        Get the Recipe class for the user. If the recipe is not approved, it will redirect to the main page.
+        
+        :param request: The request from the page.
+        :return: A HTTP Response.
+        """
+        recipe: Recipe = self.get_object()
+        if recipe.status != StatusCode.APPROVE.value[0] and recipe.poster_id.id != request.user.id:
+            return redirect('recipe_list')
+        return super().get(request, *args, **kwargs)
+    
 
 def random_recipe_view(request):
     """
@@ -222,6 +235,8 @@ def toggle_favourite(request, recipe_id):
     """
     try:
         recipe = Recipe.objects.get(id=recipe_id)
+        if recipe.status != StatusCode.APPROVE.value[0]:
+            return JsonResponse({'error': 'Recipe has not been approved'}, status=403)
         user = request.user
         favourite, created = Favourite.objects.get_or_create(recipe=recipe, user=user)
         if created:
@@ -269,7 +284,6 @@ class AddRecipeView(generic.CreateView):
         self.process_equipments(builder)
         self.process_steps(builder)
         self.process_nutrition(builder)
-        builder.build_recipe().status = StatusCode.PENDING.value[0]
         builder.build_difficulty()
         self.process_status(builder)
         return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
@@ -375,6 +389,7 @@ class AddRecipeView(generic.CreateView):
             is_approved = AIRecipeAdvisor(builder.build_recipe()).recipe_approval()
             if is_approved == 'True':
                 builder.build_details(AI_status=True)
+                builder.build_details(status=StatusCode.APPROVE.value[0])
             elif is_approved == 'False':
                 builder.build_details(AI_status=False)
             builder.build_recipe().save()

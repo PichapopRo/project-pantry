@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models import QuerySet
 from django.contrib.auth.models import User
 from django.utils import timezone
+from webpage.modules.status_code import StatusCode
 
 
 class Ingredient(models.Model):
@@ -96,7 +97,6 @@ class NutritionList(models.Model):
 class Recipe(models.Model):
     """The recipe class containing information about the recipe and methods."""
 
-    STATUS_CHOICES = [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')]
     name = models.CharField(max_length=200, default='Unnamed Recipe')
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
     estimated_time = models.FloatField(default=0)
@@ -105,7 +105,7 @@ class Recipe(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     description = models.CharField(max_length=3000, null=True, blank=True)
     diets = models.ManyToManyField(Diet, related_name="recipes")
-    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='Pending')
+    status = models.CharField(max_length=30, choices=StatusCode.get_choice(), default=StatusCode.PENDING.value[0])
     difficulty = models.CharField(max_length=30, default='Unknown')
     AI_status = models.BooleanField(default=False)
 
