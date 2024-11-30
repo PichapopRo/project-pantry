@@ -205,6 +205,7 @@ class RecipeView(generic.DetailView):
         """
         recipe = self.get_object()
         ai_consultant = AIRecipeAdvisor(recipe)
+        text = ""
         if 'ingredient_id' in request.POST:
             ingredient_id = int(request.POST.get('ingredient_id', 0))
             print(ingredient_id)
@@ -212,7 +213,6 @@ class RecipeView(generic.DetailView):
                 [Ingredient.objects.get(id=ingredient_id)],
                 request.POST.get('prompt', None)
                 )
-            text = ""
             for ingredient in alternative:
                 text += str(ingredient['amount'])+ " " + ingredient['unit'] + " " + ingredient['name'] + " - " + \
                     ingredient['description'] + "\n"
