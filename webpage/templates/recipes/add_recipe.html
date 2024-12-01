@@ -160,11 +160,24 @@
         document.querySelectorAll('.cuisine-btn').forEach(button => {
             button.addEventListener('click', function () {
                 const cuisineName = this.getAttribute('data-cuisine');
-                if (selectedCuisines.includes(cuisineName)) {
-                    selectedCuisines.splice(selectedCuisines.indexOf(cuisineName), 1);
+                if (this.classList.contains('btn-success')) {
                     this.classList.remove('btn-success');
                     this.classList.add('btn-outline-secondary');
+                    const index = selectedCuisines.indexOf(cuisineName);
+                    if (index > -1) {
+                        selectedCuisines.splice(index, 1);
+                    }
                 } else {
+                    const currentlySelectedButton = document.querySelector('.cuisine-btn.btn-success');
+                    if (currentlySelectedButton) {
+                        currentlySelectedButton.classList.remove('btn-success');
+                        currentlySelectedButton.classList.add('btn-outline-secondary');
+                        const previousCuisineName = currentlySelectedButton.getAttribute('data-cuisine');
+                        const index = selectedCuisines.indexOf(previousCuisineName);
+                        if (index > -1) {
+                            selectedCuisines.splice(index, 1);
+                        }
+                    }
                     selectedCuisines.push(cuisineName);
                     this.classList.add('btn-success');
                     this.classList.remove('btn-outline-secondary');
