@@ -64,7 +64,8 @@ class FilterParamTest(TestCase):
             'includeIngredients': [],
             'diet': [],
             'maxReadyTime': 9999,
-            'titleMatch': ""
+            'titleMatch': "",
+            'cuisine': ''
         }
         self.assertEqual(self.default_filter.get_param(),
                          expected_get_param_default)
@@ -75,7 +76,8 @@ class FilterParamTest(TestCase):
             'includeIngredients': ["tomato", "apple"],
             'diet': ["vegetarian", "vegan"],
             'maxReadyTime': 30,
-            'titleMatch': "salad"
+            'titleMatch': "salad",
+            'cuisine': ''
         }
         self.assertEqual(self.custom_filter.get_param(),
                          expected_get_param_custom)
