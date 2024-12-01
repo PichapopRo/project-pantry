@@ -157,9 +157,10 @@
     }
 
     function validateStepFormat(input) {
-        const regex = /^[A-Z][^0-9]+$/;
-        return regex.test(input);
+    const regex = /^[A-Z].*$/;
+    return regex.test(input);
     }
+
 
     function newIngredient() {
         const inputValue = document.getElementById("ingredients").value.trim();
@@ -190,19 +191,20 @@
     }
 
     function newStep() {
-        const inputValue = document.getElementById("steps").value.trim();
-        if (!inputValue) {
-            alert("Add your step first!");
-            return;
-        }
-        if (!validateStepFormat(inputValue)) {
-            alert("Invalid format! Ensure your step starts with a capital letter and contains no numbers (e.g., 'Mix the flour with chocolate powder').");
-            return;
-        }
-        steps.push(inputValue);
-        document.getElementById("steps_data").value = JSON.stringify(steps);
-        document.getElementById("stepOL").innerHTML += `<li>${inputValue} <span onclick="removeStep('${inputValue}')">×</span></li>`;
-        document.getElementById("steps").value = '';
+    const inputValue = document.getElementById("steps").value.trim();
+    if (!inputValue) {
+        alert("Add your step first!");
+        return;
+    }
+    if (!validateStepFormat(inputValue)) {
+        alert("Invalid format! Ensure your step starts with a capital letter (e.g., 'Mix the flour with chocolate powder').");
+        return;
+    }
+    steps.push(inputValue);
+    document.getElementById("steps_data").value = JSON.stringify(steps);
+    const escapedValue = inputValue.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    document.getElementById("stepOL").innerHTML += `<li>${inputValue} <span onclick="removeStep('${escapedValue}')">×</span></li>`;
+    document.getElementById("steps").value = '';
     }
 
     function removeIngredient(value) {
@@ -218,10 +220,14 @@
     }
 
     function removeStep(value) {
-        steps.splice(steps.indexOf(value), 1);
-        document.getElementById("steps_data").value = JSON.stringify(steps);
-        document.getElementById("stepOL").innerHTML = steps.map(stp => `<li>${stp} <span onclick="removeStep('${stp}')">×</span></li>`).join('');
-    }
+    const unescapedValue = value.replace(/\\'/g, "'").replace(/&quot;/g, '"');
+    steps.splice(steps.indexOf(unescapedValue), 1);
+    document.getElementById("steps_data").value = JSON.stringify(steps);
+    document.getElementById("stepOL").innerHTML = steps.map(stp => {
+        const escapedStep = stp.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        return `<li>${stp} <span onclick="removeStep('${escapedStep}')">×</span></li>`;
+    }).join('');
+}
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Enter') {
             event.preventDefault();
