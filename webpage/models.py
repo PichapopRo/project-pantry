@@ -76,6 +76,7 @@ class Diet(models.Model):
 
 class Cuisine(models.Model):
     """Cuisine contains an available cuisine."""
+
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
