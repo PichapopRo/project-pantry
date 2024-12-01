@@ -1,13 +1,22 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 
 
 def main():
-    driver = webdriver.Chrome()
+    service = Service(log_path="NUL")
+    options = webdriver.ChromeOptions()
+    options.add_argument("--disable-logging")
+    options.add_argument("--log-level=3")
+
+    driver = webdriver.Chrome(service=service, options=options)
     driver.get("https://project-pantry.onrender.com/")
+
     try:
-        while True:
+        while driver.window_handles:
             pass
     except KeyboardInterrupt:
+        print("Exiting script...")
+    finally:
         driver.quit()
 
 
