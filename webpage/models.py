@@ -134,6 +134,10 @@ class Recipe(models.Model):
         """Return a queryset of NutritionList which contains the nutrition information for the recipe."""
         return NutritionList.objects.filter(recipe=self)
 
+    def is_editable(self):
+        """Return True if the recipe is rejected and can be edited."""
+        return self.status == StatusCode.REJECTED.value[0]
+
 
 class Favourite(models.Model):
     """Favourites are used to store favourite recipes."""

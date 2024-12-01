@@ -102,6 +102,7 @@
                 {% if reject %}
                     {% for recipe in reject %}
                         <div class="col col-sm-4 mb-3">
+                        <a href="{% url 'edit_recipe' recipe.id %}">Edit Recipe</a>
                             <div class="card h-100 mt-3 shadow">
                                 <img src="{{ recipe.image }}" class="card-img-top" alt="{{ recipe.name }}">
                                 <div class="card-body">

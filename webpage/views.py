@@ -3,14 +3,15 @@ from decimal import Decimal
 import re
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.utils.decorators import method_decorator
 from django.views import generic
 from pantry import settings
 from webpage.models import Recipe, Diet, RecipeStep, Favourite, Ingredient, Equipment, Nutrition
 from webpage.modules.ai_advisor import AIRecipeAdvisor
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
-from webpage.forms import CustomRegisterForm
+from webpage.forms import CustomRegisterForm, RecipeForm
 from webpage.modules.builder import NormalRecipeBuilder
 from webpage.modules.image_to_url import upload_image_to_imgur
 from webpage.modules.proxy import GetDataProxy, GetDataSpoonacular
@@ -483,4 +484,48 @@ class MyRecipeView(generic.ListView):
         context['accept'] = queryset.filter(status=StatusCode.APPROVE.value[0])
         context['reject'] = queryset.filter(status=StatusCode.REJECTED.value[0])
         context['pending'] = queryset.filter(status=StatusCode.PENDING.value[0])
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class EditRecipeView(generic.UpdateView):
+    model = Recipe
+    form_class = RecipeForm
+    template_name = 'recipes/edit_recipe.html'
+    context_object_name = 'recipe'
+
+    def form_valid(self, form):
+        recipe = form.save()
+        advisor = AIRecipeAdvisor(recipe)
+
+        if advisor.recipe_approval() == "True":
+            recipe.status = StatusCode.APPROVE.value[0]
+            recipe.AI_status = True
+        else:
+            recipe.status = StatusCode.REJECTED.value[0]
+            recipe.AI_status = False
+
+        recipe.save()
+        return redirect('recipe_detail', recipe_id=recipe.id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        recipe = self.get_object()
+        ingredients = list(recipe.get_ingredients().values_list('ingredient__name',
+                                                                flat=True))  # List of ingredient names
+        equipment = list(recipe.get_equipments().values_list('equipment__name',
+                                                             flat=True))  # List of equipment names
+        steps = list(
+            recipe.get_steps().values_list('description', flat=True))  # List of step descriptions
+        diets = list(recipe.diets.values_list('name', flat=True))  # List of diet names
+        associated_diets = recipe.diets.all().values_list('name', flat=True)
+
+        context.update({
+            'ingredients_json': json.dumps(ingredients),
+            'equipment_json': json.dumps(equipment),
+            'steps_json': json.dumps(steps),
+            'diets_json': json.dumps(diets),
+            'associated_diets': associated_diets
+        })
+
         return context
