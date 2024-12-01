@@ -433,6 +433,11 @@ class AddRecipeView(generic.CreateView):
             logger.error(f"Error processing nutrition data: {e}")
 
     def process_cuisine(self, builder: NormalRecipeBuilder):
+        """
+        Process the cuisine data of the recipe.
+
+        :param builder: Recipe Builder instance.
+        """
         cuisines_data = self.request.POST.get('cuisines_data')
         if cuisines_data:
             selected_cuisines = json.loads(cuisines_data)
