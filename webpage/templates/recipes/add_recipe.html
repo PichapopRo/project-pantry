@@ -42,6 +42,14 @@
                                         </button>
                                     {% endfor %}
                                 </div>
+                                <label class="form-label">Select Cuisine</label>
+                                <div id="cuisine-buttons mb">
+                                    {% for cuisine in cuisines %}
+                                        <button type="button" class="btn btn-outline-secondary cuisine-btn mb-2" data-cuisine="{{ cuisine.name }}">
+                                            {{ cuisine.name }}
+                                        </button>
+                                    {% endfor %}
+                                </div>
                                 <div class="mb-3">
                                     <label for="photos" class="form-label">Photos </label> <br>
                                     <input type="file" id="file-upload" name="photo" accept="image/*" onchange="previewImage(event);"/>
@@ -127,11 +135,13 @@
     <input type="hidden" name="equipment_data" id="equipment_data">
     <input type="hidden" name="steps_data" id="steps_data">
     <input type="hidden" name="diets_data" id="diets_data">
+    <input type="hidden" name="cuisines_data" id="cuisines_data">
     <script>
         const ingredients = [];
         const equipment = [];
         const steps = [];
         const selectedDiets = [];
+        const selectedCuisines = [];
         document.querySelectorAll('.diet-btn').forEach(button => {
             button.addEventListener('click', function () {
                 const dietName = this.getAttribute('data-diet');
@@ -147,7 +157,21 @@
                 document.getElementById('diets_data').value = JSON.stringify(selectedDiets);
             });
         });
-
+        document.querySelectorAll('.cuisine-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const cuisineName = this.getAttribute('data-cuisine');
+                if (selectedCuisines.includes(cuisineName)) {
+                    selectedCuisines.splice(selectedCuisines.indexOf(cuisineName), 1);
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-outline-secondary');
+                } else {
+                    selectedCuisines.push(cuisineName);
+                    this.classList.add('btn-success');
+                    this.classList.remove('btn-outline-secondary');
+                }
+                document.getElementById('cuisines_data').value = JSON.stringify(selectedCuisines);
+            });
+        });
         function newIngredient() {
             const inputValue = document.getElementById("ingredients").value;
             if (inputValue) {

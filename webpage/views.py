@@ -270,6 +270,7 @@ class AddRecipeView(generic.CreateView):
         """
         context = super().get_context_data(**kwargs)
         context['diets'] = Diet.objects.all()
+        context['cuisines'] = Cuisine.objects.all()
 
         return context
 
@@ -292,6 +293,7 @@ class AddRecipeView(generic.CreateView):
         self.process_nutrition(builder)
         builder.build_difficulty()
         self.process_status(builder)
+        self.process_cuisine(builder)
         return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
 
     def process_detail(self, builder: NormalRecipeBuilder, form):
@@ -429,6 +431,18 @@ class AddRecipeView(generic.CreateView):
                         )
         except Exception as e:
             logger.error(f"Error processing nutrition data: {e}")
+
+    def process_cuisine(self, builder: NormalRecipeBuilder):
+        cuisines_data = self.request.POST.get('cuisines_data')
+        if cuisines_data:
+            selected_cuisines = json.loads(cuisines_data)
+            print(selected_cuisines)
+            for cuisine_name in selected_cuisines:
+                try:
+                    cuisine = Cuisine.objects.get(name=cuisine_name)
+                    builder.build_cuisine(cuisine)
+                except Cuisine.DoesNotExist:
+                    logger.error(f"Cuisine {cuisine_name} does not exist.")
 
     def parse_ingredient_input(self, ingredient_entry):
         """Parse the ingredient input string and return amount, unit, and name."""
