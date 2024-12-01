@@ -208,7 +208,6 @@ class RecipeView(generic.DetailView):
         text = ""
         if 'ingredient_id' in request.POST:
             ingredient_id = int(request.POST.get('ingredient_id', 0))
-            print(ingredient_id)
             alternative = ai_consultant.get_alternative_ingredients(
                 [Ingredient.objects.get(id=ingredient_id)],
                 request.POST.get('prompt', None)
