@@ -5,7 +5,7 @@ Both manually (NormalRecipeBuilder) and via Spoonacular API (SpoonacularRecipeBu
 """
 from decimal import Decimal
 from webpage.models import Recipe, Equipment, Ingredient, RecipeStep, IngredientList, EquipmentList, \
-    Nutrition, NutritionList, Diet
+    Nutrition, NutritionList, Diet, Cuisine
 from django.contrib.auth.models import User
 from abc import ABC, abstractmethod
 import requests
@@ -238,6 +238,14 @@ class NormalRecipeBuilder(Builder):
         advisor = AIRecipeAdvisor(recipe=self.__recipe)
         self.__recipe.difficulty = advisor.difficulty_calculator()
         self.__recipe.save()
+
+    def build_cuisine(self, cuisine: Cuisine):
+        """
+        Add a cuisine to the recipe.
+
+        :param cuisine: Cuisine object to associate with the recipe.
+        """
+        self.__recipe.cuisine.add(cuisine)
 
 
 class SpoonacularRecipeBuilder():
@@ -475,3 +483,16 @@ class SpoonacularRecipeBuilder():
         """
         self.__builder.build_details(status=StatusCode.APPROVE.value[0])
         self.__builder.build_details(AI_status=True)
+
+    def build_cuisine(self):
+        """
+        Build the cuisines for the recipe using the data fetched from the Spoonacular API.
+
+        Cuisines are mapped to the Cuisine model and added to the recipe via the builder.
+        """
+        self.__call_api()
+        cuisines_from_api = self.__data.get('cuisines', [])
+        for cuisine_name in cuisines_from_api:
+            print(cuisine_name)
+            cuisine, _ = Cuisine.objects.get_or_create(name=cuisine_name.capitalize())
+            self.__builder.build_cuisine(cuisine)

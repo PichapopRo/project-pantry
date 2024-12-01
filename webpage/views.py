@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views import generic
 from pantry import settings
-from webpage.models import Recipe, Diet, RecipeStep, Favourite, Ingredient, Equipment, Nutrition
+from webpage.models import Recipe, Diet, RecipeStep, Favourite, Ingredient, Equipment, Nutrition, \
+    Cuisine
 from webpage.modules.ai_advisor import AIRecipeAdvisor
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -111,7 +112,9 @@ class RecipeListView(generic.ListView):
         query = self.request.GET.get('query', '')
         ingredient_data = self.request.GET.get('ingredients_data', '[]')
         diets_data = self.request.GET.get('diets_data', '[]')
+        cuisine_data = self.request.GET.get('cuisines_data', '[]')
         estimated_time = self.request.GET.get('estimated_time', None)
+        selected_cuisines = json.loads(cuisine_data)
         ingredients = json.loads(ingredient_data)
         selected_diets = json.loads(diets_data)
         try:
@@ -129,7 +132,8 @@ class RecipeListView(generic.ListView):
             includeIngredients=ingredients,
             diet=selected_diets,
             maxReadyTime=estimated_time,
-            titleMatch=query
+            titleMatch=query,
+            cuisine=selected_cuisines
         )
 
         logger.debug(f"Filter parameters: {filter_params}")
@@ -158,11 +162,13 @@ class RecipeListView(generic.ListView):
         context['total_recipes'] = Recipe.objects.count()
         context['view_count'] = self.request.session.get('view_count', 0)
         context['diets'] = Diet.objects.all()
+        context['cuisines'] = Cuisine.objects.all()
         context['selected_diet'] = self.request.GET.get('diet')
         context['estimated_time'] = self.request.GET.get('estimated_time', '')
         context['selected_ingredient'] = self.request.GET.get('ingredient', '')
         context['selected_equipment'] = self.request.GET.get('equipment', '')
         context['selected_difficulty'] = self.request.GET.get('difficulty', '')
+        context['selected_cuisine'] = self.request.GET.get('cuisine', '')
         context['query'] = self.request.GET.get('query', '')
         context['button_clicked'] = self.request.session.pop('button_clicked',
                                                              False)

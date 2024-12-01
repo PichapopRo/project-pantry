@@ -74,6 +74,14 @@ class Diet(models.Model):
         return self.name
 
 
+class Cuisine(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        """Return the name of the cuisine."""
+        return self.name
+
+
 class Nutrition(models.Model):
     """Nutrition, contains a nutrition for each recipe."""
 
@@ -105,6 +113,7 @@ class Recipe(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     description = models.CharField(max_length=3000, null=True, blank=True)
     diets = models.ManyToManyField(Diet, related_name="recipes")
+    cuisine = models.ManyToManyField(Cuisine, related_name="recipes")
     status = models.CharField(max_length=30, choices=StatusCode.get_choice(), default=StatusCode.PENDING.value[0])
     difficulty = models.CharField(max_length=30, default='Unknown')
     AI_status = models.BooleanField(default=False)
