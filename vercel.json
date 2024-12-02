@@ -19,5 +19,6 @@
             "src": "/(.*)",
             "dest": "pantry/wsgi.py"
         }
-    ]
+    ],
+    "buildCommand": "sh vercel.sh"
 }
