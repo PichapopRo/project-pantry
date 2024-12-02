@@ -1,0 +1,14 @@
+{
+    "version": 2,
+    "routes": [
+        {
+            "src": "/static/(.*)",
+            "dest": "/static/$1"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "pantry/wsgi.py"
+        }
+    ],
+    "buildCommand": "sh vercel.sh"
+}
