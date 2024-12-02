@@ -8,7 +8,7 @@ This recipe application aims to help home cooks improve their experience and red
 This app is created as a part of the [Individual Software Process](https://cpske.github.io/ISP) course at [Kasetsart University](www.ku.ac.th) in the academic year 2024.
 
 # Installation
-Please, follow [Installation Guide](./installation.md)
+Please, follow [Installation Guide](./installation/installation.md)
 
 # How to run
 You can run the server by following these steps.
