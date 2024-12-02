@@ -107,7 +107,6 @@ class RecipeListView(generic.ListView):
 
     def get_queryset(self):
         """Return recipes filtered by diet, ingredient, max cooking time, and limited by view_count."""
-        view_count = self.request.session.get('view_count', 0)
         query = self.request.GET.get('query', '')
         ingredient_data = self.request.GET.get('ingredients_data', '[]')
         diets_data = self.request.GET.get('diets_data', '[]')
@@ -125,7 +124,7 @@ class RecipeListView(generic.ListView):
         logger.debug(f"Estimated time: {estimated_time}")
         filter_params = FilterParam(
             offset=1,
-            number=view_count,
+            number=Recipe.objects.all().count(),
             includeIngredients=ingredients,
             diet=selected_diets,
             maxReadyTime=estimated_time,
@@ -138,25 +137,12 @@ class RecipeListView(generic.ListView):
 
         logger.debug(f"Filtered recipes response: {filtered_recipes}")
 
-        return [facade.get_recipe() for facade in filtered_recipes][:view_count]
-
-    def post(self, request, *args, **kwargs):
-        """
-        Handle POST request to increment view_count.
-
-        :param request: HttpRequest from the server.
-        """
-        if 'increment' in request.POST:
-            increment = int(request.POST.get('increment', 0))
-            request.session['view_count'] = request.session.get('view_count', 0) + increment
-            request.session['button_clicked'] = True
-        return redirect(request.path)
+        return [facade.get_recipe() for facade in filtered_recipes]
 
     def get_context_data(self, **kwargs):
         """Add the current view_count and diet filter to the context."""
         context = super().get_context_data(**kwargs)
         context['total_recipes'] = Recipe.objects.count()
-        context['view_count'] = self.request.session.get('view_count', 0)
         context['diets'] = Diet.objects.all()
         context['selected_diet'] = self.request.GET.get('diet')
         context['estimated_time'] = self.request.GET.get('estimated_time', '')
