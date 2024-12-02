@@ -26,6 +26,7 @@ if LINK_URL is None:
 
 service = Service()
 options = webdriver.ChromeOptions()
+options.add_argument('--headless')
 
 driver = webdriver.Chrome(service=service, options=options)
 driver.get(LINK_URL)
