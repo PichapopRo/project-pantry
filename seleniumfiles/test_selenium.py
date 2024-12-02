@@ -5,6 +5,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from decouple import config
 import subprocess
 import time
@@ -25,16 +26,12 @@ if LINK_URL is None:
 
 service = Service()
 options = webdriver.ChromeOptions()
-options.add_argument('--headless')
-options.add_argument('--no-sandbox')
-options.add_argument('--disable-dev-shm-usage')
-options.add_argument('--remote-debugging-port=9222')
 
 driver = webdriver.Chrome(service=service, options=options)
 driver.get(LINK_URL)
 logger.info("Webpage opened successfully.")
 
-wait = WebDriverWait(driver, 200)
+wait = WebDriverWait(driver, 20)
 
 filter_button = wait.until(
     EC.element_to_be_clickable((
@@ -57,20 +54,25 @@ search_button = wait.until(
 search_button.click()
 logger.info("Search button clicked successfully.")
 
-recipe = wait.until(
-    EC.element_to_be_clickable((
-        By.CSS_SELECTOR,
-        '.row .card:first-child')))
-recipe.click()
-logger.info("Recipe clicked successfully.")
+try:
+    recipe = WebDriverWait(driver, 200).until(
+        EC.element_to_be_clickable((
+            By.CSS_SELECTOR,
+            '.row .card:first-child'))
+    )
+    recipe.click()
+    logger.info("Recipe clicked successfully.")
 
-nutrition = wait.until(
-    EC.element_to_be_clickable((
-        By.CSS_SELECTOR,
-        'a.primary.mx-2.nutrients[data-bs-toggle="modal"][data-bs-target="#nutritionModal"]')))
-driver.execute_script("arguments[0].scrollIntoView(true);", nutrition)
-driver.execute_script("arguments[0].click();", nutrition)
-logger.info("Nutrition clicked successfully.")
+    nutrition = wait.until(
+        EC.element_to_be_clickable((
+            By.CSS_SELECTOR,
+            'a.primary.mx-2.nutrients[data-bs-toggle="modal"][data-bs-target="#nutritionModal"]')))
+    driver.execute_script("arguments[0].scrollIntoView(true);", nutrition)
+    driver.execute_script("arguments[0].click();", nutrition)
+    logger.info("Nutrition clicked successfully.")
+
+except TimeoutException:
+    logger.info("Recipe not found.")
 
 try:
     while driver.window_handles:
