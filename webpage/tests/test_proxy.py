@@ -322,7 +322,8 @@ class GetDataProxyTest(TestCase):
             {"diets__name__icontains": "Paleo"},
             {"diets__name__icontains": "Low FODMAP"},
             {"estimated_time__lte": 40},
-            {"name__contains": "fish"}]
+            {"name__contains": "fish"},
+            {"cuisine__name__icontains": ""}]
         self.assertEqual(parameter, expected_parameter)
 
 
@@ -473,13 +474,15 @@ class GetDataSpoonacularTest(TestCase):
                 includeIngredients=["Apple", "Banana"],
                 diet=["Vegan"],
                 maxReadyTime=70,
-                titleMatch="Pie"
+                titleMatch="Pie",
+                cuisine=''
             )
         )
         expected_parameter = {
             'includeIngredients': "Apple,Banana",
             'diet': 'Vegan',
             'maxReadyTime': 70,
-            'titleMatch': "Pie"
+            'titleMatch': "Pie",
+            'cuisine': ''
         }
         self.assertEqual(parameter, expected_parameter)

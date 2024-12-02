@@ -30,7 +30,7 @@ class CustomRegisterForm(forms.ModelForm):
 class RecipeForm(forms.ModelForm):
     class Meta:
         model = Recipe
-        fields = ['name', 'description', 'estimated_time', 'diets', 'image']
+        fields = ['name', 'description', 'estimated_time', 'diets', 'image', 'cuisine']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
         }

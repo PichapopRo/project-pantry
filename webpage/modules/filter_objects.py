@@ -14,6 +14,7 @@ class FilterParam:
     diet: List[str] = field(default_factory=list)
     maxReadyTime: int = 9999
     titleMatch: str = ""
+    cuisine: str = ""
 
     def add_ingredient(self, ingredient_name: str):
         """
@@ -33,7 +34,8 @@ class FilterParam:
             'includeIngredients': self.includeIngredients,
             'diet': self.diet,
             'maxReadyTime': self.maxReadyTime,
-            'titleMatch': self.titleMatch
+            'titleMatch': self.titleMatch,
+            'cuisine': self.cuisine,
         }
 
     def __repr__(self) -> str:

@@ -135,7 +135,8 @@ class GetDataProxy(GetData):
             'includeIngredients': 'ingredientlist__ingredient__name__icontains',
             "diet": 'diets__name__icontains',
             'maxReadyTime': 'estimated_time__lte',
-            'titleMatch': 'name__contains'
+            'titleMatch': 'name__contains',
+            'cuisine': 'cuisine__name__icontains'
         }
         parameter_from_object = param.get_param()
         for key in parameter_from_object:
@@ -180,6 +181,7 @@ class GetDataSpoonacular(GetData):
         builder.build_difficulty()
         builder.build_status()
         builder.build_spoonacular_id()
+        builder.build_cuisine()
         builder.build_recipe().save()
         return builder.build_recipe()
 

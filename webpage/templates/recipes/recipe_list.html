@@ -100,6 +100,12 @@
                                         {{ diet.name }}
                                         </button>
                                         {% endfor %}
+                                    <p class="form-label">Select Cuisine</p>
+                                        {% for cuisine in cuisines %}
+                                        <button type="button" class="btn btn-outline-secondary cuisine-btn mb-2" data-cuisine="{{ cuisine.name }}">
+                                            {{ cuisine.name }}
+                                        </button>
+                                        {% endfor %}
                                         <p class="form-label">Estimate time</p>
                                         <input type="number" min="0" class="form-control mt-2" name="estimated_time" id="estimated_time" value="{{ estimated_time }}" placeholder="30">
                                         <label for="ingredients" class="form-label mt-2">Ingredients</label><br>
@@ -114,6 +120,7 @@
                                         </button>
                                         <input type="hidden" id="ingredients_data" name="ingredients_data" value="[]">
                                         <input type="hidden" name="diets_data" id="diets_data" value="[]">
+                                        <input type="hidden" id="cuisines_data" name="cuisines_data" value="[]">
                                     </form>
                                 </div>
                             </div>
@@ -165,6 +172,7 @@
         <script>
             const ingredients = [];
             const selectedDiets = [];
+            const selectedCuisines = [];
             document.querySelectorAll('.diet-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const dietName = this.getAttribute('data-diet');
@@ -178,6 +186,21 @@
                         this.classList.remove('btn-outline-secondary');
                     }
                     document.getElementById('diets_data').value = JSON.stringify(selectedDiets);
+                });
+            });
+            document.querySelectorAll('.cuisine-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const cuisineName = this.getAttribute('data-cuisine');
+                    if (selectedCuisines.includes(cuisineName)) {
+                        selectedCuisines.splice(selectedCuisines.indexOf(cuisineName), 1);
+                        this.classList.remove('btn-success');
+                        this.classList.add('btn-outline-secondary');
+                    } else {
+                        selectedCuisines.push(cuisineName);
+                        this.classList.add('btn-success');
+                        this.classList.remove('btn-outline-secondary');
+                    }
+                    document.getElementById('cuisines_data').value = JSON.stringify(selectedCuisines);
                 });
             });
             function newIngredient() {
