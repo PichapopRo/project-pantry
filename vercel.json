@@ -9,6 +9,5 @@
             "src": "/(.*)",
             "dest": "pantry/wsgi.py"
         }
-    ],
-    "buildCommand": "sh build_script.sh"
+    ]
 }
