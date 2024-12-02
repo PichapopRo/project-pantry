@@ -4,7 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from decouple import config
 
-ALLOWED_HOSTS = config('https://project-pantry-rose.vercel.app/', default='fake-secret-key')
+LINK_URL = config('LINK_URL', default='http://127.0.0.1:8000/recipes/')
 
 service = Service(log_path="NUL")
 options = webdriver.ChromeOptions()
@@ -12,7 +12,7 @@ options.add_argument("--disable-logging")
 options.add_argument("--log-level=3")
 
 driver = webdriver.Chrome(service=service, options=options)
-driver.get("https://project-pantry-rose.vercel.app/")
+driver.get(LINK_URL)
 print("Webpage opened successfully...")
 
 try:

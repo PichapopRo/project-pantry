@@ -54,7 +54,7 @@ echo NUTRITION_PROMPT = 'You are a chef embedded inside a recipe-viewing program
 echo CHEF_BADGE_APPROVED = 10
 echo DJANGO_LOG_LEVEL = DEBUG
 ```
-8. Open ```.env``` file to put your own API_KEY, SPOONACULAR_PASSWORD, SECRET_KEY, OPENAI_APIKEY, IMGUR_CLIENT_ID, DB_PASSWORD, DB_USERNAME, DB_NAME, and ALLOWED_HOSTS. Look at ```sample.env``` file for an example.
+8. Open ```.env``` file to put your own API_KEY, SPOONACULAR_PASSWORD, SECRET_KEY, OPENAI_APIKEY, IMGUR_CLIENT_ID, DB_PASSWORD, DB_USERNAME, DB_NAME, ALLOWED_HOSTS, and LINK_URL. Look at ```sample.env``` file for an example.
 
 ## Mac OS
 > Notice: Please make sure that you have ```git``` installed in your machine.
@@ -107,7 +107,7 @@ echo NUTRITION_PROMPT = 'You are a chef embedded inside a recipe-viewing program
 echo CHEF_BADGE_APPROVED = 10
 echo DJANGO_LOG_LEVEL = DEBUG
 ```
-8. Open ```.env``` file to put your own API_KEY, SPOONACULAR_PASSWORD, SECRET_KEY, OPENAI_APIKEY, IMGUR_CLIENT_ID, DB_PASSWORD, DB_USERNAME, DB_NAME, and ALLOWED_HOSTS. Look at ```sample.env``` file for an example.
+8. Open ```.env``` file to put your own API_KEY, SPOONACULAR_PASSWORD, SECRET_KEY, OPENAI_APIKEY, IMGUR_CLIENT_ID, DB_PASSWORD, DB_USERNAME, DB_NAME, ALLOWED_HOSTS, and LINK_URL. Look at ```sample.env``` file for an example.
 
 ## Linux
 > Notice: Please make sure that you have ```git``` installed in your machine.
@@ -162,7 +162,7 @@ echo NUTRITION_PROMPT = 'You are a chef embedded inside a recipe-viewing program
 echo CHEF_BADGE_APPROVED = 10
 echo DJANGO_LOG_LEVEL = DEBUG
 ```
-8. Open ```.env``` file to put your own API_KEY, SPOONACULAR_PASSWORD, SECRET_KEY, OPENAI_APIKEY, IMGUR_CLIENT_ID, DB_PASSWORD, DB_USERNAME, DB_NAME, and ALLOWED_HOSTS. Look at ```sample.env``` file for an example.
+8. Open ```.env``` file to put your own API_KEY, SPOONACULAR_PASSWORD, SECRET_KEY, OPENAI_APIKEY, IMGUR_CLIENT_ID, DB_PASSWORD, DB_USERNAME, DB_NAME, ALLOWED_HOSTS, and LINK_URL. Look at ```sample.env``` file for an example.
 
 ## Testing the application
 In ```.env``` file, change ```DEBUG=True```, then run the following command.
