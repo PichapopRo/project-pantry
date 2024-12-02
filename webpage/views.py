@@ -201,7 +201,29 @@ class RecipeView(generic.DetailView):
         else:
             context['user_favourites'] = []
         return context
-    
+
+    def post(self, request: HttpRequest, *args, **kwargs) -> JsonResponse:
+        """
+        Get the alternative ingredient of each recipe.
+        
+        :param request: A POST request
+        :return: The JSON containing the alternative ingredient.
+        """
+        recipe = self.get_object()
+        ai_consultant = AIRecipeAdvisor(recipe)
+        text = ""
+        if 'ingredient_id' in request.POST:
+            ingredient_id = int(request.POST.get('ingredient_id', 0))
+            alternative = ai_consultant.get_alternative_ingredients(
+                [Ingredient.objects.get(id=ingredient_id)],
+                request.POST.get('prompt', None)
+            )
+            for ingredient in alternative:
+                text += str(ingredient['amount']) + " " + ingredient['unit'] + " " + ingredient['name'] + " - " + \
+                    ingredient['description'] + "\n"
+            
+        return JsonResponse({'text': text})
+
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         """
         Get the Recipe class for the user. If the recipe is not approved, it will redirect to the main page.
@@ -213,7 +235,7 @@ class RecipeView(generic.DetailView):
         if recipe.status != StatusCode.APPROVE.value[0] and recipe.poster_id.id != request.user.id:
             return redirect('recipe_list')
         return super().get(request, *args, **kwargs)
-    
+
 
 def random_recipe_view(request):
     """
