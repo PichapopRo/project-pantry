@@ -34,8 +34,8 @@ python manage.py runserver --insecure
 ```
 4. If you wish to run Selenium, you can do so with the following command.
 ```sh
-python s_webdriver.py
+python seleniumfiles/s_webdriver.py
 ```
 
 ## Project documents
-All of the project documents can be accessed in [Project Wiki](../../wiki/Home).
+All the project documents can be accessed in [Project Wiki](../../wiki/Home).

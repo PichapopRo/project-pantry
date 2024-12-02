@@ -10,7 +10,8 @@ options.add_argument("--disable-logging")
 options.add_argument("--log-level=3")
 
 driver = webdriver.Chrome(service=service, options=options)
-driver.get("https://project-pantry.onrender.com/")
+driver.get("https://project-pantry-rose.vercel.app/")
+print("Webpage opened successfully...")
 
 try:
     while driver.window_handles:
