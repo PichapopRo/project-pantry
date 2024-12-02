@@ -3,22 +3,22 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from decouple import config
+import logging
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("sWebdriver")
 LINK_URL = config('LINK_URL', default='http://127.0.0.1:8000/recipes/')
 
-service = Service(log_path="NUL")
+service = Service()
 options = webdriver.ChromeOptions()
-options.add_argument("--disable-logging")
-options.add_argument("--log-level=3")
 
 driver = webdriver.Chrome(service=service, options=options)
 driver.get(LINK_URL)
-print("Webpage opened successfully...")
+logger.info("Webpage opened successfully.")
 
 try:
     while driver.window_handles:
         pass
-except KeyboardInterrupt:
-    print("Exiting script...")
 finally:
     driver.quit()
+    logger.info("Quit successfully.")
