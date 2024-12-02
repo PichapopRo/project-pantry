@@ -10,5 +10,5 @@
             "dest": "pantry/wsgi.py"
         }
     ],
-    "buildCommand": "./build_script.sh"
+    "buildCommand": "python manage.py collectstatic"
 }
