@@ -109,6 +109,7 @@ p {
     "wdth" 100;
 }
 img {
+    max-width: 400px;
     max-height: 550px;
     overflow: hidden;
 }
