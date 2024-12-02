@@ -2,7 +2,9 @@
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from decouple import config
 
+ALLOWED_HOSTS = config('https://project-pantry-rose.vercel.app/', default='fake-secret-key')
 
 service = Service(log_path="NUL")
 options = webdriver.ChromeOptions()
