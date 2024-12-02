@@ -110,7 +110,7 @@ class Recipe(models.Model):
     name = models.CharField(max_length=200, default='Unnamed Recipe')
     spoonacular_id = models.IntegerField(unique=True, null=True, blank=True)
     estimated_time = models.FloatField(default=0)
-    image = models.CharField(max_length=200, null=True, blank=True)
+    image = models.CharField(max_length=200, null=True, blank=True, default='https://imgur.com/a/i0NqhRp')
     poster_id = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
     description = models.CharField(max_length=3000, null=True, blank=True)
