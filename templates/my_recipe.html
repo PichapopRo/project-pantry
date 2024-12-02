@@ -78,16 +78,6 @@
                                     <h3 class="card-title">{{ recipe.name }}</h3>
                                     <small class="card-text">By: {{ recipe.poster_id.username }}</small>
                                     <a href="{% url 'recipe' recipe.id %}" class="stretched-link"></a>
-                                    <form method="post">
-                                        {% csrf_token %}
-                                        <button class="btn border-0 favourite-btn position-absolute bottom-0 end-0" data-recipe-id="{{ recipe.id }}">
-                                        {% if recipe.id in user_favourites %}
-                                        <i class="bi bi-heart-fill text-danger"></i>
-                                        {% else %}
-                                        <i class="bi bi-heart"></i>
-                                        {% endif %}
-                                        </button>
-                                    </form>
                                 </div>
                             </div>
                         </div>
