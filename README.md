@@ -38,7 +38,7 @@ python seleniumfiles/s_webdriver.py
 ```
 5. If you wish to run Selenium test, you can do so with the following command.
 ```sh
-python seleniumfiles/test_selenium.py
+python seleniumfiles/s_user_story.py
 ```
 
 ## Project documents
