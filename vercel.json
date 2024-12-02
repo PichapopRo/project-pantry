@@ -1,0 +1,19 @@
+{
+    "version": 2,
+    "builds": [
+        {
+        "src": "pantry/wsgi.py",
+        "use": "@vercel/python"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/staticfiles/(.*)",
+            "dest": "/static/$1"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "pantry/wsgi.py"
+        }
+    ]
+}
