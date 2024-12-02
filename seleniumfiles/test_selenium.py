@@ -17,7 +17,6 @@ logging.basicConfig(
 logger = logging.getLogger("testSelenium")
 
 LINK_URL = config('LINK_URL', default=None)
-API_KEY = config('API_KEY', default='fake-secret-key')
 
 if LINK_URL is None:
     logger.info("Starting Django development server.")
@@ -27,8 +26,6 @@ if LINK_URL is None:
 
 service = Service()
 options = webdriver.ChromeOptions()
-if API_KEY == "github-api-testing":
-    options.add_argument('--headless')
 
 driver = webdriver.Chrome(service=service, options=options)
 driver.get(LINK_URL)
@@ -76,9 +73,6 @@ try:
 
 except TimeoutException:
     logger.info("Recipe not found.")
-
-if API_KEY == "github-api-testing":
-    driver.quit()
 
 try:
     while driver.window_handles:
