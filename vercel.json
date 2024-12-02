@@ -10,5 +10,5 @@
             "dest": "pantry/wsgi.py"
         }
     ],
-    "buildCommand": "source build_script.sh"
+    "buildCommand": "./build_script.sh"
 }
