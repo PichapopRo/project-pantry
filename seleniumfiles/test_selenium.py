@@ -34,7 +34,7 @@ driver = webdriver.Chrome(service=service, options=options)
 driver.get(LINK_URL)
 logger.info("Webpage opened successfully.")
 
-wait = WebDriverWait(driver, 20)
+wait = WebDriverWait(driver, 200)
 
 filter_button = wait.until(
     EC.element_to_be_clickable((
