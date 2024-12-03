@@ -9,7 +9,7 @@ This app is created as a part of the [Individual Software Process](https://cpske
 
 # Installation
 Please, follow [Installation Guide](./installation/installation.md)
-
+[utils.py](webpage%2Futils.py)
 # How to run
 You can run the server by following these steps.
 
@@ -32,6 +32,14 @@ python manage.py runserver
 ```sh
 python manage.py runserver --insecure
 ```
+4. If you wish to run Selenium, you can do so with the following command.
+```sh
+python seleniumfiles/s_webdriver.py
+```
+5. If you wish to run Selenium test, you can do so with the following command.
+```sh
+python seleniumfiles/s_user_story.py
+```
 
 ## Project documents
-All of the project documents can be accessed in [Project Wiki](../../wiki/Home).
+All the project documents can be accessed in [Project Wiki](../../wiki/Home).
