@@ -51,7 +51,7 @@
                                     {% endfor %}
                                 </div>
                                 <div class="mb-3">
-                                    <label for="photos" class="form-label">Photos (Support only jpg and png) </label> <br>
+                                    <label for="photos" class="form-label">Photos </label> <br>
                                     <input type="file" id="file-upload" name="photo" accept="image/*" onchange="previewImage(event);"/>
                                     <span class="btn btn-outline-success" onclick="remove_picture()"><i class="bi bi-x"></i></span>
                                     <div class="image-preview-container">
@@ -173,15 +173,22 @@
             });
         });
         function newIngredient() {
-            const inputValue = document.getElementById("ingredients").value;
-            if (inputValue) {
-                ingredients.push(inputValue);
-                document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
-                document.getElementById("ingredientUL").innerHTML += `<li>${inputValue} <span onclick="removeIngredient('${inputValue}')">×</span></li>`;
-                document.getElementById("ingredients").value = '';
-            } else {
-                alert("Add your ingredient first!");
+            const inputValue = document.getElementById("ingredients").value.trim();
+            const ingredientRegex = /^\d+\s+\w+\s+.+$/; // Matches "1 cup white flour"
+
+            if (!inputValue) {
+                alert("Error: Please enter an ingredient!");
+                return;
             }
+            if (!ingredientRegex.test(inputValue)) {
+                alert("Error: Incorrect ingredient format. Expected format: '1 cup white flour'.");
+                return;
+            }
+
+            ingredients.push(inputValue);
+            document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
+            document.getElementById("ingredientUL").innerHTML += `<li>${inputValue} <span onclick="removeIngredient('${inputValue}')">×</span></li>`;
+            document.getElementById("ingredients").value = '';
         }
 
         function newEquipment() {
@@ -197,15 +204,21 @@
         }
 
         function newStep() {
-            const inputValue = document.getElementById("steps").value;
-            if (inputValue) {
-                steps.push(inputValue);
-                document.getElementById("steps_data").value = JSON.stringify(steps);
-                document.getElementById("stepOL").innerHTML += `<li>${inputValue} <span onclick="removeStep('${inputValue}')">×</span></li>`;
-                document.getElementById("steps").value = '';
-            } else {
-                alert("Add your step first!");
+            const inputValue = document.getElementById("steps").value.trim();
+
+            if (!inputValue) {
+                alert("Error: Please enter a step!");
+                return;
             }
+            if (inputValue[0] !== inputValue[0].toUpperCase()) {
+                alert("Error: Each step should start with a capital letter.");
+                return;
+            }
+
+            steps.push(inputValue);
+            document.getElementById("steps_data").value = JSON.stringify(steps);
+            document.getElementById("stepOL").innerHTML += `<li>${inputValue} <span onclick="removeStep('${inputValue}')">×</span></li>`;
+            document.getElementById("steps").value = '';
         }
 
         function removeIngredient(value) {
@@ -277,7 +290,7 @@
             error: function (xhr) {
                 let errorMessage = xhr.responseJSON ? xhr.responseJSON.errors : "An error occurred. Please try again.";
                 alert("Error: " + JSON.stringify(errorMessage));
-                submitButton.prop('disabled', false).text('Submit Recipe');
+                submitButton.prop('enable', true).text('Submit Recipe');
             }
         });
     });
