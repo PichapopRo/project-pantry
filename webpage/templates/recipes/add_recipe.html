@@ -51,7 +51,7 @@
                                     {% endfor %}
                                 </div>
                                 <div class="mb-3">
-                                    <label for="photos" class="form-label">Photos </label> <br>
+                                    <label for="photos" class="form-label">Photos (Support only jpg and png) </label> <br>
                                     <input type="file" id="file-upload" name="photo" accept="image/*" onchange="previewImage(event);"/>
                                     <span class="btn btn-outline-success" onclick="remove_picture()"><i class="bi bi-x"></i></span>
                                     <div class="image-preview-container">
@@ -244,7 +244,23 @@
         $(document).ready(function () {
     $('#recipe-form').on('submit', function (event) {
         event.preventDefault();
+
         const submitButton = $(this).find('button[type="submit"]');
+        const fileInput = $('#file-upload')[0].files[0];
+        if (fileInput) {
+            const allowedTypes = ['image/jpeg', 'image/png'];
+            const maxSize = 10 * 1024 * 1024;
+
+            if (!allowedTypes.includes(fileInput.type)) {
+                alert("Error: Only JPG and PNG files are supported.");
+                return;
+            }
+            if (fileInput.size > maxSize) {
+                alert("Error: File size cannot exceed 10 MB.");
+                return;
+            }
+        }
+
         submitButton.prop('disabled', true).text('Processing...');
 
         let formData = new FormData(this);
@@ -261,7 +277,7 @@
             error: function (xhr) {
                 let errorMessage = xhr.responseJSON ? xhr.responseJSON.errors : "An error occurred. Please try again.";
                 alert("Error: " + JSON.stringify(errorMessage));
-                submitButton.prop('enable', true).text('Submit Recipe');
+                submitButton.prop('disabled', false).text('Submit Recipe');
             }
         });
     });
