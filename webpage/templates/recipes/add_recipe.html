@@ -90,7 +90,6 @@
                                             <i class="bi bi-plus"></i> Add ingredient
                                         </button>
                                     </div>
-                                    <div id="ingredient-error" class="text-danger"></div>
                                     <ul id="ingredientUL"></ul>
                                 </div>
                                 <!-- Equipment Section -->
@@ -122,7 +121,6 @@
                                             <i class="bi bi-plus"></i> Add step
                                         </button>
                                     </div>
-                                    <div id="step-error" class="text-danger"></div>
                                     <ol id="stepOL"></ol>
                                 </div>
                                     <button type="submit" class="btn btn-success bottom-0 end-0">Submit Recipe</button>
@@ -162,24 +160,11 @@
         document.querySelectorAll('.cuisine-btn').forEach(button => {
             button.addEventListener('click', function () {
                 const cuisineName = this.getAttribute('data-cuisine');
-                if (this.classList.contains('btn-success')) {
+                if (selectedCuisines.includes(cuisineName)) {
+                    selectedCuisines.splice(selectedCuisines.indexOf(cuisineName), 1);
                     this.classList.remove('btn-success');
                     this.classList.add('btn-outline-secondary');
-                    const index = selectedCuisines.indexOf(cuisineName);
-                    if (index > -1) {
-                        selectedCuisines.splice(index, 1);
-                    }
                 } else {
-                    const currentlySelectedButton = document.querySelector('.cuisine-btn.btn-success');
-                    if (currentlySelectedButton) {
-                        currentlySelectedButton.classList.remove('btn-success');
-                        currentlySelectedButton.classList.add('btn-outline-secondary');
-                        const previousCuisineName = currentlySelectedButton.getAttribute('data-cuisine');
-                        const index = selectedCuisines.indexOf(previousCuisineName);
-                        if (index > -1) {
-                            selectedCuisines.splice(index, 1);
-                        }
-                    }
                     selectedCuisines.push(cuisineName);
                     this.classList.add('btn-success');
                     this.classList.remove('btn-outline-secondary');
@@ -195,92 +180,52 @@
                 document.getElementById("ingredientUL").innerHTML += `<li>${inputValue} <span onclick="removeIngredient('${inputValue}')">×</span></li>`;
                 document.getElementById("ingredients").value = '';
             } else {
-                selectedDiets.push(dietName);
-                this.classList.add('btn-success');
-                this.classList.remove('btn-outline-secondary');
+                alert("Add your ingredient first!");
             }
-            document.getElementById('diets_data').value = JSON.stringify(selectedDiets);
-        });
-    });
-
-    function validateIngredientFormat(input) {
-        const regex = /^\d+(\.\d+)?\s+\w+\s+.+$/;
-        return regex.test(input);
-    }
-
-    function validateStepFormat(input) {
-    const regex = /^[A-Z].*$/;
-    return regex.test(input);
-    }
-
-
-    function newIngredient() {
-        const inputValue = document.getElementById("ingredients").value.trim();
-        if (!inputValue) {
-            alert("Add your ingredient first!");
-            return;
         }
-        if (!validateIngredientFormat(inputValue)) {
-            alert("Invalid format! Use 'Amount Unit Name' (e.g., '1 cup white flour').");
-            return;
+
+        function newEquipment() {
+            const inputValue = document.getElementById("equipment").value;
+            if (inputValue) {
+                equipment.push(inputValue);
+                document.getElementById("equipment_data").value = JSON.stringify(equipment);
+                document.getElementById("equipmentUL").innerHTML += `<li>${inputValue} <span onclick="removeEquipment('${inputValue}')">×</span></li>`;
+                document.getElementById("equipment").value = '';
+            } else {
+                alert("Add your equipment first!");
+            }
         }
-        ingredients.push(inputValue);
-        document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
-        document.getElementById("ingredientUL").innerHTML += `<li>${inputValue} <span onclick="removeIngredient('${inputValue}')">×</span></li>`;
-        document.getElementById("ingredients").value = '';
-    }
 
-    function newEquipment() {
-        const inputValue = document.getElementById("equipment").value.trim();
-        if (!inputValue) {
-            alert("Add your equipment first!");
-            return;
+        function newStep() {
+            const inputValue = document.getElementById("steps").value;
+            if (inputValue) {
+                steps.push(inputValue);
+                document.getElementById("steps_data").value = JSON.stringify(steps);
+                document.getElementById("stepOL").innerHTML += `<li>${inputValue} <span onclick="removeStep('${inputValue}')">×</span></li>`;
+                document.getElementById("steps").value = '';
+            } else {
+                alert("Add your step first!");
+            }
         }
-        equipment.push(inputValue);
-        document.getElementById("equipment_data").value = JSON.stringify(equipment);
-        document.getElementById("equipmentUL").innerHTML += `<li>${inputValue} <span onclick="removeEquipment('${inputValue}')">×</span></li>`;
-        document.getElementById("equipment").value = '';
-    }
 
-    function newStep() {
-    const inputValue = document.getElementById("steps").value.trim();
-    if (!inputValue) {
-        alert("Add your step first!");
-        return;
-    }
-    if (!validateStepFormat(inputValue)) {
-        alert("Invalid format! Ensure your step starts with a capital letter (e.g., 'Mix the flour with chocolate powder').");
-        return;
-    }
-    steps.push(inputValue);
-    document.getElementById("steps_data").value = JSON.stringify(steps);
-    const escapedValue = inputValue.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    document.getElementById("stepOL").innerHTML += `<li>${inputValue} <span onclick="removeStep('${escapedValue}')">×</span></li>`;
-    document.getElementById("steps").value = '';
-    }
+        function removeIngredient(value) {
+            ingredients.splice(ingredients.indexOf(value), 1);
+            document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
+            document.getElementById("ingredientUL").innerHTML = ingredients.map(ing => `<li>${ing} <span onclick="removeIngredient('${ing}')">×</span></li>`).join('');
+        }
 
-    function removeIngredient(value) {
-        ingredients.splice(ingredients.indexOf(value), 1);
-        document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
-        document.getElementById("ingredientUL").innerHTML = ingredients.map(ing => `<li>${ing} <span onclick="removeIngredient('${ing}')">×</span></li>`).join('');
-    }
+        function removeEquipment(value) {
+            equipment.splice(equipment.indexOf(value), 1);
+            document.getElementById("equipment_data").value = JSON.stringify(equipment);
+            document.getElementById("equipmentUL").innerHTML = equipment.map(eq => `<li>${eq} <span onclick="removeEquipment('${eq}')">×</span></li>`).join('');
+        }
 
-    function removeEquipment(value) {
-        equipment.splice(equipment.indexOf(value), 1);
-        document.getElementById("equipment_data").value = JSON.stringify(equipment);
-        document.getElementById("equipmentUL").innerHTML = equipment.map(eq => `<li>${eq} <span onclick="removeEquipment('${eq}')">×</span></li>`).join('');
-    }
-
-    function removeStep(value) {
-    const unescapedValue = value.replace(/\\'/g, "'").replace(/&quot;/g, '"');
-    steps.splice(steps.indexOf(unescapedValue), 1);
-    document.getElementById("steps_data").value = JSON.stringify(steps);
-    document.getElementById("stepOL").innerHTML = steps.map(stp => {
-        const escapedStep = stp.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        return `<li>${stp} <span onclick="removeStep('${escapedStep}')">×</span></li>`;
-    }).join('');
-}
-    document.addEventListener('keydown', function (event) {
+        function removeStep(value) {
+            steps.splice(steps.indexOf(value), 1);
+            document.getElementById("steps_data").value = JSON.stringify(steps);
+            document.getElementById("stepOL").innerHTML = steps.map(stp => `<li>${stp} <span onclick="removeStep('${stp}')">×</span></li>`).join('');
+        }
+        document.addEventListener('keydown', function (event) {
         if (event.key === 'Enter') {
             event.preventDefault();
 
@@ -294,34 +239,38 @@
             }
         }
     });
-    $(document).ready(function () {
-        $('#recipe-form').on('submit', function (event) {
-            event.preventDefault();
-            const submitButton = $(this).find('button[type="submit"]');
-            submitButton.prop('disabled', true).text('Processing...');
 
-            let formData = new FormData(this);
-            $.ajax({
-                type: 'POST',
-                url: $(this).attr('action'),
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-                    alert("Recipe submitted successfully!");
-                    window.location.href = '/recipes/';
-                },
-                error: function (xhr) {
-                    let errorMessage = xhr.responseJSON ? xhr.responseJSON.errors : "An error occurred. Please try again.";
-                    alert("Error: " + JSON.stringify(errorMessage));
-                    submitButton.prop('disabled', false).text('Submit Recipe');
-                }
-            });
+
+        $(document).ready(function () {
+    $('#recipe-form').on('submit', function (event) {
+        event.preventDefault();
+        const submitButton = $(this).find('button[type="submit"]');
+        submitButton.prop('disabled', true).text('Processing...');
+
+        let formData = new FormData(this);
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                alert("Recipe submitted successfully!");
+                window.location.href = '/recipes/';
+            },
+            error: function (xhr) {
+                let errorMessage = xhr.responseJSON ? xhr.responseJSON.errors : "An error occurred. Please try again.";
+                alert("Error: " + JSON.stringify(errorMessage));
+                submitButton.prop('enable', true).text('Submit Recipe');
+            }
         });
     });
-</script>
+});
 
+    </script>
 </form>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
