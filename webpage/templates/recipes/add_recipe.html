@@ -260,6 +260,18 @@
 
         const submitButton = $(this).find('button[type="submit"]');
         const fileInput = $('#file-upload')[0].files[0];
+        if (ingredients.length === 0) {
+            alert("Error: Please add at least one ingredient.");
+            return;
+        }
+        if (equipment.length === 0) {
+            alert("Error: Please add at least one piece of equipment.");
+            return;
+        }
+        if (steps.length === 0) {
+            alert("Error: Please add at least one step.");
+            return;
+        }
         if (fileInput) {
             const allowedTypes = ['image/jpeg', 'image/png'];
             const maxSize = 10 * 1024 * 1024;
