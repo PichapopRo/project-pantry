@@ -4,8 +4,6 @@ def create_default_cuisine(apps, schema_editor):
     Cuisine = apps.get_model('webpage', 'Cuisine')
     Cuisine.objects.bulk_create([
         Cuisine(name="Japanese"),
-        Cuisine(name="Vietnamese"),
-        Cuisine(name="Chinese"),
         Cuisine(name="Korean"),
         Cuisine(name="Irish"),
     ])
