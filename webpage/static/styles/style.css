@@ -109,9 +109,18 @@ p {
     "wdth" 100;
 }
 img {
-    max-width: 600px;
-    max-height: 550px;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    width: auto;
+    height: auto;
+}
+.image-container {
+    width: 700px;
+    height: 460px;
     overflow: hidden;
+    justify-content: center;
+    display: flex;
 }
 .card-img-top{
     width: 100%;
