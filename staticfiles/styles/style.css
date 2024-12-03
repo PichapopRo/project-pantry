@@ -109,6 +109,8 @@ p {
     "wdth" 100;
 }
 img {
+    max-width: 600px;
+    max-height: 550px;
     overflow: hidden;
 }
 .card-img-top{
@@ -153,4 +155,9 @@ img {
 .recipe-description
 {
     overflow-y: scroll;
+    height: 200px;
+    width: auto;
+}
+.recipe-description::-webkit-scrollbar {
+  display: none;
 }
