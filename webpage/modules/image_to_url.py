@@ -27,4 +27,4 @@ def upload_image_to_imgur(image_file, client_id):
         return response.json()['data']['link']
     else:
         logger.error(f"Error uploading image: {response.json()}")
-        return None
+        raise FileNotFoundError
