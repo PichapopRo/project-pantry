@@ -40,8 +40,7 @@ class UploadImageToImgurTest(TestCase):
         mock_post.return_value = mock_response
         image_file = b'some_image_data'
         client_id = 'test_client_id'
-        result = upload_image_to_imgur(image_file, client_id)
-        self.assertIsNone(result)
+        self.assertRaises(FileNotFoundError, upload_image_to_imgur, image_file, client_id)
         mock_post.assert_called_once_with(
             'https://api.imgur.com/3/image',
             headers={'Authorization': 'Client-ID test_client_id'},
