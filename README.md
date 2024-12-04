@@ -32,13 +32,9 @@ python manage.py runserver
 ```sh
 python manage.py runserver --insecure
 ```
-4. If you wish to run Selenium, you can do so with the following command.
+4. If you wish to run Selenium test, you can do so with the following command.
 ```sh
 python seleniumfiles/s_webdriver.py
-```
-5. If you wish to run Selenium test, you can do so with the following command.
-```sh
-python seleniumfiles/s_user_story.py
 ```
 
 ## Project documents
