@@ -173,15 +173,22 @@
             });
         });
         function newIngredient() {
-            const inputValue = document.getElementById("ingredients").value;
-            if (inputValue) {
-                ingredients.push(inputValue);
-                document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
-                document.getElementById("ingredientUL").innerHTML += `<li>${inputValue} <span onclick="removeIngredient('${inputValue}')">×</span></li>`;
-                document.getElementById("ingredients").value = '';
-            } else {
-                alert("Add your ingredient first!");
+            const inputValue = document.getElementById("ingredients").value.trim();
+            const ingredientRegex = /^\d+\s+\w+\s+.+$/;
+
+            if (!inputValue) {
+                alert("Error: Please enter an ingredient!");
+                return;
             }
+            if (!ingredientRegex.test(inputValue)) {
+                alert("Error: Incorrect ingredient format. Expected format: '1 cup white flour'.");
+                return;
+            }
+
+            ingredients.push(inputValue);
+            document.getElementById("ingredients_data").value = JSON.stringify(ingredients);
+            document.getElementById("ingredientUL").innerHTML += `<li>${inputValue} <span onclick="removeIngredient('${inputValue}')">×</span></li>`;
+            document.getElementById("ingredients").value = '';
         }
 
         function newEquipment() {
@@ -197,15 +204,21 @@
         }
 
         function newStep() {
-            const inputValue = document.getElementById("steps").value;
-            if (inputValue) {
-                steps.push(inputValue);
-                document.getElementById("steps_data").value = JSON.stringify(steps);
-                document.getElementById("stepOL").innerHTML += `<li>${inputValue} <span onclick="removeStep('${inputValue}')">×</span></li>`;
-                document.getElementById("steps").value = '';
-            } else {
-                alert("Add your step first!");
+            const inputValue = document.getElementById("steps").value.trim();
+
+            if (!inputValue) {
+                alert("Error: Please enter a step!");
+                return;
             }
+            if (inputValue[0] !== inputValue[0].toUpperCase()) {
+                alert("Error: Each step should start with a capital letter.");
+                return;
+            }
+
+            steps.push(inputValue);
+            document.getElementById("steps_data").value = JSON.stringify(steps);
+            document.getElementById("stepOL").innerHTML += `<li>${inputValue} <span onclick="removeStep('${inputValue}')">×</span></li>`;
+            document.getElementById("steps").value = '';
         }
 
         function removeIngredient(value) {
@@ -244,7 +257,35 @@
         $(document).ready(function () {
     $('#recipe-form').on('submit', function (event) {
         event.preventDefault();
+
         const submitButton = $(this).find('button[type="submit"]');
+        const fileInput = $('#file-upload')[0].files[0];
+        if (ingredients.length === 0) {
+            alert("Error: Please add at least one ingredient.");
+            return;
+        }
+        if (equipment.length === 0) {
+            alert("Error: Please add at least one piece of equipment.");
+            return;
+        }
+        if (steps.length === 0) {
+            alert("Error: Please add at least one step.");
+            return;
+        }
+        if (fileInput) {
+            const allowedTypes = ['image/jpeg', 'image/png'];
+            const maxSize = 10 * 1024 * 1024;
+
+            if (!allowedTypes.includes(fileInput.type)) {
+                alert("Error: Only JPG and PNG files are supported.");
+                return;
+            }
+            if (fileInput.size > maxSize) {
+                alert("Error: File size cannot exceed 10 MB.");
+                return;
+            }
+        }
+
         submitButton.prop('disabled', true).text('Processing...');
 
         let formData = new FormData(this);

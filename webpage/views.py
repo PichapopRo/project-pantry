@@ -2,6 +2,7 @@
 from decimal import Decimal
 import re
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views import generic
 from pantry import settings
@@ -291,18 +292,27 @@ class AddRecipeView(generic.CreateView):
         :return JsonResponse: A JSON response indicating the success
         of the recipe creation.
         """
-        builder = NormalRecipeBuilder(name=form.cleaned_data['name'], user=self.request.user)
-        self.process_detail(builder, form)
-        self.process_image(builder, form)
-        self.process_ingredients(builder)
-        self.process_diets(builder)
-        self.process_equipments(builder)
-        self.process_steps(builder)
-        self.process_nutrition(builder)
-        builder.build_difficulty()
-        self.process_status(builder)
-        self.process_cuisine(builder)
-        return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
+        try:
+            with transaction.atomic():
+                builder = NormalRecipeBuilder(name=form.cleaned_data['name'], user=self.request.user)
+                self.process_detail(builder, form)
+                self.process_image(builder, form)
+                self.process_ingredients(builder)
+                self.process_diets(builder)
+                self.process_equipments(builder)
+                self.process_steps(builder)
+                self.process_nutrition(builder)
+                builder.build_difficulty()
+                self.process_status(builder)
+                self.process_cuisine(builder)
+                builder.build_recipe().save()
+
+            return JsonResponse({'message': 'Recipe added successfully!'}, status=201)
+        except Exception as e:
+            logger.error(f"Error occurred while adding recipe: {e}")
+            return JsonResponse(
+                {'error': 'An error occurred while adding the recipe. Please check your input.'},
+                status=400)
 
     def process_detail(self, builder: NormalRecipeBuilder, form):
         """
