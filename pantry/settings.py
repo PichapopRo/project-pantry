@@ -103,8 +103,8 @@ else:
             'NAME': config("DB_NAME"), 
             'USER': config("DB_USERNAME"),
             'PASSWORD': config("DB_PASSWORD"),
-            'HOST': 'aws-0-ap-southeast-1.pooler.supabase.com',
-            'PORT': '6543',
+            'HOST': config("DB_HOST", default='localhost'),
+            'PORT': config("DB_PORT", default='5432'),
         }
     }
 
